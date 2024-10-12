@@ -1,0 +1,17 @@
+.root-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  
+    .sidenav-container {
+      flex-grow: 1;
+      mat-sidenav {
+        width: 200px;
+        border-radius: 0%;
+        border-right-width: 1px;
+        border-right-color: #74777f;
+      }
+    }
+  }
+  

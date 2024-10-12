@@ -1,0 +1,394 @@
+<div class="root-container">
+  <div class="header-container">
+    <img class="logo-image" src="assets/icons/angularGradient.png" />
+    <h3>Create an account</h3>
+  </div>
+
+  <mat-stepper
+    [orientation]="isMdBreakpoint ? 'horizontal' : 'vertical'"
+    class="stepper"
+    linear="true"
+    #stepper
+  >
+    <mat-step [stepControl]="identityFormGroup">
+      <form [formGroup]="identityFormGroup" class="form-container">
+        <ng-template matStepLabel>Account identity</ng-template>
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" required />
+          <mat-error *ngIf="identityFormGroup.get('email')?.hasError('email')"
+            >Invalid email format</mat-error
+          >
+          <mat-error *ngIf="identityFormGroup.get('email')?.hasError('required')"
+            >Email is required</mat-error
+          >
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" required />
+          <mat-error *ngIf="identityFormGroup.get('password')?.hasError('required')"
+            >Password is required</mat-error
+          >
+          <mat-error *ngIf="identityFormGroup.get('password')?.hasError('minlength')"
+            >Password must be at least 6 characters</mat-error
+          >
+        </mat-form-field>
+      </form>
+      <div>
+        <button mat-button [disabled]="identityFormGroup.invalid" matStepperNext>
+          Next
+        </button>
+      </div>
+    </mat-step>
+    <mat-step [stepControl]="personalInfoFormGroup">
+      <form [formGroup]="personalInfoFormGroup" class="form-container">
+        <ng-template matStepLabel>Personal information</ng-template>
+        <div class="row-group">
+          <mat-form-field>
+            <mat-label>First name</mat-label>
+            <input matInput class="item" formControlName="firstName" required />
+            <mat-error
+              *ngIf="personalInfoFormGroup.get('firstName')?.hasError('required')"
+              >Required</mat-error
+            >
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Last name</mat-label>
+            <input matInput class="item" formControlName="lastName" required />
+            <mat-error *ngIf="personalInfoFormGroup.get('lastName')?.hasError('required')"
+              >Required</mat-error
+            >
+          </mat-form-field>
+        </div>
+        <mat-form-field>
+          <mat-label>Date of birth</mat-label>
+          <input matInput formControlName="dateOfBirth" [matDatepicker]="picker" />
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker touchUi #picker></mat-datepicker>
+
+          <mat-error
+            *ngIf="personalInfoFormGroup.get('dateOfBirth')?.hasError('required')"
+            >Required field
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Phone number</mat-label>
+          <input matInput formControlName="phoneNumber" />
+          <mat-error *ngIf="personalInfoFormGroup.get('phoneNumber')?.hasError('pattern')"
+            >Invalid phone number</mat-error
+          >
+        </mat-form-field>
+        <mat-form-field>
+          <mat-select formControlName="gender" required>
+            <mat-option>-- None --</mat-option>
+            <mat-option *ngFor="let gender of genders" [value]="gender.key">{{
+              gender.value
+            }}</mat-option>
+          </mat-select>
+          <mat-label>Gender</mat-label>
+          <mat-error>Required field</mat-error>
+        </mat-form-field>
+      </form>
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-button matStepperNext [disabled]="personalInfoFormGroup.invalid">
+          Next
+        </button>
+      </div>
+    </mat-step>
+    <mat-step optional>
+      <mat-checkbox [checked]="isTherapist" (change)="onTherapistCheckboxChange()">
+        Register for therapist account
+      </mat-checkbox>
+      <div class="split-container">
+        <div class="item-container">
+          <ng-template matStepLabel>Therpist registration</ng-template>
+          <mat-form-field>
+            <mat-label>Biography</mat-label>
+            <textarea
+              [formControl]="therapistBioForm"
+              matInput
+              placeholder="Informative information about you"
+            ></textarea>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Issue tags</mat-label>
+            <mat-chip-grid #chipGrid>
+              @for (issueTag of issueTags(); track $index) {
+                <mat-chip-row (removed)="remove(issueTag.id)">
+                  {{ issueTag.name }}
+                  <button matChipRemove>
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+            </mat-chip-grid>
+            <input
+              #chipInput
+              placeholder="New tag..."
+              [(ngModel)]="currentIssueTag"
+              [matChipInputFor]="chipGrid"
+              [matAutocomplete]="auto"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [disabled]="!isTherapist"
+            />
+            <mat-hint *ngIf="!isTherapist">Disabled</mat-hint>
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+              @for (item of filteredIssueTags(); track item.id) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+          <mat-divider></mat-divider>
+          <form [formGroup]="therapistEducationFormGroup" class="section-container">
+            <h6>Education</h6>
+            <mat-form-field>
+              <mat-label>Institude</mat-label>
+              <input matInput formControlName="institude" />
+              <mat-error
+                *ngIf="therapistEducationFormGroup.get('institude')?.hasError('required')"
+                >Required field</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Degree</mat-label>
+              <input matInput formControlName="degree" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Major</mat-label>
+              <input matInput formControlName="degree" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Start - end time</mat-label>
+              <mat-date-range-input
+                [formGroup]="therapistEducationFormGroup"
+                [rangePicker]="eduPicker"
+              >
+                <input matStartDate formControlName="startDate" placeholder="From" />
+                <input matEndDate formControlName="endDate" placeholder="To" />
+              </mat-date-range-input>
+              <mat-hint>MM/DD/YYYY – MM/DD/YYYY (optional)</mat-hint>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="eduPicker"
+                [disabled]="!isTherapist"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #eduPicker></mat-date-range-picker>
+            </mat-form-field>
+            <button
+              mat-button
+              class="submit"
+              (click)="onAddEducationClick()"
+              [disabled]="!isTherapist || therapistEducationFormGroup.invalid"
+            >
+              Add education info
+            </button>
+          </form>
+          <mat-divider></mat-divider>
+          <form [formGroup]="therapistExperienceFormGroup" class="section-container">
+            <h6>Experience</h6>
+            <mat-form-field>
+              <mat-label>Organization</mat-label>
+              <input matInput formControlName="organization" required />
+              <mat-error
+                *ngIf="
+                  therapistExperienceFormGroup.get('organization')?.hasError('required')
+                "
+                >Required field</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Position</mat-label>
+              <input matInput formControlName="position" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Description</mat-label>
+              <textarea matInput formControlName="description"></textarea>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Start - end time</mat-label>
+              <mat-date-range-input
+                [formGroup]="therapistExperienceFormGroup"
+                [rangePicker]="expPicker"
+              >
+                <input matStartDate formControlName="startDate" placeholder="From" />
+                <input matEndDate formControlName="endDate" placeholder="To" />
+              </mat-date-range-input>
+              <mat-hint>MM/DD/YYYY – MM/DD/YYYY (optional)</mat-hint>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="expPicker"
+                [disabled]="!isTherapist"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #expPicker></mat-date-range-picker>
+            </mat-form-field>
+            <button
+              mat-button
+              class="submit"
+              (click)="onAddExperienceClick()"
+              [disabled]="!isTherapist || therapistExperienceFormGroup.invalid"
+            >
+              Add experience info
+            </button>
+          </form>
+          <mat-divider></mat-divider>
+          <form [formGroup]="therapistCertificationFormGroup" class="section-container">
+            <h6>Certification</h6>
+            <mat-form-field>
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" />
+              <mat-error
+                *ngIf="therapistCertificationFormGroup.get('name')?.hasError('required')"
+                >Required field</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Issuing organization</mat-label>
+              <input matInput formControlName="issuingOrganization" required />
+              <mat-error
+                *ngIf="therapistCertificationFormGroup.get('name')?.hasError('required')"
+                >Required field</mat-error
+              >
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Issued - expirated date</mat-label>
+              <mat-date-range-input
+                [formGroup]="therapistCertificationFormGroup"
+                [rangePicker]="certPicker"
+              >
+                <input matStartDate formControlName="dateIssued" placeholder="From" />
+                <input matEndDate formControlName="expirationDate" placeholder="To" />
+              </mat-date-range-input>
+              <mat-hint>MM/DD/YYYY – MM/DD/YYYY (optional)</mat-hint>
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="certPicker"
+                [disabled]="!isTherapist"
+              ></mat-datepicker-toggle>
+              <mat-date-range-picker #certPicker></mat-date-range-picker>
+            </mat-form-field>
+            <button
+              mat-button
+              class="submit"
+              (click)="onAddCertificationClick()"
+              [disabled]="!isTherapist || therapistCertificationFormGroup.invalid"
+            >
+              Add certification
+            </button>
+          </form>
+        </div>
+        <div class="preview-item-container">
+          <h4>Registration preview</h4>
+          @if (isTherapist) {
+            <h6>Education</h6>
+            <mat-list>
+              @for (education of educations(); track $index) {
+                <mat-list-item>
+                  <mat-icon matListItemIcon>school</mat-icon>
+                  <span matListItemTitle>{{ education.institution }}</span>
+                  <span matListItemLine *ngIf="education.major" matListItemLine
+                    >{{ education.major }}
+                    <span *ngIf="education.degree">, {{ education.degree }}</span></span
+                  >
+                  <span matListItemLine
+                    >{{ education.startDate | date: 'MM/dd/yyyy' }} -
+                    {{
+                      education.endDate
+                        ? (education.endDate | date: 'MM/dd/yyyy')
+                        : 'present'
+                    }}</span
+                  >
+                  <button
+                    mat-button
+                    class="warn-button"
+                    (click)="onRemoveEducationClick($index)"
+                  >
+                    Delete
+                  </button>
+                </mat-list-item>
+              }
+            </mat-list>
+
+            <h6>Experience</h6>
+            <mat-list>
+              @for (experience of experiences(); track $index) {
+                <mat-list-item>
+                  <mat-icon matListItemIcon>work</mat-icon>
+                  <span matListItemTitle>{{ experience.organization }}</span>
+                  <span matListItemLine matListItemLine>{{ experience.position }}</span>
+                  <span matListItemLine
+                    >{{ experience.startDate | date: 'MM/dd/yyyy' }} -
+                    {{
+                      experience.endDate
+                        ? (experience.endDate | date: 'MM/dd/yyyy')
+                        : 'present'
+                    }}</span
+                  >
+                  <button
+                    mat-button
+                    class="warn-button"
+                    (click)="onRemoveEducationClick($index)"
+                  >
+                    Delete
+                  </button>
+                </mat-list-item>
+              }
+            </mat-list>
+
+            <h6>Certification</h6>
+            <mat-list>
+              @for (certification of certifications(); track $index) {
+                <mat-list-item>
+                  <mat-icon matListItemIcon>workspace_premium</mat-icon>
+                  <span matListItemTitle>{{ certification.name }}</span>
+                  <span
+                    matListItemLine
+                    *ngIf="certification.issuingOrganization"
+                    matListItemLine
+                    >{{ certification.issuingOrganization }}
+                  </span>
+                  <span matListItemLine
+                    >{{ certification.dateIssued | date: 'MM/dd/yyyy' }}
+                    {{
+                      certification.expirationDate
+                        ? ' - ' + (certification.expirationDate | date: 'MM/dd/yyyy')
+                        : ''
+                    }}</span
+                  >
+                  <button
+                    mat-button
+                    class="warn-button"
+                    (click)="onRemoveCertificationClick($index)"
+                  >
+                    Delete
+                  </button>
+                </mat-list-item>
+              }
+            </mat-list>
+          } @else {
+            ⚆_⚆
+          }
+        </div>
+      </div>
+      @if (error) {
+        <app-error-display [error]="error!!"></app-error-display>
+      }
+      <div>
+        <button mat-button matStepperPrevious>Back</button>
+        <button
+          mat-button
+          (click)="onRegisterClick(stepper)"
+          [disabled]="!registerable()"
+        >
+          Register
+        </button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Done</ng-template>
+      <p>You are now done.</p>
+      <button mat-button (click)="onFinishClick()">Navigate back to login</button>
+    </mat-step>
+  </mat-stepper>
+</div>

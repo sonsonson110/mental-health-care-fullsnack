@@ -1,0 +1,16 @@
+@use '@angular/material' as mat;
+@import '../../../../styles.scss';
+
+
+.divider {
+  margin: 0.5rem 0;
+}
+.error-title {
+  color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+}
+.error-detail {
+  color: #2d3748;
+}
+.error-message {
+  color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+}

@@ -1,0 +1,10 @@
+<div class="root-container">
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav mode="side" [opened]="isSidenavOpen">
+        <app-ai-chat-history-side-nav></app-ai-chat-history-side-nav>
+      </mat-sidenav>
+      <mat-sidenav-content class="content-container">
+        <router-outlet></router-outlet>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>

@@ -1,0 +1,55 @@
+<div class="root-container">
+  @if (isLoggingIn) {
+    <mat-progress-bar class="progress-bar" mode="indeterminate"></mat-progress-bar>
+  }
+  <div class="content-container">
+    <!-- Logo -->
+    <img class="logo-image" src="assets/icons/angularGradient.png" />
+    <!-- The login section -->
+    <div class="login-section">
+      <!-- Left/Top section -->
+      <div class="first-section">
+        <h2>Sign in</h2>
+        <p>Use your account</p>
+      </div>
+
+      <!-- Right/Middle section -->
+      <div class="second-section">
+        <form [formGroup]="loginForm" class="form">
+          <mat-form-field appearance="outline" class="text-input-item">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')"
+              >Email is required</mat-error
+            >
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="text-input-item">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" />
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')"
+              >Email is required</mat-error
+            >
+            <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')"
+              >Password must be at least 6 characters</mat-error
+            >
+          </mat-form-field>
+
+          @if (serverError) {
+            <mat-error>{{ serverError }}</mat-error>
+          }
+          <div class="actions">
+            <a mat-button>Forgot password?</a>
+            <button mat-flat-button type="submit" (click)="onSubmit()">Log in</button>
+          </div>
+        </form>
+
+        <div mat-label-medium class="register-section">
+          <span>Don't have an account?</span>&nbsp;
+          <span class="register-link" (click)="onRegisterClick()"
+            ><strong>Create one</strong></span
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

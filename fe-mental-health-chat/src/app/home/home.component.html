@@ -1,0 +1,11 @@
+<div class="root-container">
+    <app-toolbar (toggleMenu)="toggleMenu()"></app-toolbar>
+    <mat-sidenav-container class="sidenav-container">
+      <mat-sidenav class="left-nav-container"  [mode]="getSidenavMode()" [opened]="isMdOrLargerScreen">
+        <app-left-side-nav></app-left-side-nav>
+      </mat-sidenav>
+      <mat-sidenav-content class="content-container">
+        <router-outlet></router-outlet>
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>

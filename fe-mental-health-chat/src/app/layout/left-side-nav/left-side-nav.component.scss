@@ -1,0 +1,12 @@
+@use '@angular/material' as mat;
+@import '../../../styles.scss';
+
+.root-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+
+  .nav-items-container {
+    flex-grow: 1;
+  }
+}

@@ -1,0 +1,19 @@
+<div class="error-container">
+  <mat-divider class="divider"></mat-divider>
+  <h6 class="error-title">{{ error.title }}</h6>
+  <p class="error-detail">{{ error.detail }}</p>
+  <div *ngIf="error.errors">
+    <p>Errors:</p>
+    <mat-list>
+      @for (field of getErrorFields(); track $index) {
+        <mat-list-item>
+          <mat-icon matListItemIcon>error</mat-icon>
+          <span matListItemTitle>{{ field }}</span>
+          @for(message of error.errors[field]; track $index) {
+            <span matListItemLine class="error-message">{{ message }}</span>
+          }
+        </mat-list-item>
+      }
+    </mat-list>
+  </div>
+</div>
