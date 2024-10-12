@@ -15,15 +15,15 @@
     @if (isLoading) {
       <mat-spinner class="spinner" diameter="30"></mat-spinner>
     } @else {
-      <mat-action-list class="nav-items-container">
+      <mat-nav-list class="nav-items-container">
         @if (aiChatHistories$ | async; as aiChatHistories) {
           @for (item of aiChatHistories; track item.id) {
-            <mat-list-item (click)="onNavItemClick(item.id)">
+            <mat-list-item (click)="onNavItemClick(item.id)" [activated]="isMatchCurrentBrowserUrl(item.id)">
               <span matListItemTitle class="mat-body-medium title">{{ item.title }}</span>
             </mat-list-item>
           }
         }
-      </mat-action-list>
+      </mat-nav-list>
     }
   </div>
 </div>

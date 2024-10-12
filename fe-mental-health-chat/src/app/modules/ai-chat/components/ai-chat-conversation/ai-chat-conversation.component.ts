@@ -46,7 +46,7 @@ import { MarkdownModule } from 'ngx-markdown';
     MatInputModule,
     ReactiveFormsModule,
     MatProgressSpinnerModule,
-    MarkdownModule
+    MarkdownModule,
   ],
   templateUrl: './ai-chat-conversation.component.html',
   styleUrl: './ai-chat-conversation.component.scss',
@@ -151,18 +151,21 @@ export class AiChatConversationComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.userTypingMessage.enable();
         // data may not be rendered yet, so wait a bit before scrolling to bottom
-        setTimeout(() => this.scrollToBottom(), 100);
+        this.scrollToBottom()
       });
   }
 
   private scrollToBottom(): void {
-    try {
-      this.cdr.detectChanges();
-      this.messagesContainer.nativeElement.scrollTop =
-        this.messagesContainer.nativeElement.scrollHeight;
-    } catch (err) {
-      console.error('Could not scroll to bottom:', err);
-    }
+    const waitTimeInMillis = 30;
+    setTimeout(() => {
+      try {
+        this.cdr.detectChanges();
+        this.messagesContainer.nativeElement.scrollTop =
+          this.messagesContainer.nativeElement.scrollHeight;
+      } catch (err) {
+        console.error('Could not scroll to bottom:', err);
+      }
+    }, waitTimeInMillis);
   }
 
   onSidenavClick() {
@@ -189,14 +192,14 @@ export class AiChatConversationComponent implements OnInit, OnDestroy {
       };
       this.messagesSubject.next([...this.messagesSubject.value, userMessage]);
       this.isSending = true;
-      setTimeout(() => this.scrollToBottom(), 100);
+      this.scrollToBottom();
 
       this.messagesService
         .createChatbotMessage(this.conversationId!, this.userTypingMessage.value!)
         .pipe(
           finalize(() => {
             this.isSending = false;
-            setTimeout(() => this.scrollToBottom(), 100);
+            this.scrollToBottom();
           })
         )
         .subscribe({

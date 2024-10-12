@@ -1,18 +1,18 @@
 <div class="root-container">
-  <mat-action-list class="nav-items-container">
+  <mat-nav-list class="nav-items-container">
     @for (baseNavItem of baseNavItems; track $index) {
-      <mat-list-item (click)="onClick(baseNavItem.route)">
+      <mat-list-item (click)="onClick(baseNavItem.route)" [activated]="isMatchCurrentBrowserUrl(baseNavItem.route)">
         <mat-icon matListItemIcon>{{ baseNavItem.iconName }}</mat-icon>
         <span matListItemTitle>{{ baseNavItem.displayName }}</span>
       </mat-list-item>
     }
-    <mat-divider></mat-divider>
+    @if (hasTherapistRole()) {<mat-divider></mat-divider>
     @for (therapistNavItem of therapistNavItems; track $index) {
-      <mat-list-item (click)="onClick(therapistNavItem.route)">
+      <mat-list-item (click)="onClick(therapistNavItem.route)" [activated]="isMatchCurrentBrowserUrl(therapistNavItem.route)">
         <mat-icon matListItemIcon>{{ therapistNavItem.iconName }}</mat-icon>
         <span matListItemTitle>{{ therapistNavItem.displayName }}</span>
       </mat-list-item>
-    }
-  </mat-action-list>
+    }}
+  </mat-nav-list>
   <mat-divider vertical></mat-divider>
 </div>

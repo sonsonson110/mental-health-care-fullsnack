@@ -8,7 +8,7 @@ import { SidenavStateService } from '../../services/sidenav-state.service';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { ChatbotHistorySideNavItem } from '../../../../core/models/modules/ai-chat/chatbot-history-side-nav-item.model';
 import { ConversationsService } from '../../../../core/services/conversations.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
@@ -26,6 +26,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 })
 export class AiChatHistorySideNavComponent implements OnInit {
   isLoading = true;
+  currentBrowserUrl: string | null = null;
+
   aiChatHistories$!: Observable<ChatbotHistorySideNavItem[]>;
 
   constructor(
@@ -33,12 +35,19 @@ export class AiChatHistorySideNavComponent implements OnInit {
     matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private sidenavStateService: SidenavStateService,
-    private conversationsService: ConversationsService
+    private conversationsService: ConversationsService,
+    location: Location
   ) {
     matIconRegistry.addSvgIcon(
       'side_navigation',
       domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/side-navigation.svg')
     );
+
+    this.currentBrowserUrl = location.path();
+    // Listen for navigation changes to update the current chat box id
+    location.onUrlChange(url => {
+      this.currentBrowserUrl = url;
+    });
   }
 
   ngOnInit(): void {
@@ -65,5 +74,10 @@ export class AiChatHistorySideNavComponent implements OnInit {
 
   onNewConversationClick() {
     this.router.navigate(['ai-chat']);
+  }
+
+  isMatchCurrentBrowserUrl(route: string): boolean {
+    const uriSegments = this.currentBrowserUrl?.split('/');
+    return uriSegments ? uriSegments.includes(route) : false;
   }
 }
