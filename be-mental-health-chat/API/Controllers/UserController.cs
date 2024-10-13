@@ -2,6 +2,7 @@
 using Application;
 using Application.DTOs.UserService;
 using Application.Interfaces;
+using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

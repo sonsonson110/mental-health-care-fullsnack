@@ -48,7 +48,7 @@ internal static class ConversationsSeed
             Title = "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua"
         };
 
-        // Therapist conversation
+        // Therapist conversation 1
         var therapistMessages = new List<Message>
         {
             new Message
@@ -56,7 +56,7 @@ internal static class ConversationsSeed
                 Id = Guid.NewGuid(),
                 Sender = users[0],
                 Content = "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-                IsRead = true
+                IsRead = false
             },
             new Message
             {
@@ -73,8 +73,34 @@ internal static class ConversationsSeed
             Therapist = therapists[0],
             Messages = therapistMessages
         };
+        
+        // Therapist conversation 2
+        var therapistMessages2 = new List<Message>
+        {
+            new Message
+            {
+                Id = Guid.NewGuid(),
+                Sender = users[0],
+                Content = "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+                IsRead = true
+            },
+            new Message
+            {
+                Id = Guid.NewGuid(),
+                Sender = therapists[1],
+                Content = "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+                IsRead = true
+            }
+        };
+        var therapistConversation2 = new Conversation
+        {
+            Id = Guid.NewGuid(),
+            Client = users[0],
+            Therapist = therapists[1],
+            Messages = therapistMessages2
+        };
 
-        dbContext.Conversations.AddRange(therapistConversation, chatbotConversation);
+        dbContext.Conversations.AddRange(therapistConversation, therapistConversation2, chatbotConversation);
         dbContext.SaveChanges();
 
         return [therapistConversation, chatbotConversation];

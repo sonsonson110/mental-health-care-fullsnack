@@ -14,6 +14,7 @@ public class GeminiService : IGeminiService
     private readonly ILogger<GeminiService> _logger;
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public GeminiService(HttpClient httpClient, IConfiguration configuration, ILogger<GeminiService> logger)
     {
@@ -27,6 +28,11 @@ public class GeminiService : IGeminiService
         _httpClient.BaseAddress = new Uri(configuration.GetValue<string>("GeminiApi:BaseUrl") ??
                                           throw new InvalidOperationException(
                                               "Gemini API base URL not found in configuration."));
+        _jsonOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 
     public async Task<StructuredGeminiResponse> GenerateContentAsync(string prompt, List<Message> conversationHistory)
@@ -80,8 +86,9 @@ public class GeminiService : IGeminiService
             }
         };
         
-        // Log the request
-        _logger.LogInformation("Sending request to Gemini API. Request: {@Request}", request);
+        // Serialize the request to JSON and log it
+        var jsonRequest = JsonSerializer.Serialize(request, _jsonOptions);
+        _logger.LogInformation("Sending request to Gemini API.Request: {JsonRequest}", jsonRequest);
 
         var response = await _httpClient.PostAsJsonAsync(
             $"tunedModels/cleanedmentalhealthconversation-ic4cul14:generateContent?key={_apiKey}",

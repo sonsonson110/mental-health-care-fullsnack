@@ -1,4 +1,5 @@
 using API;
+using API.Hubs;
 using Application;
 using Infrastructure;
 using Infrastructure.Data;
@@ -7,7 +8,13 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddSignalR(options =>
+{
+    options.DisableImplicitFromServicesParameters = true;
+});
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -82,6 +89,7 @@ app.UseCors("AllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<ChatHub>("/chat");
 app.MapControllers();
 
 // Initialize the database

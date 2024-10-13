@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
-import { ChatbotHistorySideNavItem } from '../models/modules/ai-chat/chatbot-history-side-nav-item.model';
-import { ChatbotConversationDetailResponse } from '../models/modules/ai-chat/chatbot-conversation-detail-response';
-import { CreateChatbotConversationRequest } from '../models/modules/ai-chat/create-chatbot-conversation-request.model';
-import { CreateChatbotConversationResponse } from '../models/modules/ai-chat/create-chatbot-conversation-response.model';
+import { ChatbotHistorySideNavItem } from '../models/modules/ai-chats/chatbot-history-side-nav-item.model';
+import { ChatbotConversationDetailResponse } from '../models/modules/ai-chats/chatbot-conversation-detail-response';
+import { CreateChatbotConversationRequest } from '../models/modules/ai-chats/create-chatbot-conversation-request.model';
+import { CreateChatbotConversationResponse } from '../models/modules/ai-chats/create-chatbot-conversation-response.model';
+import { TherapistHistorySidenavItem } from '../models/modules/therapist-chats/therapist-history-sidenav-item.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class ConversationsService {
 
   constructor(private http: HttpClient) { }
 
-  getChatbotConversationsByUserIdAsync() {
+  getChatbotConversations() {
     return this.http.get<ChatbotHistorySideNavItem[]>(`${this.baseUrl}/chatbot`);
   }
 
@@ -25,5 +26,9 @@ export class ConversationsService {
   createChatbotConversation(content: string) {
     const requestBody: CreateChatbotConversationRequest = { content };
     return this.http.post<CreateChatbotConversationResponse>(`${this.baseUrl}/chatbot`, requestBody);
+  }
+
+  getTherapistConversations() {
+    return this.http.get<TherapistHistorySidenavItem[]>(`${this.baseUrl}/therapist`);
   }
 }

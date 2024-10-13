@@ -30,10 +30,7 @@ export class LeftSideNavComponent {
     authService: AuthService,
     location: Location
   ) {
-    this.sessionUserRole =
-      authService.decodeToken()?.[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-      ];
+    this.sessionUserRole = authService.getSessionUserRole();
     this.currentBrowserUrl = location.path();
     // Listen for navigation changes to update the current chat box id
     location.onUrlChange(url => {

@@ -1,9 +1,12 @@
 ﻿using Application.DTOs.ConversationsService;
 using Application.DTOs.MessagesService;
+using Application.DTOs.Shared;
 using Application.Interfaces;
+using Application.Services.Interfaces;
 using Domain.Entities;
 using Infrastructure.Interfaces;
 using LanguageExt.Common;
+using LanguageExt.Pipes;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
@@ -110,5 +113,51 @@ public class ConversationsService : IConversationsService
             Title = conversation.Title,
             CreatedAt = conversation.CreatedAt
         });
+    }
+
+    public async Task<List<GetAllUserTherapistConversationResponse>> GetUserTherapistConversationsByUserIdAsync(Guid userId)
+    {
+        var conversations = await _context.Conversations
+            .Where(c => c.ClientId == userId)
+            .Where(c => c.TherapistId != null)
+            .Select(c => new 
+            {
+                Id = c.Id,
+                TherapistId = c.TherapistId,
+                TherapistFullName = c.Therapist!.FirstName + " " + c.Therapist.LastName,
+                IsTherapistOnline = c.Therapist.IsOnline,
+                CreatedAt = c.CreatedAt,
+                LastMessage = c.Messages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => new
+                    {
+                        Id = m.Id,
+                        SenderId = m.SenderId,
+                        SenderFullName = m.Sender!.FirstName+ " " + m.Sender.LastName,
+                        Content = m.Content,
+                        IsRead = m.IsRead,
+                        CreatedAt = m.CreatedAt
+                    })
+                    .FirstOrDefault()
+            })
+            .OrderByDescending(c => c.LastMessage != null ? c.LastMessage.CreatedAt : c.CreatedAt)
+            .ToListAsync();
+        
+        return conversations.Select(c => new GetAllUserTherapistConversationResponse
+        {
+            Id = c.Id,
+            TherapistId = c.TherapistId!.Value,
+            IsTherapistOnline = c.IsTherapistOnline,
+            TherapistFullName = c.TherapistFullName,
+            LastMessage = c.LastMessage != null ? new LastConversationMessageDto
+            {
+                Id = c.LastMessage.Id,
+                SenderId = c.LastMessage.SenderId!.Value,
+                SenderFullName = c.LastMessage.SenderFullName,
+                Content = c.LastMessage.Content,
+                CreatedAt = c.LastMessage.CreatedAt,
+                IsRead = c.LastMessage.IsRead
+            } : null
+        }).ToList();
     }
 }

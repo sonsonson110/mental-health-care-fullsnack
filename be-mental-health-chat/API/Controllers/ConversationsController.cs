@@ -1,6 +1,6 @@
 ﻿using API.Extensions;
 using Application.DTOs.ConversationsService;
-using Application.Interfaces;
+using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,10 +20,21 @@ public class ConversationsController: MentalHeathControllerBase
     [HttpGet("chatbot")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetChatbotConversationsAsync()
+    public async Task<IActionResult> GetChatbotConversations()
     {
         var userId = GetUserId();
         var conversations = await _conversationsService.GetChatbotConversationsByUserIdAsync(userId);
+        return Ok(conversations);
+    }
+    
+    // GET: /conversations/therapist
+    [HttpGet("therapist")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetTherapistConversations()
+    {
+        var userId = GetUserId();
+        var conversations = await _conversationsService.GetUserTherapistConversationsByUserIdAsync(userId);
         return Ok(conversations);
     }
     

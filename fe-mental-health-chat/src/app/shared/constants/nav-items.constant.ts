@@ -4,12 +4,12 @@ export const baseNavItems: NavItem[] = [
   {
     displayName: 'AI chatbot',
     iconName: 'smart_toy',
-    route: 'ai-chat',
+    route: 'ai-chats',
   },
   {
     displayName: 'Therapist chats',
     iconName: 'chat',
-    route: 'my-chats',
+    route: 'therapist-chats',
   },
   {
     displayName: 'Posts',
@@ -19,7 +19,7 @@ export const baseNavItems: NavItem[] = [
   {
     displayName: 'Therapists',
     iconName: 'diversity_3',
-    route: 'therapists',
+    route: 'therapists-discovery',
   },
   {
     displayName: 'Profile',
@@ -47,7 +47,7 @@ export const therapistNavItems: NavItem[] = [
   {
     displayName: 'Manage registrations',
     iconName: 'app_registration',
-    route: 'posts',
+    route: 'manage-registrations',
   },
   {
     displayName: 'Manage sessions',

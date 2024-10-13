@@ -27,7 +27,7 @@ export class AuthService {
     return localStorage.getItem(this.localStorageTokenKey);
   }
 
-  decodeToken(): JwtPayload | null {
+  private decodeToken(): JwtPayload | null {
     var token = this.getToken();
     if (token == null) return null;
 
@@ -44,4 +44,8 @@ export class AuthService {
     );
     return JSON.parse(jsonPayload);
   }
+
+  getSessionUserId = (): string | undefined => this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+  getSessionUserName = (): string | undefined => this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+  getSessionUserRole = (): string | undefined => this.decodeToken()?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 }

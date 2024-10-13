@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.UserService;
 using Application.Interfaces;
+using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;

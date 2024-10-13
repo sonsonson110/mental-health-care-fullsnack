@@ -8,4 +8,5 @@ public class CreateChatbotMessageResponseDto
     public DateTime CreatedAt { get; set; }
     public bool IsRead { get; set; }
     public Guid LastUserMessageId { get; set; }
+    public DateTime LastUserMessageCreatedAt { get; set; }
 }

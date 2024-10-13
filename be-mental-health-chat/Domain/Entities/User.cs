@@ -10,8 +10,6 @@ public class User : EntityBase, ICreateTimestampMarkEntityBase
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    [NotMapped]
-    public string FullName => $"{FirstName} {LastName}";
     public Gender Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public string Email { get; set; }

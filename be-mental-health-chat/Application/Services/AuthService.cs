@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.AuthService;
 using Application.Interfaces;
+using Application.Services.Interfaces;
 using Domain.Interfaces;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;

@@ -23,7 +23,7 @@ public class JwtGenerator : IJwtGenerator
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Role, user.UserType.ToString()),
-            new(ClaimTypes.Name, user.FullName),
+            new(ClaimTypes.Name, user.FirstName + " " + user.LastName),
         };
 
         var lifetimeMinutes = int.Parse(_configuration["Jwt:LifetimeMinutes"]!);
