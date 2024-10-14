@@ -31,6 +31,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CreateChatbotConversationResponse } from '../../../../core/models/modules/ai-chats/create-chatbot-conversation-response.model';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MarkdownModule } from 'ngx-markdown';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-ai-chat-conversation',
@@ -47,6 +48,7 @@ import { MarkdownModule } from 'ngx-markdown';
     ReactiveFormsModule,
     MatProgressSpinnerModule,
     MarkdownModule,
+    MatProgressBarModule
   ],
   templateUrl: './ai-chats-conversation.component.html',
   styleUrl: './ai-chats-conversation.component.scss',
@@ -168,6 +170,7 @@ export class AiChatsConversationComponent implements OnInit {
   // when response is received, update user typing message state and add the response from chatbot
   onSendMessageClick() {
     this.isSending = true;
+    this.userTypingMessage.disable();
 
     // if this is an existed conversation
     if (this.conversationId) {
@@ -189,6 +192,7 @@ export class AiChatsConversationComponent implements OnInit {
         .pipe(
           finalize(() => {
             this.isSending = false;
+            this.userTypingMessage.enable();
             this.scrollToBottom();
           })
         )
@@ -226,11 +230,13 @@ export class AiChatsConversationComponent implements OnInit {
     }
     // when message is sent from the conversation creation page
     else {
+      this.isLoading = true;
       this.conversationsService
         .createChatbotConversation(this.userTypingMessage.value!)
         .pipe(
           finalize(() => {
             this.isSending = false;
+            this.userTypingMessage.enable();
           })
         )
         .subscribe({
@@ -238,9 +244,9 @@ export class AiChatsConversationComponent implements OnInit {
             this.isLoading = true;
             this.sideNavService.addAiChatHistory({
               id: response.conversationId,
-              title: response.title,
+              title: response.title || 'Untitled',
             });
-            this.router.navigate(['ai-chat', response.conversationId]);
+            this.router.navigate(['ai-chats', response.conversationId]);
           },
           error: err => {
             // add notifcation to user later

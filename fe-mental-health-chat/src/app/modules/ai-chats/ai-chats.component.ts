@@ -11,6 +11,7 @@ import { AiChatsHistorySideNavComponent } from './components/ai-chats-history-si
   imports: [MatSidenavModule, AiChatsHistorySideNavComponent, RouterModule,],
   templateUrl: './ai-chats.component.html',
   styleUrl: './ai-chats.component.scss',
+  providers: [SidenavStateService]
 })
 export class AiChatsComponent implements OnInit {
   isSidenavOpen!: boolean;

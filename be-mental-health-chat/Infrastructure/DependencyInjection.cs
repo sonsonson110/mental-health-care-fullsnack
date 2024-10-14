@@ -4,7 +4,7 @@ using Domain.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Integrations;
 using Infrastructure.Integrations.Gemini;
-using Infrastructure.Interfaces;
+using Infrastructure.Integrations.Gemini.Interfaces;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

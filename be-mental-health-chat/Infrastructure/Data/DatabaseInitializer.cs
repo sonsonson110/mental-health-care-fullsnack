@@ -2,6 +2,7 @@
 using Domain.Enums;
 using Domain.Interfaces;
 using Infrastructure.Data.SeedData;
+using Infrastructure.Data.Seeder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

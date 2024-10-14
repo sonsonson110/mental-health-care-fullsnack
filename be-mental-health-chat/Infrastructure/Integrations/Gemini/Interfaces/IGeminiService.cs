@@ -1,7 +1,7 @@
 ﻿using Domain.Entities;
 using Infrastructure.Integrations.Model;
 
-namespace Infrastructure.Interfaces;
+namespace Infrastructure.Integrations.Gemini.Interfaces;
 
 public interface IGeminiService
 {

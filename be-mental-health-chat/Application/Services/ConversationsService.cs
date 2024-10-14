@@ -4,7 +4,7 @@ using Application.DTOs.Shared;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Entities;
-using Infrastructure.Interfaces;
+using Infrastructure.Integrations.Gemini.Interfaces;
 using LanguageExt.Common;
 using LanguageExt.Pipes;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ public class ConversationsService : IConversationsService
             .Select(c => new GetAllChatBotConversationResponse
             {
                 Id = c.Id,
-                Title = c.Title
+                Title = c.Title ?? "Untitled",
             })
             .ToListAsync();
         return conversations;
@@ -63,7 +63,7 @@ public class ConversationsService : IConversationsService
         return new Result<GetChatbotConversationDetailResponseDto>(new GetChatbotConversationDetailResponseDto
         {
             Id = conversation.Id,
-            Title = conversation.Title,
+            Title = conversation.Title ?? "Untitled",
             Messages = messages
         });
     }
@@ -115,7 +115,7 @@ public class ConversationsService : IConversationsService
         });
     }
 
-    public async Task<List<GetAllUserTherapistConversationResponse>> GetUserTherapistConversationsByUserIdAsync(Guid userId)
+    public async Task<List<GetAllP2pConversationResponse>> GetUserTherapistConversationsByUserIdAsync(Guid userId)
     {
         var conversations = await _context.Conversations
             .Where(c => c.ClientId == userId)
@@ -143,12 +143,12 @@ public class ConversationsService : IConversationsService
             .OrderByDescending(c => c.LastMessage != null ? c.LastMessage.CreatedAt : c.CreatedAt)
             .ToListAsync();
         
-        return conversations.Select(c => new GetAllUserTherapistConversationResponse
+        return conversations.Select(c => new GetAllP2pConversationResponse
         {
             Id = c.Id,
-            TherapistId = c.TherapistId!.Value,
-            IsTherapistOnline = c.IsTherapistOnline,
-            TherapistFullName = c.TherapistFullName,
+            ReceiverId = c.TherapistId!.Value,
+            IsReceiverOnline = c.IsTherapistOnline,
+            ReceiverFullName = c.TherapistFullName,
             LastMessage = c.LastMessage != null ? new LastConversationMessageDto
             {
                 Id = c.LastMessage.Id,

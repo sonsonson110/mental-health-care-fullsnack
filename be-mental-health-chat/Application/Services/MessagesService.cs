@@ -2,7 +2,7 @@
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Entities;
-using Infrastructure.Interfaces;
+using Infrastructure.Integrations.Gemini.Interfaces;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 

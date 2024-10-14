@@ -48,13 +48,18 @@
       }
     } @else {
       <div class="no-conversation-container">
-        <span class="mat-headline-small no-conversation-text">Tell me about your day, I'm here to help</span>
+        <span class="mat-headline-small no-conversation-text"
+          >Tell me about your day, I'm here to help</span
+        >
         <span class="mat-headline-large no-conversation-text">(●'◡'●)</span>
       </div>
     }
   </div>
   <mat-divider></mat-divider>
   <div class="message-input-container">
+    @if (isSending) {
+      <mat-progress-bar mode="buffer"></mat-progress-bar>
+    }
     <mat-form-field class="message-input">
       <textarea
         matInput

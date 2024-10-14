@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ChatbotHistorySideNavItem } from '../../../core/models/modules/ai-chats/chatbot-history-side-nav-item.model';
+import { P2pConversationSidenavItem } from '../../../../core/models/p2p-conversation-sidenav-item.model';
 
 @Injectable()
-export class SidenavStateService {
-  private aiChatHistories = new BehaviorSubject<ChatbotHistorySideNavItem[]>([]);
-  aiChatHistories$ = this.aiChatHistories.asObservable();
+export class P2pConversationSidenavStateService {
+  private p2pConversationSidenavItems = new BehaviorSubject<P2pConversationSidenavItem[]>([]);
+  p2pConversationSidenavItems$ = this.p2pConversationSidenavItems.asObservable();
 
   private sidenavStateSubject = new BehaviorSubject<boolean>(true); // Default state is open
   sidenavState$ = this.sidenavStateSubject.asObservable();
@@ -25,13 +25,13 @@ export class SidenavStateService {
   }
 
   // ai chat histories
-  initialAiChatHistories(histories: ChatbotHistorySideNavItem[]) {
-    this.aiChatHistories.next(histories);
+  initialP2pConversationSidenavItem(histories: P2pConversationSidenavItem[]) {
+    this.p2pConversationSidenavItems.next(histories);
   }
 
-  addAiChatHistory(history: ChatbotHistorySideNavItem) {
-    const histories = this.aiChatHistories.getValue();
+  addP2pConversationSidenavItem(history: P2pConversationSidenavItem) {
+    const histories = this.p2pConversationSidenavItems.getValue();
     histories.unshift(history); // Add the new item at the beginning
-    this.aiChatHistories.next(histories);
+    this.p2pConversationSidenavItems.next(histories);
   }
 }
