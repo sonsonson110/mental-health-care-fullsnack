@@ -1,1 +1,84 @@
-<p>p2p-conversation-chatbox works!</p>
+<div class="root-container">
+  @if (conversationId) {
+    <div class="toolbar-container mat-elevation-z1">
+      <mat-toolbar>
+        @if (!isSideNavOpen) {
+          <button mat-icon-button (click)="onSidenavClick()">
+            <mat-icon svgIcon="side_navigation"></mat-icon>
+          </button>
+        }
+        <span class="toolbar-title">{{
+          conversationTitle || 'Create a new conversation'
+        }}</span>
+        <span class="spacer"></span>
+      </mat-toolbar>
+    </div>
+  }
+  <div class="message-box">
+    @if (conversationId) {
+      @if (isLoading) {
+        <div class="loading-container">
+          <mat-spinner></mat-spinner>
+        </div>
+      } @else {
+        <div #messagesContainer class="messages-container">
+          @if (messages$ | async; as messages) {
+            @for (message of messages; track message.id) {
+              <div
+                class="message"
+                [ngClass]="{
+                  other: message.senderId !== sessionUserId,
+                  self: message.senderId === sessionUserId,
+                }"
+              >
+                <span class="mat-label-small fullName"
+                  ><b>{{ message.senderFullName }}</b></span
+                >
+                <markdown
+                  class="content"
+                  [ngClass]="{ sending: message.isSending || message.isError }"
+                  [data]="message.content"
+                ></markdown>
+                <span class="mat-label-small timestamp" *ngIf="!message.isSending"
+                  >At {{ message.createdAt | date: 'medium' }}</span
+                >
+                <span class="mat-label-small error" *ngIf="message.isError">Error</span>
+              </div>
+            }
+          }
+        </div>
+      }
+    } @else {
+      <div class="no-conversation-container">
+        <span class="mat-headline-small no-conversation-text"
+          >Have you got a therapist partner?</span
+        >
+        <span class="mat-headline-large no-conversation-text">ヾ(•ω•`)o</span>
+      </div>
+    }
+  </div>
+  <mat-divider></mat-divider>
+  @if (conversationId) {
+    <div class="message-input-container">
+      @if (isSending) {
+        <mat-progress-bar mode="buffer"></mat-progress-bar>
+      }
+      <mat-form-field class="message-input">
+        <textarea
+          matInput
+          cdkTextareaAutosize
+          placeholder="Type a message..."
+          [formControl]="userTypingMessage"
+        ></textarea>
+        <button
+          mat-icon-button
+          matSuffix
+          [disabled]="!canSendMessage()"
+          (click)="onSendMessageClick()"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+  }
+</div>

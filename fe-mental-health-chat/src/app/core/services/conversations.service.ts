@@ -6,6 +6,7 @@ import { ChatbotConversationDetailResponse } from '../models/modules/ai-chats/ch
 import { CreateChatbotConversationRequest } from '../models/modules/ai-chats/create-chatbot-conversation-request.model';
 import { CreateChatbotConversationResponse } from '../models/modules/ai-chats/create-chatbot-conversation-response.model';
 import { P2pConversationSidenavItem } from '../models/p2p-conversation-sidenav-item.model';
+import { P2pConversationDetailResponseDto } from '../models/p2p-conversation-detail-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -30,5 +31,9 @@ export class ConversationsService {
 
   getTherapistConversations() {
     return this.http.get<P2pConversationSidenavItem[]>(`${this.baseUrl}/therapist`);
+  }
+
+  getTherapistConversationDetailById(conversationId: string) {
+    return this.http.get<P2pConversationDetailResponseDto>(`${this.baseUrl}/therapist/${conversationId}`);
   }
 }

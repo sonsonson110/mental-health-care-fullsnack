@@ -75,7 +75,6 @@ export class AiChatsConversationComponent implements OnInit {
   messages$ = this.messagesSubject.asObservable();
 
   constructor(
-    private sideNavService: SidenavStateService,
     private router: Router,
     authService: AuthService,
     private cdr: ChangeDetectorRef,
@@ -120,12 +119,10 @@ export class AiChatsConversationComponent implements OnInit {
 
   private mapToChatbotMessageDisplay(
     response: ChatbotConversationMessageResponse,
-    senderFullName: string | null = null
   ): ChatbotMessageDisplay {
     return {
       id: response.id,
       senderId: response.senderId || '',
-      senderFullName: senderFullName,
       content: response.content,
       createdAt: response.createdAt,
       isRead: response.isRead,
@@ -176,7 +173,6 @@ export class AiChatsConversationComponent implements OnInit {
     if (this.conversationId) {
       const userMessage: ChatbotMessageDisplay = {
         id: crypto.randomUUID(), // just a placeholder for now, will be replaced with actual id from response
-        senderFullName: this.sessionUserFullName,
         senderId: this.sessionUserId,
         content: this.userTypingMessage.value!,
         createdAt: new Date(),
@@ -242,9 +238,9 @@ export class AiChatsConversationComponent implements OnInit {
         .subscribe({
           next: (response: CreateChatbotConversationResponse) => {
             this.isLoading = true;
-            this.sideNavService.addAiChatHistory({
+            this.sidenavStateService.addAiChatHistory({
               id: response.conversationId,
-              title: response.title || 'Untitled',
+              title: response.title,
             });
             this.router.navigate(['ai-chats', response.conversationId]);
           },

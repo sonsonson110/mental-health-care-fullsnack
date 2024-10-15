@@ -5,5 +5,7 @@ namespace Infrastructure.Integrations.Gemini.Interfaces;
 
 public interface IGeminiService
 {
-    Task<StructuredGeminiResponse> GenerateContentAsync(string prompt, List<Message> conversationHistory);
+    string GetMentalHealthTemplatePrompt();
+    string GetTitleGenerationPrompt();
+    Task<GeminiResponse> GenerateContentAsync(List<Content> promptContents);
 }

@@ -27,17 +27,6 @@ public class ConversationsController: MentalHeathControllerBase
         return Ok(conversations);
     }
     
-    // GET: /conversations/therapist
-    [HttpGet("therapist")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetTherapistConversations()
-    {
-        var userId = GetUserId();
-        var conversations = await _conversationsService.GetUserTherapistConversationsByUserIdAsync(userId);
-        return Ok(conversations);
-    }
-    
     // GET: /conversations/chatbot/{conversationId}
     [HttpGet("chatbot/{conversationId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,5 +49,28 @@ public class ConversationsController: MentalHeathControllerBase
         
         var result = await _conversationsService.CreateChatbotConversationAsync(userId, request);
         return result.ReturnFromPost();
+    }
+        
+    // GET: /conversations/therapist
+    [HttpGet("therapist")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetTherapistConversations()
+    {
+        var userId = GetUserId();
+        var conversations = await _conversationsService.GetTherapistConversationsByUserIdAsync(userId);
+        return Ok(conversations);
+    }
+    
+    // GET: /conversations/therapist/{conversationId}
+    [HttpGet("therapist/{conversationId:guid}")]
+    [ProducesResponseType(typeof(GetP2pConversationDetailResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTherapistConversationDetailById([FromRoute] Guid conversationId)
+    {
+        var userId = GetUserId();
+        var result = await _conversationsService.GetTherapistConversationDetailByIdAndUserId(conversationId, userId);
+        return result.ReturnFromGet();
     }
 }

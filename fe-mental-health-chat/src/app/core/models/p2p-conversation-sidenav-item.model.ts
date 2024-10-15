@@ -11,7 +11,7 @@ export interface P2pConversationSidenavItem {
     senderId: string;
     senderFullName: string;
     content: string;
-    createdAt: string;
+    createdAt: Date;
     isRead: boolean;
   }
   

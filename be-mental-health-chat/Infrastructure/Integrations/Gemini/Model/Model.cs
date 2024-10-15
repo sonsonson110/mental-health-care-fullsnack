@@ -5,14 +5,14 @@ namespace Infrastructure.Integrations.Model;
 public class GeminiRequest
 {
     [JsonPropertyName("contents")]
-    public List<Content> Contents { get; set; } = new();
+    public List<Content> Contents { get; set; } = [];
     public GenerationConfig? GenerationConfig { get; set; } = null;
 }
 
 public class Content
 {
     [JsonPropertyName("parts")]
-    public List<Part> Parts { get; set; } = new();
+    public List<Part> Parts { get; set; } = [];
 
     [JsonPropertyName("role")]
     public string? Role { get; set; }
@@ -42,10 +42,12 @@ public class GenerationConfig
 public class GeminiResponse
 {
     [JsonPropertyName("candidates")]
-    public List<Candidate> Candidates { get; set; } = new();
+    public List<Candidate> Candidates { get; set; } = [];
 
     [JsonPropertyName("usageMetadata")]
     public UsageMetadata UsageMetadata { get; set; } = new();
+    
+    public string FinalResponse => Candidates[0].Content.Parts[0].Text;
 }
 
 public class Candidate
@@ -60,7 +62,7 @@ public class Candidate
     public int Index { get; set; }
 
     [JsonPropertyName("safetyRatings")]
-    public List<SafetyRating> SafetyRatings { get; set; } = new();
+    public List<SafetyRating> SafetyRatings { get; set; } = [];
 }
 
 public class SafetyRating

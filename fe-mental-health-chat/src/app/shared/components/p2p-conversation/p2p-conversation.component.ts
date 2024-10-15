@@ -1,5 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -13,6 +13,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from '../../../core/services/auth.service';
 import { ConversationsService } from '../../../core/services/conversations.service';
+import { SignalrChatService } from '../../../core/services/signalr-chat.service';
 
 @Component({
   selector: 'app-p2p-conversation-chatbox',
@@ -26,12 +27,12 @@ import { ConversationsService } from '../../../core/services/conversations.servi
     CommonModule,
     MatButtonModule,
   ],
-  providers: [P2pConversationSidenavStateService],
+  providers: [P2pConversationSidenavStateService, SignalrChatService],
   templateUrl: './p2p-conversation.component.html',
   styleUrl: './p2p-conversation.component.scss',
 })
-export class P2pConversationComponent {
-  isLoading = false;
+export class P2pConversationComponent implements OnInit, OnDestroy {
+  isSidenavLoading = false;
   currentBrowserUrl: string | null = null;
   isSidenavOpen!: boolean;
   sessionUserId: string | undefined;
@@ -48,7 +49,8 @@ export class P2pConversationComponent {
     private conversationsService: ConversationsService,
     location: Location,
     breakpointObserver: BreakpointObserver,
-    authService: AuthService
+    authService: AuthService,
+    private signalrChatService: SignalrChatService
   ) {
     matIconRegistry.addSvgIcon(
       'side_navigation',
@@ -68,6 +70,11 @@ export class P2pConversationComponent {
 
     this.sessionUserId = authService.getSessionUserId();
   }
+  ngOnDestroy(): void {
+    this.signalrChatService
+      .stopConnection()
+      .then(() => console.log("Websocket '/chat' stopped for therapist-chats"));
+  }
 
   ngOnInit(): void {
     this.chatHistories$ =
@@ -82,6 +89,28 @@ export class P2pConversationComponent {
       this.conversationType = data['forModule'];
       this.loadchatHistories();
     });
+
+    this.signalrChatService.startConnection().then(() => {
+      console.log("Websocket '/chat' started for therapist-chats");
+
+      this.signalrChatService.receiveP2PMessage().subscribe(message => {
+        var currentSidenavItem =
+          this.p2pConversationSidenavStateService.getP2pConversationSidenavItemById(
+            message.conversationId!
+          );
+        currentSidenavItem.lastMessage = {
+          id: message.id,
+          senderId: message.senderId,
+          senderFullName: message.senderFullName,
+          content: message.content,
+          createdAt: message.createdAt,
+          isRead: message.isRead,
+        };
+        this.p2pConversationSidenavStateService.updateP2pConversationSidenavItem(
+          currentSidenavItem
+        );
+      });
+    });
   }
 
   private loadchatHistories() {
@@ -91,7 +120,7 @@ export class P2pConversationComponent {
         .getTherapistConversations()
         .subscribe((data: P2pConversationSidenavItem[]) => {
           this.p2pConversationSidenavStateService.initialP2pConversationSidenavItem(data);
-          this.isLoading = false;
+          this.isSidenavLoading = false;
         });
     }
   }

@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Entities;
 using Infrastructure.Integrations.Gemini.Interfaces;
+using Infrastructure.Integrations.Model;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,10 +20,12 @@ public class MessagesService : IMessagesService
         _geminiService = geminiService;
     }
 
+    // we assume that the conversation has already created before this method is called
     public async Task<Result<CreateChatbotMessageResponseDto>> CreateChatbotMessageAsync(
         CreateChatbotMessageRequestDto request, Guid userId)
     {
         var userMessageReceivedTime = DateTime.UtcNow;
+        request.Content = request.Content.Trim();
 
         // check if conversation exists
         var conversation = await _context.Conversations.FindAsync(request.ConversationId);
@@ -37,9 +40,28 @@ public class MessagesService : IMessagesService
             .OrderBy(m => m.CreatedAt)
             .ToListAsync();
 
+        // user first question should use template prompt
+        messages[0].Content =
+            _geminiService.GetMentalHealthTemplatePrompt() +
+            messages[0].Content; // assumed that the first message is always from the user
+
+        // convert the messages to gemini content consumed model
+        var geminiContents = messages.Select(message => new Content
+            {
+                Role = message.SenderId.HasValue ? "user" : "model",
+                Parts = [new Part { Text = message.Content }]
+            })
+            .ToList();
+
+        geminiContents.Add(new Content
+        {
+            Role = "user",
+            Parts = [new Part { Text = request.Content }]
+        });
+
         // call the gemini service to generate content with the existed messages for context
         // title property should be null
-        var geminiResponse = await _geminiService.GenerateContentAsync(request.Content, messages);
+        var geminiResponse = await _geminiService.GenerateContentAsync(geminiContents);
 
         // add user message and response from gemini to the database
         var userMessage = new Message
@@ -56,8 +78,8 @@ public class MessagesService : IMessagesService
             Id = Guid.NewGuid(),
             SenderId = null,
             ConversationId = request.ConversationId,
-            Content = geminiResponse.Response,
-            CreatedAt = geminiResponse.ResponseAt,
+            Content = geminiResponse.Candidates.First().Content.Parts.First().Text,
+            CreatedAt = DateTime.UtcNow,
             IsRead = false,
         };
         _context.Messages.AddRange(userMessage, geminiMessage);
@@ -69,55 +91,63 @@ public class MessagesService : IMessagesService
             Id = geminiMessage.Id,
             Content = geminiMessage.Content,
             ConversationId = request.ConversationId,
-            CreatedAt = geminiResponse.ResponseAt,
+            CreatedAt = geminiMessage.CreatedAt,
             IsRead = false,
             LastUserMessageId = userMessage.Id,
             LastUserMessageCreatedAt = userMessageReceivedTime,
         });
     }
 
-    public async Task<Result<CreateP2PMessageResponse>> CreateP2PMessageAsync(CreateP2PMessageRequest request,
+    public async Task<Result<CreateP2pMessageResponse>> CreateP2PMessageAsync(CreateP2PMessageRequest request,
         Guid userId)
     {
         #region validation
-        
+
         // validate if circular message
         if (userId == request.SentToUserId)
         {
-            return new Result<CreateP2PMessageResponse>(new BadRequestException("Cannot send message to yourself", null));
+            return new Result<CreateP2pMessageResponse>(
+                new BadRequestException("Cannot send message to yourself", null));
         }
-        
+
         // validate if conversation exists
         var conversationExisted = await _context.Conversations
             .Where(c => c.Id == request.ConversationId)
             .Where(c => c.ClientId == userId || c.TherapistId == userId)
             .Where(c => c.ClientId == request.SentToUserId || c.TherapistId == request.SentToUserId)
+            .Include(c => c.Client)
             .AnyAsync();
-        if (!conversationExisted)
+        if (conversationExisted == false)
         {
-            return new Result<CreateP2PMessageResponse>(new NotFoundException("Conversation not found"));
+            return new Result<CreateP2pMessageResponse>(new NotFoundException("Conversation not found"));
         }
-        
+
         // TODO: validate if the user has access to the conversation later
-        
+
         #endregion
-        
+
         var message = new Message
         {
             Id = Guid.NewGuid(),
             SenderId = userId,
             ConversationId = request.ConversationId,
-            Content = request.Content,
+            Content = request.Content.Trim(),
             IsRead = false,
         };
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
         
-        return new Result<CreateP2PMessageResponse>(new CreateP2PMessageResponse
+        var senderFullName = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.FirstName + " " + u.LastName)
+            .FirstOrDefaultAsync();
+
+        return new Result<CreateP2pMessageResponse>(new CreateP2pMessageResponse
         {
             Id = message.Id,
+            ConversationId = message.ConversationId,
             SenderId = message.SenderId.Value,
-            ConversationId = request.ConversationId,
+            SenderFullName = senderFullName!,
             Content = message.Content,
             CreatedAt = message.CreatedAt,
             IsRead = message.IsRead,

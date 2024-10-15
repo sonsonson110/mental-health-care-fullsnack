@@ -24,14 +24,27 @@ export class P2pConversationSidenavStateService {
     return this.sidenavStateSubject.getValue();
   }
 
-  // ai chat histories
+  // chat histories
   initialP2pConversationSidenavItem(histories: P2pConversationSidenavItem[]) {
     this.p2pConversationSidenavItems.next(histories);
+  }
+
+  getP2pConversationSidenavItemById(id: string): P2pConversationSidenavItem {
+    return this.p2pConversationSidenavItems.getValue().find(h => h.id === id)!;
   }
 
   addP2pConversationSidenavItem(history: P2pConversationSidenavItem) {
     const histories = this.p2pConversationSidenavItems.getValue();
     histories.unshift(history); // Add the new item at the beginning
     this.p2pConversationSidenavItems.next(histories);
+  }
+
+  updateP2pConversationSidenavItem(history: P2pConversationSidenavItem) {
+    const histories = this.p2pConversationSidenavItems.getValue();
+    const index = histories.findIndex(h => h.id === history.id);
+    if (index !== -1) {
+      histories[index] = history;
+      this.p2pConversationSidenavItems.next(histories);
+    }
   }
 }
