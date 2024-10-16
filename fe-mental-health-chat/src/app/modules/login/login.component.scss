@@ -87,4 +87,32 @@
       }
     }
   }
+
+  .table-container {
+    margin-top: 1rem;
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+  
+      thead {
+        tr {
+          th {
+            border: 1px solid #ddd;
+            padding: 8px;
+            background-color: #f2f2f2;
+          }
+        }
+      }
+  
+      tbody {
+        tr {
+          td {
+            border: 1px solid #ddd;
+            padding: 8px;
+          }
+        }
+      }
+    }
+  }
 }

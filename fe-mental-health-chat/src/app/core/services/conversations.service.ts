@@ -36,4 +36,12 @@ export class ConversationsService {
   getTherapistConversationDetailById(conversationId: string) {
     return this.http.get<P2pConversationDetailResponseDto>(`${this.baseUrl}/therapist/${conversationId}`);
   }
+
+  getClientConversations() {
+    return this.http.get<P2pConversationSidenavItem[]>(`${this.baseUrl}/client`);
+  }
+
+  getClientConversationDetailById(conversationId: string) {
+    return this.http.get<P2pConversationDetailResponseDto>(`${this.baseUrl}/client/${conversationId}`);
+  }
 }

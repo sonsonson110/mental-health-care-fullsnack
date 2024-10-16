@@ -6,7 +6,7 @@ public class GetAllP2pConversationResponse
 {
     public Guid Id { get; set; }
     public Guid ReceiverId { get; set; }
-    public string ReceiverFullName { get; set; }
+    public string ReceiverFullName { get; set; } = string.Empty;
     public bool IsReceiverOnline { get; set; }
     public LastConversationMessageDto? LastMessage { get; set; }
 }

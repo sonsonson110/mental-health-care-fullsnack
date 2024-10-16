@@ -122,11 +122,22 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
           this.p2pConversationSidenavStateService.initialP2pConversationSidenavItem(data);
           this.isSidenavLoading = false;
         });
+    } else if (this.conversationType === 'client-chats') {
+      this.conversationsService
+        .getClientConversations()
+        .subscribe((data: P2pConversationSidenavItem[]) => {
+          this.p2pConversationSidenavStateService.initialP2pConversationSidenavItem(data);
+          this.isSidenavLoading = false;
+        });
     }
   }
 
   onNavItemClick(id: string) {
-    this.router.navigate(['therapist-chats', id]);
+    if (this.conversationType === 'therapist-chats') {
+      this.router.navigate(['therapist-chats', id]);
+    } else if (this.conversationType === 'client-chats') {
+      this.router.navigate(['client-chats', id]);
+    }
   }
 
   onSidenavToggleClick() {

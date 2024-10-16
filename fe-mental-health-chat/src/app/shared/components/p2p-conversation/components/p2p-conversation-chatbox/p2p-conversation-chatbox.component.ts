@@ -58,6 +58,7 @@ export class P2pConversationChatboxComponent {
   isSending = false;
   conversationId: string | null = null;
   conversationTitle = '';
+  conversationType: string | null = null;
   receiverId: string | null = null;
   userTypingMessage = new FormControl(
     { value: '', disabled: false },
@@ -93,6 +94,11 @@ export class P2pConversationChatboxComponent {
     this.p2pConversationSidenavStateService.sidenavState$.subscribe(state => {
       this.isSideNavOpen = state;
     });
+
+    this.route.data.subscribe(data => {
+      this.conversationType = data['forModule'];
+    });
+    
     this.route.paramMap.subscribe(params => {
       const conversationId = params.get('id');
 
@@ -101,7 +107,6 @@ export class P2pConversationChatboxComponent {
         this.isLoading = true;
         this.userTypingMessage.disable();
         this.loadConversationDetail(conversationId);
-        this.conversationTitle = conversationId;
       }
     });
 
@@ -127,27 +132,51 @@ export class P2pConversationChatboxComponent {
   }
 
   private loadConversationDetail(conversationId: string): void {
-    this.conversationsService
-      .getTherapistConversationDetailById(conversationId)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.userTypingMessage.enable();
-        })
-      )
-      .subscribe({
-        next: response => {
-          this.conversationTitle = response.receiverFullName;
-          this.receiverId = response.receiverId;
-          this.p2pConversationMessageDisplayService.initializeMessages(
-            response.messages.map(this.mapToP2pMessageDisplay)
-          );
-          this.scrollToBottom();
-        },
-        error: err => {
-          // TODO: handle error
-        },
-      });
+    if (this.conversationType === 'therapist-chats') {
+      this.conversationsService
+        .getTherapistConversationDetailById(conversationId)
+        .pipe(
+          finalize(() => {
+            this.isLoading = false;
+            this.userTypingMessage.enable();
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.conversationTitle = response.receiverFullName;
+            this.receiverId = response.receiverId;
+            this.p2pConversationMessageDisplayService.initializeMessages(
+              response.messages.map(this.mapToP2pMessageDisplay)
+            );
+            this.scrollToBottom();
+          },
+          error: err => {
+            // TODO: handle error
+          },
+        });
+    } else if (this.conversationType === 'client-chats') {
+      this.conversationsService
+        .getClientConversationDetailById(conversationId)
+        .pipe(
+          finalize(() => {
+            this.isLoading = false;
+            this.userTypingMessage.enable();
+          })
+        )
+        .subscribe({
+          next: response => {
+            this.conversationTitle = response.receiverFullName;
+            this.receiverId = response.receiverId;
+            this.p2pConversationMessageDisplayService.initializeMessages(
+              response.messages.map(this.mapToP2pMessageDisplay)
+            );
+            this.scrollToBottom();
+          },
+          error: err => {
+            // TODO: handle error
+          },
+        });
+    }
   }
 
   private mapToP2pMessageDisplay(dto: P2pMessageDto): P2pConversationMessageDisplay {

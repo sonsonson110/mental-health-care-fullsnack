@@ -188,6 +188,54 @@ public class ConversationsService : IConversationsService
         }).ToList();
     }
 
+    public async Task<List<GetAllP2pConversationResponse>> GetClientConversationsByUserIdAsync(Guid userId)
+    {
+        var conversations = await _context.Conversations
+            .AsNoTracking()
+            .Where(c => c.TherapistId == userId)
+            .Select(c => new
+            {
+                Id = c.Id,
+                ClientId = c.ClientId,
+                ClientFullName = c.Client.FirstName + " " + c.Client.LastName,
+                IsClientOnline = c.Client.IsOnline,
+                CreatedAt = c.CreatedAt,
+                LastMessage = c.Messages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => new
+                    {
+                        Id = m.Id,
+                        SenderId = m.SenderId,
+                        SenderFullName = m.Sender!.FirstName + " " + m.Sender.LastName,
+                        Content = m.Content,
+                        IsRead = m.IsRead,
+                        CreatedAt = m.CreatedAt
+                    })
+                    .FirstOrDefault()
+            })
+            .OrderByDescending(c => c.LastMessage != null ? c.LastMessage.CreatedAt : c.CreatedAt)
+            .ToListAsync();
+
+        return conversations.Select(c => new GetAllP2pConversationResponse
+        {
+            Id = c.Id,
+            ReceiverId = c.ClientId,
+            IsReceiverOnline = c.IsClientOnline,
+            ReceiverFullName = c.ClientFullName,
+            LastMessage = c.LastMessage != null
+                ? new LastConversationMessageDto
+                {
+                    Id = c.LastMessage.Id,
+                    SenderId = c.LastMessage.SenderId!.Value,
+                    SenderFullName = c.LastMessage.SenderFullName,
+                    Content = c.LastMessage.Content,
+                    CreatedAt = c.LastMessage.CreatedAt,
+                    IsRead = c.LastMessage.IsRead
+                }
+                : null
+        }).ToList();
+    }
+
     public async Task<Result<GetP2pConversationDetailResponseDto>> GetTherapistConversationDetailByIdAndUserId(
         Guid conversationId, Guid userId)
     {
@@ -197,7 +245,8 @@ public class ConversationsService : IConversationsService
         var conversation = await _context.Conversations
             .AsNoTracking()
             .Include(c => c.Therapist)
-            .FirstOrDefaultAsync(c => c.Id == conversationId);
+            .Where(c => c.Id == conversationId)
+            .FirstOrDefaultAsync();
         if (conversation == null || conversation.ClientId != userId || conversation.TherapistId == null)
         {
             return new Result<GetP2pConversationDetailResponseDto>(new NotFoundException("Conversation not found"));
@@ -225,6 +274,47 @@ public class ConversationsService : IConversationsService
             Id = conversation.Id,
             ReceiverId = conversation.TherapistId!.Value,
             ReceiverFullName = conversation.Therapist!.FirstName + " " + conversation.Therapist.LastName,
+            Messages = messages
+        });
+    }
+
+    public async Task<Result<GetP2pConversationDetailResponseDto>> GetClientConversationDetailByIdAndUserId(Guid conversationId, Guid userId)
+    {
+        #region validation
+
+        // check if conversation exists
+        var conversation = await _context.Conversations
+            .AsNoTracking()
+            .Include(c => c.Client)
+            .Where(c => c.Id == conversationId)
+            .FirstOrDefaultAsync();
+        if (conversation == null || conversation.TherapistId != userId)
+        {
+            return new Result<GetP2pConversationDetailResponseDto>(new NotFoundException("Conversation not found"));
+        }
+
+        #endregion
+
+        var messages = await _context.Messages
+            .Where(m => m.ConversationId == conversationId)
+            .OrderBy(m => m.CreatedAt)
+            .Select(m => new P2pMessageDto
+            {
+                Id = m.Id,
+                SenderId = m.SenderId,
+                SenderFullName = m.Sender!.FirstName + " " + m.Sender.LastName,
+                Content = m.Content,
+                CreatedAt = m.CreatedAt,
+                UpdatedAt = m.UpdatedAt,
+                IsRead = m.IsRead
+            })
+            .ToListAsync();
+
+        return new Result<GetP2pConversationDetailResponseDto>(new GetP2pConversationDetailResponseDto
+        {
+            Id = conversation.Id,
+            ReceiverId = conversation.ClientId,
+            ReceiverFullName = conversation.Client.FirstName + " " + conversation.Client.LastName,
             Messages = messages
         });
     }

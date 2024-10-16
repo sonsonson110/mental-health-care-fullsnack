@@ -22,7 +22,7 @@
                 <span
                   matListItemLine
                   [ngClass]="{
-                    bold: item.receiverId === sessionUserId && !item.lastMessage.isRead,
+                    bold: item.lastMessage.senderId !== sessionUserId && !item.lastMessage.isRead,
                   }"
                   >{{
                     item.lastMessage.senderId === sessionUserId

@@ -1,19 +1,17 @@
 <div class="root-container">
-  @if (conversationId) {
-    <div class="toolbar-container mat-elevation-z1">
-      <mat-toolbar>
-        @if (!isSideNavOpen) {
-          <button mat-icon-button (click)="onSidenavClick()">
-            <mat-icon svgIcon="side_navigation"></mat-icon>
-          </button>
-        }
-        <span class="toolbar-title">{{
-          conversationTitle || 'Create a new conversation'
-        }}</span>
-        <span class="spacer"></span>
-      </mat-toolbar>
-    </div>
-  }
+  <div class="toolbar-container mat-elevation-z1">
+    <mat-toolbar>
+      @if (!isSideNavOpen) {
+        <button mat-icon-button (click)="onSidenavClick()">
+          <mat-icon svgIcon="side_navigation"></mat-icon>
+        </button>
+      }
+      <span class="toolbar-title">{{
+        conversationTitle || 'Bonjour!'
+      }}</span>
+      <span class="spacer"></span>
+    </mat-toolbar>
+  </div>
   <div class="message-box">
     @if (conversationId) {
       @if (isLoading) {
@@ -22,7 +20,7 @@
         </div>
       } @else {
         <div #messagesContainer class="messages-container">
-          @if (p2pConversationMessageDisplayService.getMessages()| async; as messages) {
+          @if (p2pConversationMessageDisplayService.getMessages() | async; as messages) {
             @for (message of messages; track message.id) {
               <div
                 class="message"
@@ -48,10 +46,10 @@
           }
         </div>
       }
-    } @else {
+    } @else if (conversationType !== null) {
       <div class="no-conversation-container">
         <span class="mat-headline-small no-conversation-text"
-          >Have you got a therapist partner?</span
+          >Have you got a {{conversationType === 'therapist-chats' ? 'therapist' : 'client'}} partner?</span
         >
         <span class="mat-headline-large no-conversation-text">ヾ(•ω•`)o</span>
       </div>

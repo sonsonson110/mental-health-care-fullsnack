@@ -31,6 +31,20 @@ export const routes: Routes = [
           {
             path: ':id',
             component: P2pConversationChatboxComponent,
+            data: { 'forModule': 'therapist-chats' }
+          },
+        ],
+      },
+      {
+        path: 'client-chats',
+        component: P2pConversationComponent,
+        data: { 'forModule': 'client-chats' },
+        children: [
+          { path: '', component: P2pConversationChatboxComponent, pathMatch: 'full' },
+          {
+            path: ':id',
+            component: P2pConversationChatboxComponent,
+            data: { 'forModule': 'client-chats' }
           },
         ],
       },
