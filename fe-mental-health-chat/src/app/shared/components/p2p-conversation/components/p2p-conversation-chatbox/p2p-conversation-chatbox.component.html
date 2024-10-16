@@ -22,7 +22,7 @@
         </div>
       } @else {
         <div #messagesContainer class="messages-container">
-          @if (messages$ | async; as messages) {
+          @if (p2pConversationMessageDisplayService.getMessages()| async; as messages) {
             @for (message of messages; track message.id) {
               <div
                 class="message"

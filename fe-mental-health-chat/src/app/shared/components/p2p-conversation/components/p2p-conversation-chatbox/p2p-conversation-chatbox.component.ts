@@ -21,6 +21,7 @@ import { P2pConversationMessageDisplay } from '../../../../../core/models/p2p-co
 import { P2pMessageDto } from '../../../../../core/models/p2p-conversation-detail-response.model';
 import { SignalrChatService } from '../../../../../core/services/signalr-chat.service';
 import { P2pMessageRequest } from '../../../../../core/models/p2p-message-request.model';
+import { P2pConversationMessageDisplayService } from '../../services/p2p-conversation-message-display.service';
 
 @Component({
   selector: 'app-p2p-conversation-chatbox',
@@ -39,6 +40,7 @@ import { P2pMessageRequest } from '../../../../../core/models/p2p-message-reques
     MarkdownModule,
     MatProgressBarModule,
   ],
+  providers: [P2pConversationMessageDisplayService],
   templateUrl: './p2p-conversation-chatbox.component.html',
   styleUrl: './p2p-conversation-chatbox.component.scss',
 })
@@ -61,11 +63,10 @@ export class P2pConversationChatboxComponent {
     { value: '', disabled: false },
     Validators.required
   );
-  private messagesSubject = new BehaviorSubject<P2pConversationMessageDisplay[]>([]);
-  messages$ = this.messagesSubject.asObservable();
 
   constructor(
     private p2pConversationSidenavStateService: P2pConversationSidenavStateService,
+    public p2pConversationMessageDisplayService: P2pConversationMessageDisplayService,
     authService: AuthService,
     private cdr: ChangeDetectorRef,
     private matIconRegistry: MatIconRegistry,
@@ -110,37 +111,18 @@ export class P2pConversationChatboxComponent {
       .subscribe((message: P2pConversationMessageDisplay) => {
         if (message.conversationId !== this.conversationId) return;
 
-        const currentMessages = this.messagesSubject.value;
         if (message.senderId !== this.sessionUserId) {
-          this.messagesSubject.next([...currentMessages, message]);
+          this.p2pConversationMessageDisplayService.addMessage(message);
         } else {
-          const updatedMessages = currentMessages.map(msg =>
-            msg.isSending
-              ? { ...msg, isSending: false, createdAt: message.createdAt }
-              : msg
-          );
-          this.messagesSubject.next(updatedMessages);
+          this.p2pConversationMessageDisplayService.markSendingMessageSent(message);
         }
         this.scrollToBottom(); // may be show a notification instead of scrolling to bottom
       });
 
     this.signalRChatService.onException().subscribe(error => {
       this.isSending = false;
-      this.userTypingMessage.reset();
       this.userTypingMessage.enable();
-
-      // get the last sending message and mark it as error
-      const currentMessages = this.messagesSubject.value;
-      for (let i = currentMessages.length - 1; i >= 0; i--) {
-        if (
-          currentMessages[i].isSending &&
-          currentMessages[i].senderId === this.sessionUserId
-        ) {
-          currentMessages[i].isError = true;
-          break;
-        }
-      }
-      this.messagesSubject.next(currentMessages);
+      this.p2pConversationMessageDisplayService.markLastSendingMessageAsError();
     });
   }
 
@@ -157,7 +139,9 @@ export class P2pConversationChatboxComponent {
         next: response => {
           this.conversationTitle = response.receiverFullName;
           this.receiverId = response.receiverId;
-          this.messagesSubject.next(response.messages.map(this.mapToP2pMessageDisplay));
+          this.p2pConversationMessageDisplayService.initializeMessages(
+            response.messages.map(this.mapToP2pMessageDisplay)
+          );
           this.scrollToBottom();
         },
         error: err => {
@@ -204,7 +188,7 @@ export class P2pConversationChatboxComponent {
     this.userTypingMessage.disable();
 
     // add a temporary message to the list of messages
-    const currentMessages: P2pConversationMessageDisplay = {
+    const currentMessage: P2pConversationMessageDisplay = {
       id: crypto.randomUUID(),
       senderId: this.sessionUserId!,
       senderFullName: this.sessionUserFullName!,
@@ -213,7 +197,7 @@ export class P2pConversationChatboxComponent {
       isRead: false,
       isSending: true,
     };
-    this.messagesSubject.next([...this.messagesSubject.value, currentMessages]);
+    this.p2pConversationMessageDisplayService.addMessage(currentMessage);
     this.scrollToBottom();
 
     var p2pMessageRequest: P2pMessageRequest = {
