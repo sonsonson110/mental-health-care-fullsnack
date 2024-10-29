@@ -1,6 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Component, computed, model, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  model,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {
   FormBuilder,
   FormsModule,
@@ -25,17 +33,20 @@ import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { IssueTag } from '../../core/models/domain/issue-tag.domain';
+import { IssueTag } from '../../core/models/issue-tag.model';
 import { CreateEducationRequest } from '../../core/models/modules/register/create-education-request.model';
 import { CreateCertificationRequest } from '../../core/models/modules/register/create-certification-request.model';
 import { CreateExperienceRequest } from '../../core/models/modules/register/create-experience-request.model';
-import { UserService } from '../../core/services/user.service';
+import { UsersService } from '../../core/services/users.service';
 import { genders } from '../../core/constants/gender.constant';
 import { TagsService } from '../../core/services/tags.service';
 import { ProblemDetail } from '../../core/models/problem-detail.model';
 import { ErrorDisplayComponent } from '../../shared/components/error-display/error-display.component';
 import { Router } from '@angular/router';
 import { CreateUserRequest } from '../../core/models/modules/register/create-user-request.model';
+import { Gender } from '../../core/models/enums/gender.enum';
+import { FilesService } from '../../core/services/files.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -63,6 +74,9 @@ import { CreateUserRequest } from '../../core/models/modules/register/create-use
   styleUrl: './register.component.scss',
 })
 export class RegisterComponent implements OnInit {
+  @ViewChild('fileInput') fileInput!: ElementRef;
+  @ViewChild('chipInput') chipInput!: ElementRef<HTMLInputElement>;
+
   // issue tags input
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly currentIssueTag = model('');
@@ -95,23 +109,31 @@ export class RegisterComponent implements OnInit {
   // form groups
   identityFormGroup;
   personalInfoFormGroup;
+  selectedFile: File | null = null;
+  previewUrl: string | ArrayBuffer | null = null;
   therapistEducationFormGroup;
   therapistCertificationFormGroup;
-  therapistBioForm;
+  therapistDescriptionForm;
   therapistExperienceFormGroup;
 
-  // added to preview items
+  // preview items
   educations = signal<CreateEducationRequest[]>([]);
   certifications = signal<CreateCertificationRequest[]>([]);
   experiences = signal<CreateExperienceRequest[]>([]);
+
+  // form panel state
+  isEducationFormPanelOpen = false;
+  isCertificationFormPanelOpen = false;
+  isExperienceFormPanelOpen = false;
 
   error: ProblemDetail | null = null;
 
   constructor(
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private userService: UserService,
+    private userService: UsersService,
     private tagsService: TagsService,
+    private filesService: FilesService,
     _formBuilder: FormBuilder
   ) {
     // Observe screen size to determine if we should show the side nav
@@ -120,6 +142,7 @@ export class RegisterComponent implements OnInit {
     });
     // set up form groups
     this.identityFormGroup = _formBuilder.group({
+      userName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
@@ -127,58 +150,86 @@ export class RegisterComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
-      phoneNumber: ['', Validators.pattern('^[0-9]*$')],
+      phoneNumber: [null, Validators.pattern('^[0-9]*$')],
       gender: [null as number | null, Validators.required],
+      bio: [null],
     });
     this.therapistEducationFormGroup = _formBuilder.group({
-      institude: ['', Validators.required],
-      degree: [''],
-      major: [''],
+      institution: ['', Validators.required],
+      degree: [null],
+      major: [null],
       startDate: ['', Validators.required],
-      endDate: [''],
+      endDate: [null],
     });
-    this.therapistEducationFormGroup.disable(); // disable by default
     this.therapistCertificationFormGroup = _formBuilder.group({
       name: ['', Validators.required],
       issuingOrganization: ['', Validators.required],
       dateIssued: ['', Validators.required],
-      expirationDate: [''],
-      referenceUrl: [''],
+      expirationDate: [null],
+      referenceUrl: [null],
     });
-    this.therapistCertificationFormGroup.disable(); // disable by default
-    this.therapistBioForm = _formBuilder.control('');
-    this.therapistBioForm.disable(); // disable by default
+    this.therapistDescriptionForm = _formBuilder.control(null);
     this.therapistExperienceFormGroup = _formBuilder.group({
       organization: ['', Validators.required],
       position: ['', Validators.required],
-      description: [''],
+      description: [null],
       startDate: ['', Validators.required],
-      endDate: [''],
+      endDate: [null],
     });
-    this.therapistExperienceFormGroup.disable(); // disable by default
   }
+
   ngOnInit(): void {
     this.tagsService.getAll().subscribe(tags => {
       this.allIssueTags = tags;
     });
+    // Subscribe to gender changes to update the avatar preview
+    this.personalInfoFormGroup.get('gender')?.valueChanges.subscribe(() => {
+      if (!this.selectedFile) {
+        this.updatePreview();
+      }
+    });
+  }
+
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.updatePreview();
+    }
+  }
+
+  updatePreview(): void {
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.previewUrl = e.target?.result || this.getDefaultAvatar();
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      this.previewUrl = this.getDefaultAvatar();
+    }
+  }
+
+  getDefaultAvatar(): string {
+    return this.personalInfoFormGroup.controls.gender?.value === Gender.FEMALE
+      ? 'assets/default-avatar/girl.png'
+      : 'assets/default-avatar/boy.png';
   }
 
   onTherapistCheckboxChange() {
     this.isTherapist = !this.isTherapist;
-    if (this.isTherapist === false) {
-      this.therapistEducationFormGroup.disable();
-      this.therapistCertificationFormGroup.disable();
-      this.therapistExperienceFormGroup.disable();
-      this.therapistBioForm.disable();
-    } else {
-      this.therapistEducationFormGroup.enable();
-      this.therapistCertificationFormGroup.enable();
-      this.therapistExperienceFormGroup.enable();
-      this.therapistBioForm.enable();
-    }
+    const action = this.isTherapist ? 'enable' : 'disable';
+    this.therapistEducationFormGroup[action]();
+    this.therapistCertificationFormGroup[action]();
+    this.therapistExperienceFormGroup[action]();
+    this.therapistDescriptionForm[action]();
   }
 
-  // region: for issue tags input
+  // region tags methods
   remove(id: string): void {
     this.issueTags.update(issueTags => {
       const index = issueTags.findIndex(e => e.id === id);
@@ -196,28 +247,44 @@ export class RegisterComponent implements OnInit {
       const newIssueTag = this.allIssueTags.find(e => e.id === event.option.value);
       return newIssueTag !== undefined ? [...issueTags, newIssueTag] : [...issueTags];
     });
-    this.currentIssueTag.set('');
+    this.chipInput.nativeElement.value = '';
     event.option.deselect();
   }
-  // endregion
 
-  onAddEducationClick() {
+  onSaveEducationClick() {
     const education = this.therapistEducationFormGroup
       .value as unknown as CreateEducationRequest;
     this.educations.update(educations => [...educations, education]);
     this.therapistEducationFormGroup.reset();
+    this.isEducationFormPanelOpen = false;
   }
+
   onAddCertificationClick() {
     const certification = this.therapistCertificationFormGroup
       .value as unknown as CreateCertificationRequest;
     this.certifications.update(certifications => [...certifications, certification]);
     this.therapistCertificationFormGroup.reset();
+    this.isCertificationFormPanelOpen = false;
   }
+
   onAddExperienceClick() {
     const experience = this.therapistExperienceFormGroup
       .value as unknown as CreateExperienceRequest;
     this.experiences.update(experiences => [...experiences, experience]);
     this.therapistExperienceFormGroup.reset();
+    this.isExperienceFormPanelOpen = false;
+  }
+
+  onEducationFormPanelToggle() {
+    this.isEducationFormPanelOpen = !this.isEducationFormPanelOpen;
+  }
+
+  onExperienceFormPanelToggle() {
+    this.isExperienceFormPanelOpen = !this.isExperienceFormPanelOpen;
+  }
+
+  onCertificationFormPanelToggle() {
+    this.isCertificationFormPanelOpen = !this.isCertificationFormPanelOpen;
   }
 
   onRemoveEducationClick(index: number) {
@@ -226,12 +293,14 @@ export class RegisterComponent implements OnInit {
       return [...educations];
     });
   }
+
   onRemoveCertificationClick(index: number) {
     this.certifications.update(certifications => {
       certifications.splice(index, 1);
       return [...certifications];
     });
   }
+
   onRemoveExperienceClick(index: number) {
     this.experiences.update(experiences => {
       experiences.splice(index, 1);
@@ -239,7 +308,7 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  registerable() {
+  registrable() {
     return this.identityFormGroup.valid && this.personalInfoFormGroup.valid;
   }
 
@@ -247,55 +316,71 @@ export class RegisterComponent implements OnInit {
     this.error = null;
 
     // convert to the date format that the backend expects
-    const dateOfBirth = new Date(this.personalInfoFormGroup.value.dateOfBirth!!)
-      .toISOString()
-      .split('T')[0];
+    const dateOfBirth = this.parseBackendConsumableDate(
+      this.personalInfoFormGroup.value.dateOfBirth!
+    );
     const educations = this.isTherapist
       ? this.educations().map(e => {
-          e.startDate = new Date(e.startDate).toISOString().split('T')[0];
-          e.endDate = e.endDate ? new Date(e.endDate).toISOString().split('T')[0] : null;
+          e.startDate = this.parseBackendConsumableDate(e.startDate);
+          e.endDate = e.endDate && this.parseBackendConsumableDate(e.endDate);
           return e;
         })
       : [];
     const certifications = this.isTherapist
       ? this.certifications().map(e => {
-          e.dateIssued = new Date(e.dateIssued).toISOString().split('T')[0];
-          e.expirationDate = e.expirationDate
-            ? new Date(e.expirationDate).toISOString().split('T')[0]
-            : null;
+          e.dateIssued = this.parseBackendConsumableDate(e.dateIssued);
+          e.expirationDate =
+            e.expirationDate && this.parseBackendConsumableDate(e.expirationDate);
           return e;
         })
       : [];
     const experiences = this.isTherapist
       ? this.experiences().map(e => {
-          e.startDate = new Date(e.startDate).toISOString().split('T')[0];
-          e.endDate = e.endDate ? new Date(e.endDate).toISOString().split('T')[0] : null;
+          e.startDate = this.parseBackendConsumableDate(e.startDate);
+          e.endDate = e.endDate && this.parseBackendConsumableDate(e.endDate);
           return e;
         })
       : [];
 
     const createUserRequest: CreateUserRequest = {
-      firstName: this.personalInfoFormGroup.value.firstName!!,
-      lastName: this.personalInfoFormGroup.value.lastName!!,
-      gender: this.personalInfoFormGroup.value.gender!!,
+      userName: this.identityFormGroup.value.userName!,
+      firstName: this.personalInfoFormGroup.value.firstName!,
+      lastName: this.personalInfoFormGroup.value.lastName!,
+      gender: this.personalInfoFormGroup.value.gender!,
       dateOfBirth: dateOfBirth,
-      phoneNumber: this.personalInfoFormGroup.value.phoneNumber!!,
-      email: this.identityFormGroup.value.email!!,
-      password: this.identityFormGroup.value.password!!,
+      phoneNumber: this.personalInfoFormGroup.value.phoneNumber!,
+      email: this.identityFormGroup.value.email!,
+      password: this.identityFormGroup.value.password!,
       isTherapist: this.isTherapist,
       educations: educations,
       certifications: certifications,
       experiences: experiences,
-      bio: this.isTherapist ? this.therapistBioForm.value : null,
+      description: this.isTherapist ? this.therapistDescriptionForm.value : null,
       issueTagIds: this.isTherapist ? this.issueTags().map(e => e.id) : [],
+      avatarName: null,
+      bio: this.personalInfoFormGroup.value.bio!,
     };
-    this.userService.register(createUserRequest).subscribe({
+
+    const avatarUpload$ = this.selectedFile
+      ? this.filesService.uploadAvatar(this.selectedFile).pipe(
+          switchMap(resp => {
+            createUserRequest.avatarName = resp.fileName;
+            return this.userService.register(createUserRequest);
+          })
+        )
+      : this.userService.register(createUserRequest);
+
+    avatarUpload$.subscribe({
       error: (problemDetail: ProblemDetail) => (this.error = problemDetail),
       next: () => {
         stepper.next();
-        stepper.steps.forEach(e => e.editable = false);
+        stepper.steps.forEach(e => (e.editable = false));
       },
     });
+  }
+
+  private parseBackendConsumableDate(date: string): string {
+    return new Date(date).toISOString().split('T')[0];
   }
 
   onFinishClick() {

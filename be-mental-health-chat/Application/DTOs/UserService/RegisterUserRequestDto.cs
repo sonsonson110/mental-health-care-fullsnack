@@ -6,17 +6,29 @@ namespace Application.DTOs.UserService;
 
 public class RegisterUserRequestDto
 {
+    [Required]
     public required string FirstName { get; set; }
+    [Required]
     public required string LastName { get; set; }
+    [Required]
     public Gender Gender { get; set; }
+    [Required]
     public DateOnly DateOfBirth { get; set; }
+    [Required]
+    public required string UserName { get; set; }
+    [Required]
     public required string Email { get; set; }
     public string? PhoneNumber { get; set; }
+    [Required]
     public required string Password { get; set; }
-    public bool IsTherapist { get; set; }
-    public List<CreateEducationDto> Educations { get; set; } = [];
-    public List<CreateExperienceDto> Experiences { get; set; } = [];
-    public List<CreateCertificationDto> Certifications { get; set; } = [];
     public string? Bio { get; set; } = null;
-    public List<Guid> IssueTagIds { get; set; } = [];
+    public string? AvatarName { get; set; }
+
+    [Required]
+    public bool IsTherapist { get; set; }
+    public string? Description { get; set; }
+    public List<CreateEducationDto>? Educations { get; set; }
+    public List<CreateExperienceDto>? Experiences { get; set; }
+    public List<CreateCertificationDto>? Certifications { get; set; }
+    public List<Guid>? IssueTagIds { get; set; }
 }

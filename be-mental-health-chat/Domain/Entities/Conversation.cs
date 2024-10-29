@@ -1,16 +1,21 @@
-﻿using Domain.Common;
-using Domain.Common.Interface;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Common;
 
 namespace Domain.Entities;
 
-public class Conversation: EntityBase, ICreateTimestampMarkEntityBase
+public class Conversation : TimestampMarkedEntityBase
 {
-    public Guid ClientId { get; set; }
-    public Guid? TherapistId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    [MaxLength(50)]
     public string? Title { get; set; }
     
-    public User Client { get; set; }
+    public Guid ClientId { get; set; }
+    public Guid? TherapistId { get; set; }
+
+    #region navigation properties
+
+    public User Client { get; set; } = null!;
     public Therapist? Therapist { get; set; }
-    public List<Message> Messages { get; set; }
+    public List<Message> Messages { get; set; } = null!;
+
+    #endregion
 }

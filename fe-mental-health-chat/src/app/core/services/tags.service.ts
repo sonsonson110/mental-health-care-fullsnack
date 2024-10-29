@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
-import { IssueTag } from '../models/domain/issue-tag.domain';
+import { IssueTag } from '../models/issue-tag.model';
 
 @Injectable({
   providedIn: 'root'

@@ -1,42 +1,46 @@
 ﻿using Application.DTOs.AuthService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
-using Domain.Interfaces;
+using Domain.Entities;
 using LanguageExt.Common;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly IPasswordHasher _passwordHasher;
-    private readonly IMentalHealthContext _context;
+    private readonly UserManager<User> _userManager;
     private readonly IJwtGenerator _jwtGenerator;
+    private readonly SignInManager<User> _signInManager;
 
     public AuthService(
-        IMentalHealthContext context, 
-        IPasswordHasher passwordHasher, 
-        IJwtGenerator jwtGenerator)
+        UserManager<User> userManager,
+        IJwtGenerator jwtGenerator,
+        SignInManager<User> signInManager)
     {
-        _passwordHasher = passwordHasher;
-        _context = context;
+        _userManager = userManager;
         _jwtGenerator = jwtGenerator;
+        _signInManager = signInManager;
     }
 
     public async Task<Result<AuthenticationResponseDto>> AuthenticateAsync(AuthenticationRequestDto request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        var user = await _userManager.FindByNameAsync(request.UserName);
+
         // validate
         if (user == null)
         {
-            return new Result<AuthenticationResponseDto>(new NotFoundException("Email not found"));
+            return new Result<AuthenticationResponseDto>(new NotFoundException("User name is not found"));
         }
 
-        if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        var passwordSignInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        if (!passwordSignInResult.Succeeded)
         {
-            return new Result<AuthenticationResponseDto>(new BadRequestException("Password is incorrect", null));
+            return new Result<AuthenticationResponseDto>(
+                new BadRequestException("Invalid user name or password", null));
         }
 
-        return new AuthenticationResponseDto { Token = _jwtGenerator.GenerateJwtToken(user) };
+        var userRoles = await _userManager.GetRolesAsync(user);
+        return new AuthenticationResponseDto { Token = _jwtGenerator.GenerateJwtToken(user, userRoles) };
     }
 }

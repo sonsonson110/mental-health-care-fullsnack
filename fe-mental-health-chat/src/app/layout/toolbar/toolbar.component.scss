@@ -5,6 +5,10 @@
   background-color: mat.get-theme-color($fe-mental-health-chat-theme, primary, 90);
 }
 
+.app-title {
+  font-weight: 600;
+}
+
 .spacer {
   flex: 1 1 auto;
 }

@@ -32,7 +32,7 @@ import { ProblemDetail } from '../../core/models/problem-detail.model';
 })
 export class LoginComponent {
   loginForm = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
+    userName: new FormControl('', [Validators.required, Validators.minLength(6)]),
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
   });
   serverError = '';
@@ -49,8 +49,8 @@ export class LoginComponent {
 
     this.authService
       .login({
-        email: this.loginForm.value.email!!,
-        password: this.loginForm.value.password!!,
+        userName: this.loginForm.value.userName!,
+        password: this.loginForm.value.password!,
       })
       .pipe(finalize(() => (this.isLoggingIn = false)))
       .subscribe({

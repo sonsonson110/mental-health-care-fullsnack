@@ -11,10 +11,6 @@ public class TherapistProfile : Profile
     {
         CreateMap<RegisterUserRequestDto, Therapist>()
             .ForMember(
-                dest => dest.UserType,
-                opt
-                    => opt.MapFrom(src => src.IsTherapist ? UserType.THERAPIST : UserType.USER))
-            .ForMember(
                 dest => dest.Educations,
                 opt
                     => opt.MapFrom(src => src.Educations))

@@ -7,6 +7,7 @@ import { AiChatsComponent } from './modules/ai-chats/ai-chats.component';
 import { AiChatsConversationComponent } from './modules/ai-chats/components/ai-chats-conversation/ai-chats-conversation.component';
 import { P2pConversationComponent } from './shared/components/p2p-conversation/p2p-conversation.component';
 import { P2pConversationChatboxComponent } from './shared/components/p2p-conversation/components/p2p-conversation-chatbox/p2p-conversation-chatbox.component';
+import { TherapistsComponent } from './modules/therapists/therapists.component';
 
 export const routes: Routes = [
   {
@@ -34,6 +35,10 @@ export const routes: Routes = [
             data: { 'forModule': 'therapist-chats' }
           },
         ],
+      },
+      {
+        path: 'therapists',
+        component: TherapistsComponent,
       },
       {
         path: 'client-chats',

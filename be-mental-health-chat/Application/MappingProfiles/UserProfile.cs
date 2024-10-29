@@ -13,10 +13,6 @@ public class UserProfile : Profile
             .ForMember(
                 dest => dest.Id,
                 opt
-                => opt.MapFrom(src => Guid.NewGuid()))
-            .ForMember(
-                dest => dest.UserType,
-                opt 
-                    => opt.MapFrom(src => src.IsTherapist ? UserType.THERAPIST : UserType.USER));
+                    => opt.MapFrom(src => Guid.NewGuid()));
     }
 }

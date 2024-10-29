@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Infrastructure.Integrations.Gemini.Interfaces;
+using Infrastructure.Integrations.Gemini;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

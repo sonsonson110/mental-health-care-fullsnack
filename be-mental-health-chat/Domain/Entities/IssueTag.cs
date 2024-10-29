@@ -1,10 +1,21 @@
-﻿using Domain.Common;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Common;
 
 namespace Domain.Entities;
 
 public class IssueTag : EntityBase
 {
-    public string Name { get; set; }
+    [MaxLength(50)]
+    public required string Name { get; set; }
+    [MaxLength(16)]
     public string? ShortName { get; set; }
-    public string Definition { get; set; }
+    [MaxLength(255)]
+    public required string Definition { get; set; }
+
+    #region navigation properties
+
+    public List<Therapist> Therapists { get; } = [];
+    public List<TherapistIssueTag> TherapistIssueTags { get; } = [];
+
+    #endregion
 }

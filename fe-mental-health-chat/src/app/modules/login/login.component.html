@@ -17,10 +17,10 @@
       <div class="second-section">
         <form [formGroup]="loginForm" class="form">
           <mat-form-field appearance="outline" class="text-input-item">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" formControlName="email" />
-            <mat-error *ngIf="loginForm.get('email')?.hasError('required')"
-              >Email is required</mat-error
+            <mat-label>User name</mat-label>
+            <input matInput formControlName="userName" />
+            <mat-error *ngIf="loginForm.get('userName')?.hasError('required')"
+              >User name is required</mat-error
             >
           </mat-form-field>
           <mat-form-field appearance="outline" class="text-input-item">
@@ -57,20 +57,20 @@
     <table>
       <thead>
         <tr>
-          <th>Email</th>
+          <th>User name</th>
           <th>Password</th>
           <th>Type</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="mat-label-medium">john.doe&#64;example.com</td>
-          <td class="mat-label-medium">password123</td>
+          <td class="mat-label-medium">john.doe</td>
+          <td class="mat-label-medium">Password&#64;123</td>
           <td class="mat-label-medium">User</td>
         </tr>
         <tr>
-          <td class="mat-label-medium">sarah.johnson&#64;example.com</td>
-          <td class="mat-label-medium">password123</td>
+          <td class="mat-label-medium">sarah.johnson</td>
+          <td class="mat-label-medium">Password&#64;123</td>
           <td class="mat-label-medium">Therapist</td>
         </tr>
       </tbody>

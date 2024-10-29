@@ -1,4 +1,3 @@
-using API;
 using API.Hubs;
 using Application;
 using Infrastructure;
@@ -60,7 +59,7 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 builder.Services.AddCors(option =>
 {
     option.AddPolicy("AllowSpecificOrigins", p => p
-        .WithOrigins(allowedOrigins)
+        .WithOrigins(allowedOrigins ?? throw new InvalidOperationException("Allowed origins not set"))
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
@@ -86,6 +85,16 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowSpecificOrigins");
 
+var cacheMaxAgeFiveMinutes = (60 * 5).ToString();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append(
+            "Cache-Control", $"public, max-age={cacheMaxAgeFiveMinutes}");
+    }
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -93,6 +102,6 @@ app.MapHub<ChatHub>("/chat");
 app.MapControllers();
 
 // Initialize the database
-// DatabaseInitializer.Initialize(app.Services);
+// await DatabaseInitializer.Initialize(app.Services);
 
 app.Run();

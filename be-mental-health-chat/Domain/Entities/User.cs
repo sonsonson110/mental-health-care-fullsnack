@@ -1,21 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Domain.Common;
-using Domain.Common.Interface;
+﻿using Domain.Common.Interface;
 using Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace Domain.Entities;
 
-public class User : EntityBase, ICreateTimestampMarkEntityBase
+public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public required string FirstName { get; set; } 
+    public required string LastName { get; set; }
     public Gender Gender { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public string Email { get; set; }
-    public string? PhoneNumber { get; set; }
-    public string PasswordHash { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string? AvatarName { get; set; }
+    public string? Bio { get; set; }
     public bool IsOnline { get; set; }
-    public UserType UserType { get; set; }
+    public string? TimeZoneId { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
