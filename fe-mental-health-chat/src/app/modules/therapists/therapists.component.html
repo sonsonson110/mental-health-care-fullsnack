@@ -1,0 +1,180 @@
+<div class="root-container">
+  <mat-toolbar class="toolbar">
+    <img class="logo" src="assets/icons/angularGradient.png" />
+    <span class="title">Therapist dicovery</span>
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="search-input mat-body-large"
+        placeholder="Search by name"
+      />
+    </div>
+    <button mat-icon-button (click)="toggleFilterPanel()">
+      <mat-icon class="filter-icon">filter_list</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container>
+    <div class="content-container">
+      @for (therapist of therapistSummaryData; track therapist.id) {
+        <mat-card class="card" appearance="outlined">
+          <mat-card-header>
+            <img
+              mat-card-avatar
+              [src]="therapist.avatarUrl | parseAvatarUrl: therapist.gender"
+            />
+            <mat-card-title>{{ therapist.fullName }}</mat-card-title>
+            <mat-card-subtitle class="subtitle"
+              >{{ therapist.gender | gender }} ▪ ⭐
+              {{ therapist.rating }}</mat-card-subtitle
+            >
+          </mat-card-header>
+          <mat-card-content>
+            <div class="description-item mat-label-large">
+              <mat-icon class="icon">school</mat-icon>
+              @if (therapist.educationCount) {
+                <span class="description">{{ therapist.lastEducation }}</span>
+                <span *ngIf="therapist.educationCount > 1" class="addition"
+                  >+{{ therapist.educationCount }}</span
+                >
+              } @else {
+                <span class="description">Not mentioned</span>
+              }
+            </div>
+            <div class="description-item mat-label-large">
+              <mat-icon class="icon">work</mat-icon>
+              @if (therapist.lastExperience) {
+                <span class="description">{{ therapist.lastExperience }}</span>
+                <span *ngIf="therapist.experienceCount > 1" class="addition"
+                  >+{{ therapist.experienceCount }}</span
+                >
+              } @else {
+                <span class="description">Not mentioned</span>
+              }
+            </div>
+            <div class="description-item mat-label-large">
+              <mat-icon class="icon">workspace_premium</mat-icon>
+              @if (therapist.certificationCount) {
+                <span class="description"
+                  >{{ therapist.certificationCount }}
+                  {{
+                    therapist.certificationCount > 1 ? 'certifications' : 'certification'
+                  }}</span
+                >
+              } @else {
+                <span class="description">Not mentioned</span>
+              }
+            </div>
+            <div class="description-item mat-label-large">
+              <mat-icon class="icon">accessibility_new</mat-icon>
+              @if (therapist.certificationCount) {
+                <span class="description"
+                  >{{ therapist.clientCount }}
+                  {{ therapist.clientCount > 1 ? 'client' : 'clients' }} helped</span
+                >
+              } @else {
+                <span class="description">Be the first client!</span>
+              }
+            </div>
+            <p class="bio">{{ therapist.bio || 'Bio of therapist is not mentioned' }}</p>
+            <mat-chip-set>
+              @for (tag of therapist.issueTags; track $index) {
+                <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+          </mat-card-content>
+          <span class="spacer"></span>
+          <mat-card-actions>
+            <button mat-button>MORE...</button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+    <mat-sidenav [mode]="fileterPanelMode" position="end" [opened]="isFilterPanelOpen">
+      <div class="filter-container">
+        <p class="mat-title-medium">Advanced filters</p>
+        <mat-slide-toggle [(ngModel)]="isFilterEnabled">Enable</mat-slide-toggle>
+        <mat-form-field appearance="outline" class="tag">
+          <mat-label>Issues/Specializations</mat-label>
+          <mat-chip-grid #chipGrid>
+            @for (issueTag of issueTags(); track $index) {
+              <mat-chip-row (removed)="remove(issueTag.id)">
+                {{ issueTag.name }}
+                <button matChipRemove>
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            #chipInput
+            placeholder="New tag..."
+            [(ngModel)]="currentIssueTag"
+            [matChipInputFor]="chipGrid"
+            [matAutocomplete]="auto"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            [disabled]="!isFilterEnabled"
+          />
+          <mat-hint *ngIf="!isFilterEnabled">Disabled</mat-hint>
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+            @for (item of filteredIssueTags(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <span class="spacer"></span>
+
+        <label class="mat-title-small">Rating ⭐</label>
+        <mat-slider
+          min="0"
+          max="5"
+          step="0.5"
+          showTickMarks
+          discrete
+          [disabled]="!isFilterEnabled"
+        >
+          <input [(ngModel)]="minRating" matSliderStartThumb />
+          <input [(ngModel)]="maxRating" matSliderEndThumb />
+        </mat-slider>
+
+        <div class="gender">
+          <span class="mat-title-small">Gender</span>
+          <mat-selection-list #genderSelect>
+            @for (gender of genders; track gender.key) {
+              <mat-list-option [value]="gender.key" [disabled]="!isFilterEnabled">{{
+                gender.value
+              }}</mat-list-option>
+            }
+          </mat-selection-list>
+        </div>
+
+        <div class="experience">
+          <span class="mat-title-small">Experience level</span>
+          <mat-selection-list
+            #experienceLevelSelect
+            [formControl]="experienceLevelControl"
+            [multiple]="false"
+          >
+            @for (option of experienceLevelFilterOptions; track option.key) {
+              <mat-list-option [value]="option.key" [disabled]="!isFilterEnabled">{{
+                option.value
+              }}</mat-list-option>
+            }
+          </mat-selection-list>
+        </div>
+
+        <div class="availability">
+            <span class="mat-title-small">Availability</span>
+            <mat-selection-list #availabilitySelect>
+              @for (option of availabilityFilterOptions; track option.key) {
+                <mat-list-option [value]="option.key" [disabled]="!isFilterEnabled">{{
+                  option.value
+                }}</mat-list-option>
+              }
+            </mat-selection-list>
+          </div>
+      </div>
+    </mat-sidenav>
+  </mat-sidenav-container>
+</div>

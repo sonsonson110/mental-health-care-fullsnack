@@ -1,12 +1,13 @@
 ﻿using System.Text;
 using Application.Interfaces;
-using Domain.Interfaces;
+using Domain.Entities;
 using Infrastructure.Data;
-using Infrastructure.Integrations;
+using Infrastructure.Data.Interfaces;
+using Infrastructure.FileStorage;
 using Infrastructure.Integrations.Gemini;
-using Infrastructure.Integrations.Gemini.Interfaces;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,14 +23,39 @@ public static class DependencyInjection
         {
             opt.UseNpgsql(configuration.GetConnectionString("MentalHealthContext"));
         });
-        services.AddScoped<IMentalHealthContext, MentalHealthContext>();
-        services.AddTransient<IPasswordHasher, PasswordHasher>();
+
+        // Must register the interface with the provider (defined dbcontext lifetime)
+        services.AddScoped<IMentalHealthContext>(provider =>
+            provider.GetRequiredService<MentalHealthContext>());
+
+        services.AddIdentity<User, Role>(options =>
+            {
+                // Lockout settings - disabled
+                options.Lockout = new LockoutOptions
+                {
+                    AllowedForNewUsers = false,
+                    DefaultLockoutTimeSpan = TimeSpan.Zero,
+                    MaxFailedAccessAttempts = 1000
+                };
+                
+                // Sign-in settings - no verification required
+                options.SignIn = new SignInOptions 
+                {
+                    RequireConfirmedEmail = false,
+                    RequireConfirmedPhoneNumber = false,
+                    RequireConfirmedAccount = false
+                };
+            })
+            .AddEntityFrameworkStores<MentalHealthContext>()
+            .AddDefaultTokenProviders();
+
         services.AddTransient<IJwtGenerator, JwtGenerator>();
         services.AddScoped<IGeminiService, GeminiService>();
-        
+        services.AddScoped<IFileStorageService, FileStorageService>();
+
         // Register HttpClient
         services.AddHttpClient<IGeminiService, GeminiService>();
-                
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

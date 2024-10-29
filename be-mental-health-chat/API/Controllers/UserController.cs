@@ -1,22 +1,22 @@
 ﻿using API.Extensions;
-using Application;
 using Application.DTOs.UserService;
-using Application.Interfaces;
 using Application.Services.Interfaces;
+using Infrastructure.FileStorage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class UserController : MentalHeathControllerBase
+public class UsersController : MentalHeathControllerBase
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
+
+    public UsersController(IUserService userService)
     {
         _userService = userService;
     }
 
-    // POST: /user/register
+    // POST: /users/register
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequestDto request)
     {

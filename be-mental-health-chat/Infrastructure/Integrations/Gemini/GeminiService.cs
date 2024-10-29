@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Domain.Entities;
-using Infrastructure.Integrations.Gemini.Interfaces;
 using Infrastructure.Integrations.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

@@ -19,7 +19,7 @@ export const baseNavItems: NavItem[] = [
   {
     displayName: 'Therapists',
     iconName: 'diversity_3',
-    route: 'therapists-discovery',
+    route: 'therapists',
   },
   {
     displayName: 'Profile',

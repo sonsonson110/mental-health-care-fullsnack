@@ -6,8 +6,8 @@ import { CreateUserRequest } from '../models/modules/register/create-user-reques
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
-  private readonly baseEndpoint = environment.apiBaseUrl + '/user';
+export class UsersService {
+  private readonly baseEndpoint = environment.apiBaseUrl + '/users';
 
   constructor(private http: HttpClient) { }
 

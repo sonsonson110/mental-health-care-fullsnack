@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserService;
+﻿using Application.DTOs.Shared;
+using Application.DTOs.UserService;
 using AutoMapper;
 
 namespace Application.MappingProfiles;

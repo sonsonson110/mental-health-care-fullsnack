@@ -1,9 +1,6 @@
 import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import {
-  baseNavItems,
-  therapistNavItems,
-} from '../../shared/constants/nav-items.constant';
+
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
@@ -11,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserType } from '../../core/models/enums/user-type.enum';
 import { userTypes } from '../../core/constants/user-type.constant';
 import { Location } from '@angular/common';
+import { baseNavItems, therapistNavItems } from '../../core/constants/nav-items.constant';
 
 @Component({
   selector: 'app-left-side-nav',

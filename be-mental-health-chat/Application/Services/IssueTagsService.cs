@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Entities;
+using Infrastructure.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;

@@ -3,11 +3,8 @@
 @import '../../../styles.scss';
 
 .root-container {
-  display: flex;
   height: 100%;
   width: 100%;
-  flex-direction: column;
-  align-items: center;
 
   .header-container {
     display: flex;
@@ -23,28 +20,52 @@
   }
 
   .stepper {
+    padding: 0 1rem;
+    margin: 0 auto;
+
     @media (min-width: $breakpoint-md) {
       max-width: 800px;
     }
 
     mat-form-field {
-      width: 280px !important;
+      width: auto !important;
     }
 
-    .form-container {
+    .section-container {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      width: 100%;
+      gap: 0.25rem;
+      margin: 1rem 0;
 
-      .section-container {
+      .add-button {
+        align-self: flex-start;
+      }
+
+      .warn-button {
+        color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+
+        &:hover {
+          background-color: mat.get-theme-color(
+              $fe-mental-health-chat-theme,
+              error,
+              80
+          );
+        }
+      }
+
+      .form-container {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        width: 100%;
 
-        .submit {
-          width:fit-content;
+
+        .row {
+          display: flex;
+          gap: 0.5rem;
+
+          .submit {
+            width: fit-content;
+          }
         }
       }
 
@@ -53,11 +74,12 @@
         gap: 0.5rem;
 
         mat-form-field {
-          width: 136px !important;
+          flex: 1;
         }
       }
     }
 
+    // use for personal info
     .split-container {
       display: flex;
       gap: 1rem;
@@ -67,30 +89,26 @@
         flex-direction: row;
       }
 
-      .item-container {
-        @extend .stepper, .form-container;
-        flex: 1;
+      .avatar-container {
+        display: flex;
+        flex: 2;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .avatar-preview {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-bottom: 0.5rem;
+          border: 2px solid mat.get-theme-color($fe-mental-health-chat-theme, primary, 60);;
+        }
       }
 
-      .preview-item-container {
-        @extend .item-container;
-        gap: 0;
-
-        .warn-button {
-          color: mat.get-theme-color(
-            $fe-mental-health-chat-theme,
-            error,
-            50
-          );
-
-          &:hover {
-            background-color: mat.get-theme-color(
-              $fe-mental-health-chat-theme,
-              error,
-              80
-            );
-          }
-        }
+      .item-container {
+        @extend .stepper, .section-container;
+        flex: 3;
       }
     }
   }

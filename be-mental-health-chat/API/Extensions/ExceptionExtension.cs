@@ -9,7 +9,7 @@ public static class ExceptionExtension
     {
         return new ProblemDetails
         {
-            Title = "Validation failed",
+            Title = "Bad request",
             Status = 400,
             Detail = exception.Message,
             Extensions = { ["errors"] = exception.Errors }

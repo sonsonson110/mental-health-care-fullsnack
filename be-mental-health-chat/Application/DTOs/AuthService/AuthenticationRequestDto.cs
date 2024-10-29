@@ -5,8 +5,8 @@ namespace Application.DTOs.AuthService;
 public class AuthenticationRequestDto
 {
     [Required]
-    [EmailAddress]
-    public required string Email { get; set; }
+    [MinLength(6)]
+    public required string UserName { get; set; }
     
     [Required]
     [MinLength(6)]
