@@ -91,7 +91,7 @@ public class UserService : IUserService
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == userId);
 
-        if (user == null)
+        if (user == null || user.IsDeleted)
         {
             return new Result<UserDetailResponseDto>(new NotFoundException("User is not found"));
         }
@@ -111,7 +111,7 @@ public class UserService : IUserService
 
         // find existing user first
         var existingUser = await _userManager.FindByIdAsync(userId.ToString());
-        if (existingUser == null)
+        if (existingUser == null || existingUser.IsDeleted)
         {
             return new Result<UserDetailResponseDto>(new NotFoundException("User not found"));
         }
@@ -131,7 +131,7 @@ public class UserService : IUserService
                     { { "Identity", updateUserResult.Result.Errors.Select(x => x.Description).ToArray() } };
                 return new Result<UserDetailResponseDto>(new BadRequestException("Update user failed", errorDict));
             }
-            
+
             // update identity role
             if (request.IsTherapist != existingUser.IsTherapist)
             {
@@ -144,6 +144,7 @@ public class UserService : IUserService
                 {
                     updateRoleResult = await _userManager.AddToRoleAsync(existingUser, "Therapist");
                 }
+
                 if (!updateRoleResult.Succeeded)
                 {
                     var errorDict = new Dictionary<string, string[]>
@@ -158,7 +159,7 @@ public class UserService : IUserService
                 .Where(e => e.UserId == userId)
                 .Select(e => e.Id)
                 .ToListAsync();
-            
+
             var requestEducationIds = request.Educations
                 .Where(e => e.Id != null)
                 .Select(e => e.Id.Value)
@@ -170,12 +171,12 @@ public class UserService : IUserService
                 var educationsToDelete = eduIdsToDelete.Select(e => new Education { Id = e });
                 _context.Educations.RemoveRange(educationsToDelete);
             }
-            
+
             var educationsToCreate = request.Educations
                 .Where(e => e.Id == null)
                 .Select(e => _mapper.Map<Education>(e))
                 .ToList();
-            
+
             if (educationsToCreate.Count != 0)
             {
                 educationsToCreate.ForEach(e => e.UserId = userId);
@@ -185,12 +186,12 @@ public class UserService : IUserService
             #endregion
 
             #region update therapist certifications
-            
+
             var existingCertificationIds = await _context.Certifications
                 .Where(e => e.UserId == userId)
                 .Select(e => e.Id)
                 .ToListAsync();
-            
+
             var requestCertificationIds = request.Certifications
                 .Where(e => e.Id != null)
                 .Select(e => e.Id.Value)
@@ -202,12 +203,12 @@ public class UserService : IUserService
                 var certificationsToDelete = certIdsToDelete.Select(e => new Certification { Id = e });
                 _context.Certifications.RemoveRange(certificationsToDelete);
             }
-            
+
             var certificationsToCreate = request.Certifications
                 .Where(e => e.Id == null)
                 .Select(e => _mapper.Map<Certification>(e))
                 .ToList();
-            
+
             if (certificationsToCreate.Count != 0)
             {
                 certificationsToCreate.ForEach(e => e.UserId = userId);
@@ -217,12 +218,12 @@ public class UserService : IUserService
             #endregion
 
             #region update therapist experiences
-            
+
             var existingExperienceIds = await _context.Experiences
                 .Where(e => e.UserId == userId)
                 .Select(e => e.Id)
                 .ToListAsync();
-            
+
             var requestExperienceIds = request.Experiences
                 .Where(e => e.Id != null)
                 .Select(e => e.Id.Value)
@@ -234,12 +235,12 @@ public class UserService : IUserService
                 var educationsToDelete = expIdsToDelete.Select(e => new Experience { Id = e });
                 _context.Experiences.RemoveRange(educationsToDelete);
             }
-            
+
             var experiencesToCreate = request.Experiences
                 .Where(e => e.Id == null)
                 .Select(e => _mapper.Map<Experience>(e))
                 .ToList();
-            
+
             if (experiencesToCreate.Count != 0)
             {
                 experiencesToCreate.ForEach(e => e.UserId = userId);
@@ -313,33 +314,60 @@ public class UserService : IUserService
     {
         // validate
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null)
+        if (user == null || user.IsDeleted)
         {
             return new Result<bool>(new NotFoundException("User not found"));
         }
-        
+
         var verifyOldPassword = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!verifyOldPassword)
         {
-            return new Result<bool>(new BadRequestException("Old password is incorrect", null));
+            return new Result<bool>(new BadRequestException("Old password is incorrect"));
         }
-        
+
         if (request.NewPassword == request.OldPassword)
         {
-            return new Result<bool>(new BadRequestException("New password must be different from old password", null));
+            return new Result<bool>(new BadRequestException("New password must be different from old password"));
         }
-        
-        var updatePasswordResult = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+
+        var updatePasswordResult =
+            await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
         if (!updatePasswordResult.Succeeded)
         {
             var errorDict = new Dictionary<string, string[]>
                 { { "Identity", updatePasswordResult.Errors.Select(x => x.Description).ToArray() } };
             return new Result<bool>(new BadRequestException("Change password failed", errorDict));
         }
-        
+
         // update security stamp to invalidate existing sessions (if session is used in any other way?)
         await _userManager.UpdateSecurityStampAsync(user);
         return true;
+    }
+
+    public async Task<Result<bool>> DeleteUserAsync(Guid userId, DeleteUserRequestDto request)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            // do nothing as user may already be deleted
+            return new Result<bool>(true);
+        }
+
+        var isPasswordMatch = await _userManager.CheckPasswordAsync(user, request.CurrentPassword);
+        if (!isPasswordMatch)
+        {
+            return new Result<bool>(new BadRequestException("Current password is incorrect"));
+        }
+        
+        // TODO later: validate if user has
+        // - no active client
+        // - no active therapist services
+        
+        // attempt to soft delete user
+        user.IsDeleted = true;
+        await _userManager.UpdateAsync(user);
+        
+        return new Result<bool>(true);
     }
 
     private async Task<Dictionary<string, string[]>> ValidateUpdateUserRequest(Guid userId,

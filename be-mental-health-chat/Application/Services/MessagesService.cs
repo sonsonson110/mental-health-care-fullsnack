@@ -107,7 +107,7 @@ public class MessagesService : IMessagesService
         if (userId == request.SentToUserId)
         {
             return new Result<CreateP2pMessageResponse>(
-                new BadRequestException("Cannot send message to yourself", null));
+                new BadRequestException("Cannot send message to yourself"));
         }
 
         // validate if conversation exists

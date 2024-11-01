@@ -37,7 +37,8 @@ import { switchMap } from 'rxjs';
 import {
   TherapistInformationInputComponent
 } from '../../shared/components/therapist-information-input/therapist-information-input.component';
-import { parseBackendConsumableDate } from '../../shared/utils/date-parse.utils';
+import { parseBackendConsumableDate } from '../../shared/utils/date-parse';
+import { passwordRequirementsValidator } from '../../shared/validators/password-requirement.validator';
 
 @Component({
   selector: 'app-register',
@@ -101,7 +102,7 @@ export class RegisterComponent implements OnInit {
     this.identityFormGroup = formBuilder.group({
       userName: ['', [Validators.required, Validators.minLength(8)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, passwordRequirementsValidator()]],
     });
     this.personalInfoFormGroup = formBuilder.group({
       firstName: ['', Validators.required],

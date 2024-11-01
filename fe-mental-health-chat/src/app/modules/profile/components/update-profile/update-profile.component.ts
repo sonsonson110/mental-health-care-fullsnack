@@ -28,7 +28,7 @@ import { UsersService } from '../../../../core/services/users.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Gender } from '../../../../core/models/enums/gender.enum';
 import { FilesService } from '../../../../core/services/files.service';
-import { parseBackendConsumableDate } from '../../../../shared/utils/date-parse.utils';
+import { parseBackendConsumableDate } from '../../../../shared/utils/date-parse';
 import { UpdateUserRequest } from '../../../../core/models/modules/profile/update-user-request.model';
 import { finalize, switchMap } from 'rxjs';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';

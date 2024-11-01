@@ -37,7 +37,13 @@ public class AuthService : IAuthService
         if (!passwordSignInResult.Succeeded)
         {
             return new Result<AuthenticationResponseDto>(
-                new BadRequestException("Invalid user name or password", null));
+                new BadRequestException("Invalid user name or password"));
+        }
+        
+        if (user.IsDeleted)
+        {
+            return new Result<AuthenticationResponseDto>(
+                new BadRequestException("User has been deleted"));
         }
 
         var userRoles = await _userManager.GetRolesAsync(user);

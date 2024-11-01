@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { ProblemDetail } from '../../core/models/common/problem-detail.model';
+import { passwordRequirementsValidator } from '../../shared/validators/password-requirement.validator';
 
 @Component({
   selector: 'app-login',
@@ -32,8 +33,8 @@ import { ProblemDetail } from '../../core/models/common/problem-detail.model';
 })
 export class LoginComponent {
   loginForm = new FormGroup({
-    userName: new FormControl('', [Validators.required, Validators.minLength(6)]),
-    password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    userName: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    password: new FormControl('', [Validators.required, passwordRequirementsValidator()]),
   });
   serverError = '';
   isLoggingIn = false;

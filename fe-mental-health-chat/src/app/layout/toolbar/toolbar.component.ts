@@ -22,7 +22,7 @@ export class ToolbarComponent {
   }
 
   onLogoutClick() {
-    this.authService.logout();
+    this.authService.removeToken();
     this.router.navigate(['/login']);
   }
 }

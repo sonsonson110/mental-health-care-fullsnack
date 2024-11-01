@@ -15,31 +15,33 @@
 
       <!-- Right/Middle section -->
       <div class="second-section">
-        <form [formGroup]="loginForm" class="form">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
           <mat-form-field appearance="outline" class="text-input-item">
             <mat-label>User name</mat-label>
             <input matInput formControlName="userName" />
             <mat-error *ngIf="loginForm.get('userName')?.hasError('required')"
               >User name is required</mat-error
             >
+            <mat-error *ngIf="loginForm.get('userName')?.hasError('minlength')"
+            >User name should be at least 8 characters</mat-error
+            >
           </mat-form-field>
           <mat-form-field appearance="outline" class="text-input-item">
             <mat-label>Password</mat-label>
             <input matInput type="password" formControlName="password" />
             <mat-error *ngIf="loginForm.get('password')?.hasError('required')"
-              >Email is required</mat-error
-            >
-            <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')"
-              >Password must be at least 6 characters</mat-error
+              >Password is required</mat-error
             >
           </mat-form-field>
-
+          <mat-error class="mat-body-small" *ngIf="loginForm.get('password')?.hasError('passwordRequirements')">
+            Password should contain at least 8 characters, 1 uppercase letter, 1 number, and 1 symbol
+          </mat-error>
           @if (serverError) {
             <mat-error>{{ serverError }}</mat-error>
           }
           <div class="actions">
             <a mat-button>Forgot password?</a>
-            <button mat-flat-button type="submit" (click)="onSubmit()">Log in</button>
+            <button mat-flat-button type="submit" [disabled]="loginForm.invalid" >Log in</button>
           </div>
         </form>
 

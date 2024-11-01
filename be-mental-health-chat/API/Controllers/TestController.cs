@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using API.Controllers.Common;
+using Domain.Entities;
 using Infrastructure.Integrations.Gemini;
 using Microsoft.AspNetCore.Mvc;
 

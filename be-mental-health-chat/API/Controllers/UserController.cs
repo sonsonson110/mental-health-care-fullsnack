@@ -1,4 +1,5 @@
-﻿using API.Extensions;
+﻿using API.Controllers.Common;
+using API.Extensions;
 using Application.DTOs.UserService;
 using Application.Services.Interfaces;
 using Infrastructure.FileStorage;
@@ -49,9 +50,22 @@ public class UsersController : MentalHeathControllerBase
     // PUT: /users/me/change-password
     [Authorize]
     [HttpPut("me/change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
         var result = await _userService.ChangePasswordAsync(GetUserId(), request);
+        return result.ReturnFromGet();
+    }
+    
+    // POST: /users/me/delete
+    [Authorize]
+    [HttpPost("me/delete")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequestDto request)
+    {
+        var result = await _userService.DeleteUserAsync(GetUserId(), request);
         return result.ReturnFromGet();
     }
 }

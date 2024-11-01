@@ -1,4 +1,5 @@
-﻿using API.Extensions;
+﻿using API.Controllers.Common;
+using API.Extensions;
 using Application.DTOs.ConversationsService;
 using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;

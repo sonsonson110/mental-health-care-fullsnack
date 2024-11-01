@@ -9,4 +9,5 @@ public interface IUserService
     Task<Result<UserDetailResponseDto>> GetUserDetailAsync(Guid userId);
     Task<Result<UserDetailResponseDto>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request);
     Task<Result<bool>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request);
+    Task<Result<bool>> DeleteUserAsync(Guid userId, DeleteUserRequestDto request);
 }

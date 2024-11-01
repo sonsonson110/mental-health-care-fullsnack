@@ -21,19 +21,19 @@ export class AuthService {
       );
   }
 
-  logout = () => localStorage.removeItem(this.localStorageTokenKey);
+  removeToken = () => localStorage.removeItem(this.localStorageTokenKey);
 
   getToken(): string | null {
     return localStorage.getItem(this.localStorageTokenKey);
   }
 
   private decodeToken(): JwtPayload | null {
-    var token = this.getToken();
+    const token = this.getToken();
     if (token == null) return null;
 
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
       window
         .atob(base64)
         .split('')
@@ -45,7 +45,12 @@ export class AuthService {
     return JSON.parse(jsonPayload);
   }
 
-  getSessionUserId = (): string | undefined => this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-  getSessionUserName = (): string | undefined => this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-  getSessionUserRole = (): string | undefined => this.decodeToken()?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+  getSessionUserId = (): string | undefined =>
+    this.decodeToken()?.[
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+    ];
+  getSessionUserName = (): string | undefined =>
+    this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+  getSessionUserRole = (): string | undefined =>
+    this.decodeToken()?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 }

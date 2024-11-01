@@ -1,4 +1,5 @@
-﻿using API.Extensions;
+﻿using API.Controllers.Common;
+using API.Extensions;
 using Application.DTOs.MessagesService;
 using Application.Interfaces;
 using Application.Services.Interfaces;

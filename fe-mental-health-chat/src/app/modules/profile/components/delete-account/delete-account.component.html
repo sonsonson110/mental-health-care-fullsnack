@@ -1,1 +1,34 @@
-<p>delete-account works!</p>
+<div class="root-container">
+  <div class="content">
+    <p class="mat-title-large">Confirm delete account</p>
+    <p class="mat-body-large description">Account deletion is a permanent action. To proceed, confirm your identity by
+      entering your current password.
+      This will immediately and irreversibly remove all your personal data from our system.</p>
+    <form>
+      <mat-form-field appearance="outline">
+        <mat-label>Current password</mat-label>
+        <input matInput type="password" [formControl]="currentPasswordControl" required />
+        <mat-error *ngIf="currentPasswordControl.errors?.['required']"
+        >Field required
+        </mat-error
+        >
+      </mat-form-field>
+
+      <mat-error class="mat-body-small" *ngIf="currentPasswordControl.hasError('passwordRequirements')">
+        Password should contain at least 8 characters, 1 uppercase letter, 1 number, and 1 symbol
+      </mat-error>
+
+      @if (!isSubmitting) {
+        <button mat-button (click)="onSubmit()"
+                [disabled]="!currentPasswordControl.valid">
+          Submit
+        </button>
+      } @else {
+        <mat-spinner diameter="20"></mat-spinner>
+      }
+    </form>
+    @if (error) {
+      <app-error-display [error]="error"></app-error-display>
+    }
+  </div>
+</div>

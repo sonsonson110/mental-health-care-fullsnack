@@ -31,6 +31,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(p => p.Description)
             .HasMaxLength(500);
 
+        builder.Property(p => p.IsDeleted).HasDefaultValue(false);
+
         // configure for DateOnly type
         builder
             .Property(e => e.DateOfBirth)

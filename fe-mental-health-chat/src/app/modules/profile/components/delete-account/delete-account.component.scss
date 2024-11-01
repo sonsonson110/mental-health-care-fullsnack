@@ -1,0 +1,29 @@
+@use '@angular/material' as mat;
+@import '../../../../shared/style/variables.scss';
+@import '../../../../../styles.scss';
+
+.root-container {
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box; /* Ensure padding and border are included in the width */
+
+  .content {
+    max-width: $breakpoint-sm;
+    margin: 0 auto;
+
+    .description {
+      color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      button {
+        align-self: flex-start;
+      }
+    }
+  }
+}

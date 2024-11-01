@@ -6,7 +6,6 @@ import {
   FormGroup, FormGroupDirective,
   ReactiveFormsModule,
   ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +16,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';
 import { finalize } from 'rxjs';
 import { ErrorDisplayComponent } from '../../../../shared/components/error-display/error-display.component';
+import { passwordRequirementsValidator } from '../../../../shared/validators/password-requirement.validator';
 
 @Component({
   selector: 'app-change-password',
@@ -41,7 +41,7 @@ export class ChangePasswordComponent {
       oldPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
       newPassword: new FormControl('', [
         Validators.required,
-        this.passwordRequirementsValidator(),
+        passwordRequirementsValidator(),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
     },
@@ -52,25 +52,6 @@ export class ChangePasswordComponent {
     private usersService: UsersService,
     private toastr: ToastrService
   ) {}
-
-  passwordRequirementsValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const password = control.value;
-
-      if (!password) {
-        return null;
-      }
-
-      const hasMinLength = password.length >= 8;
-      const hasUpperCase = /[A-Z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-      const valid = hasMinLength && hasUpperCase && hasNumber && hasSymbol;
-
-      return valid ? null : { passwordRequirements: true };
-    };
-  }
 
   passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
     const newPassword = control.get('newPassword');
