@@ -5,7 +5,7 @@ namespace Infrastructure.Data.Seeder;
 
 public static class AvailabilityTemplateSeed
 {
-    public static List<AvailabilityTemplate> Seed(MentalHealthContext context, Therapist therapist)
+    public static List<AvailabilityTemplate> Seed(MentalHealthContext context, User therapist)
     {
         var therapistId = therapist.Id;
         var availabilityTemplates = new List<AvailabilityTemplate>();

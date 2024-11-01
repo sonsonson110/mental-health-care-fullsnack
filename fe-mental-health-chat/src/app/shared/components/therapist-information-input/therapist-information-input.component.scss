@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+@import '../../style/variables.scss';
+@import '../../../../styles.scss';
+
+.root-container {
+  gap: 0.25rem;
+
+  .section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .add-button {
+      align-self: flex-start;
+    }
+
+    .warn-button {
+      color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+
+      &:hover {
+        background-color: mat.get-theme-color(
+            $fe-mental-health-chat-theme,
+            error,
+            80
+        );
+      }
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      .row {
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+  }
+
+}

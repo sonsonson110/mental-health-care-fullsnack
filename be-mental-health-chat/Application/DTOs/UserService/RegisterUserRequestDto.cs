@@ -21,14 +21,14 @@ public class RegisterUserRequestDto
     public string? PhoneNumber { get; set; }
     [Required]
     public required string Password { get; set; }
-    public string? Bio { get; set; } = null;
+    public string? Bio { get; set; }
     public string? AvatarName { get; set; }
 
     [Required]
     public bool IsTherapist { get; set; }
     public string? Description { get; set; }
-    public List<CreateEducationDto>? Educations { get; set; }
-    public List<CreateExperienceDto>? Experiences { get; set; }
-    public List<CreateCertificationDto>? Certifications { get; set; }
+    public List<TherapistEducationDto>? Educations { get; set; }
+    public List<TherapistExperienceDto>? Experiences { get; set; }
+    public List<TherapistCertificationDto>? Certifications { get; set; }
     public List<Guid>? IssueTagIds { get; set; }
 }

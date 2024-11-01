@@ -2,7 +2,7 @@
 
 namespace Application.DTOs.Shared;
 
-public class CreateCertificationDto
+public class TherapistCertificationDto
 {
     public Guid? Id { get; set; }
 

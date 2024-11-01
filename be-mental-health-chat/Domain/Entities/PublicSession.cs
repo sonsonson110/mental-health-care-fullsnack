@@ -19,7 +19,7 @@ public class PublicSession: TimestampMarkedEntityBase
 
     #region navigation properties
 
-    public Therapist Therapist { get; set; } = null!;
+    public User Therapist { get; set; } = null!;
     public List<PublicSessionFollower> Followers { get; set; } = null!;
 
     #endregion

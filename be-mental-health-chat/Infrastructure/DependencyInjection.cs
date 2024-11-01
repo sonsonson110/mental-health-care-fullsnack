@@ -1,8 +1,6 @@
 ﻿using System.Text;
 using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data;
-using Infrastructure.Data.Interfaces;
 using Infrastructure.FileStorage;
 using Infrastructure.Integrations.Gemini;
 using Infrastructure.Security;
@@ -19,14 +17,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<MentalHealthContext>(opt =>
+        services.AddDbContext<Data.MentalHealthContext>(opt =>
         {
             opt.UseNpgsql(configuration.GetConnectionString("MentalHealthContext"));
         });
-
-        // Must register the interface with the provider (defined dbcontext lifetime)
-        services.AddScoped<IMentalHealthContext>(provider =>
-            provider.GetRequiredService<MentalHealthContext>());
 
         services.AddIdentity<User, Role>(options =>
             {
@@ -46,7 +40,7 @@ public static class DependencyInjection
                     RequireConfirmedAccount = false
                 };
             })
-            .AddEntityFrameworkStores<MentalHealthContext>()
+            .AddEntityFrameworkStores<Data.MentalHealthContext>()
             .AddDefaultTokenProviders();
 
         services.AddTransient<IJwtGenerator, JwtGenerator>();

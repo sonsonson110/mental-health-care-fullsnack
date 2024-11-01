@@ -15,5 +15,5 @@ public class Review : TimestampMarkedEntityBase
     public Guid TherapistId { get; set; }
     
     public User Client { get; set; } = null!;
-    public Therapist Therapist { get; set; } = null!;
+    public User Therapist { get; set; } = null!;
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Common.Interface;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Common.Interface;
 using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
@@ -16,4 +17,14 @@ public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
     public string? TimeZoneId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public bool IsTherapist { get; set; }
+    public string? Description { get; set; }
+    public List<Education> Educations { get; set; } = [];
+    public List<Experience> Experiences { get; set; } = [];
+    public List<Certification> Certifications { get; set; } = [];
+    public List<Review> ClientReviews { get; set; } = [];
+    public List<Review> TherapistReviews { get; set; } = [];
+    public List<AvailabilityTemplate> AvailabilityTemplates { get; set; } = [];
+    public List<IssueTag> IssueTags { get; } = [];
+    public List<TherapistIssueTag> TherapistIssueTags { get; } = [];
 }

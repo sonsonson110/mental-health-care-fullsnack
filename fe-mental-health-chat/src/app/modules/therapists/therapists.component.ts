@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   ElementRef,
   model,
   OnInit,
@@ -21,19 +20,14 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilterFormService } from './services/filter-form.service';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSliderModule } from '@angular/material/slider';
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { IssueTag } from '../../core/models/issue-tag.model';
+import { IssueTag } from '../../core/models/common/issue-tag.model';
 import { TagsService } from '../../core/services/tags.service';
 import { genders } from '../../core/constants/gender.constant';
 import { MatListModule, MatSelectionList } from '@angular/material/list';
-import { experienceLevelFilterOptions } from '../../core/constants/experience-level-filter-option.constant';
-import { availabilityFilterOptions } from '../../core/constants/availability-filter-option.constant';
+import { experienceLevelFilterOptions } from './constants/experience-level-filter-option.constant';
+import { availabilityFilterOptions } from './constants/availability-filter-option.constant';
+import { IssueTagInputComponent } from '../../shared/components/issue-tag-input/issue-tag-input.component';
 
 @Component({
   selector: 'app-therapists',
@@ -51,11 +45,9 @@ import { availabilityFilterOptions } from '../../core/constants/availability-fil
     MatSlideToggleModule,
     FormsModule,
     ReactiveFormsModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatAutocompleteModule,
     MatSliderModule,
-    MatListModule
+    MatListModule,
+    IssueTagInputComponent
   ],
   providers: [FilterFormService],
   templateUrl: './therapists.component.html',
@@ -67,31 +59,13 @@ export class TherapistsComponent implements OnInit {
 
   readonly therapistSummaryData = therapistSummaryData;
   isFilterPanelOpen = false;
-  fileterPanelMode: 'side' | 'over' = 'over';
+  filterPanelMode: 'side' | 'over' = 'over';
   isFilterEnabled = false;
 
   // region tags properties
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   readonly currentIssueTag = model('');
   readonly issueTags = signal<IssueTag[]>([]);
   allIssueTags: IssueTag[] = [];
-  readonly filteredIssueTags = computed(() => {
-    const current = this.currentIssueTag().toLowerCase();
-    const issueTagsPreFiltered = this.allIssueTags.filter(
-      e =>
-        !this.issueTags()
-          .map(e => e.id)
-          .includes(e.id)
-    );
-    return current
-      ? issueTagsPreFiltered.filter(
-          issueTag =>
-            (issueTag.name.toLowerCase().includes(current) ||
-              issueTag.shortName?.toLowerCase().includes(current)) &&
-            this.issueTags().every(e => e.id !== issueTag.id)
-        )
-      : issueTagsPreFiltered;
-  });
 
   // region slider properties
   minRating = 0;
@@ -109,7 +83,7 @@ export class TherapistsComponent implements OnInit {
   ) {
     breakpointObserver.observe(['(min-width: 992px)']).subscribe(result => {
       if (result.matches) {
-        this.fileterPanelMode = 'side';
+        this.filterPanelMode = 'side';
       }
     });
   }
@@ -123,28 +97,6 @@ export class TherapistsComponent implements OnInit {
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
 
     console.log(this.genderSelect.selectedOptions.selected.map(e => e.value));
-  }
-
-  // region tags methods
-  remove(id: string): void {
-    this.issueTags.update(issueTags => {
-      const index = issueTags.findIndex(e => e.id === id);
-      if (index < 0) {
-        return issueTags;
-      }
-
-      issueTags.splice(index, 1);
-      return [...issueTags];
-    });
-  }
-
-  selected(event: MatAutocompleteSelectedEvent): void {
-    this.issueTags.update(issueTags => {
-      const newIssueTag = this.allIssueTags.find(e => e.id === event.option.value);
-      return newIssueTag !== undefined ? [...issueTags, newIssueTag] : [...issueTags];
-    });
-    event.option.deselect();
-    this.chipInput.nativeElement.value = '';
   }
 }
 

@@ -4,7 +4,7 @@ namespace Infrastructure.Data.Seeder;
 
 internal static class ConversationsSeed
 {
-    internal static Conversation Seed(MentalHealthContext dbContext, User user, Therapist therapist)
+    internal static Conversation Seed(MentalHealthContext dbContext, User user, User therapist)
     {
         var therapistMessages = new List<Message>
         {

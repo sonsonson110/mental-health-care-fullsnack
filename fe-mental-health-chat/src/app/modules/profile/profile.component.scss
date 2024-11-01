@@ -1,0 +1,19 @@
+@import '../../shared/style/variables.scss';
+
+.root-container {
+  width: 100%;
+  min-width: $breakpoint-sm;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .sidenav-container {
+    flex-grow: 1;
+    mat-sidenav {
+      width: 170px;
+      border-radius: 0;
+      border-right-width: 1px;
+      border-right-color: #74777f;
+    }
+  }
+}

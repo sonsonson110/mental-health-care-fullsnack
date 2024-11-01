@@ -1,0 +1,27 @@
+<mat-form-field [appearance]="appearance">
+  <mat-label>Issue tags</mat-label>
+  <mat-chip-grid [disabled]="disabled" #chipGrid>
+    @for (issueTag of selectedIssueTags; track issueTag.id) {
+      <mat-chip-row (removed)="remove(issueTag.id)">
+        {{ issueTag.name }}
+        <button matChipRemove>
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+  </mat-chip-grid>
+  <input
+    #chipInput
+    placeholder="New tag..."
+    [formControl]="currentIssueTag"
+    [matChipInputFor]="chipGrid"
+    [matAutocomplete]="auto"
+    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+    [disabled]="disabled"
+  />
+  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+    @for (item of filteredIssueTags; track item.id) {
+      <mat-option [value]="item.id">{{ item.name }}</mat-option>
+    }
+  </mat-autocomplete>
+</mat-form-field>

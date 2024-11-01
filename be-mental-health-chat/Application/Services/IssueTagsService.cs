@@ -1,19 +1,18 @@
-﻿using Application.Interfaces;
-using Application.Services.Interfaces;
+﻿using Application.Services.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data.Interfaces;
+using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
 public class IssueTagsService : IIssueTagsService
 {
-    private readonly IMentalHealthContext _context;
+    private readonly MentalHealthContext _context;
     
-    public IssueTagsService(IMentalHealthContext context)
+    public IssueTagsService(MentalHealthContext context)
     {
         _context = context;
     }
     
-    public async Task<List<IssueTag>> getAllAsync() => await _context.IssueTags.ToListAsync();
+    public async Task<List<IssueTag>> getAllAsync() => await _context.IssueTags.AsNoTracking().ToListAsync();
 }

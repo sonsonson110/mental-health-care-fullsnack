@@ -11,11 +11,4 @@ public class IssueTag : EntityBase
     public string? ShortName { get; set; }
     [MaxLength(255)]
     public required string Definition { get; set; }
-
-    #region navigation properties
-
-    public List<Therapist> Therapists { get; } = [];
-    public List<TherapistIssueTag> TherapistIssueTags { get; } = [];
-
-    #endregion
 }

@@ -2,10 +2,10 @@ export interface P2pConversationSidenavItem {
     id: string;
     receiverId: string;
     receiverFullName: string;
-    isReveiverOnline: boolean;
+    isReceiverOnline: boolean;
     lastMessage: LastMessage;
   }
-  
+
   export interface LastMessage {
     id: string;
     senderId: string;
@@ -14,4 +14,3 @@ export interface P2pConversationSidenavItem {
     createdAt: Date;
     isRead: boolean;
   }
-  

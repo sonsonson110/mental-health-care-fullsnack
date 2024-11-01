@@ -1,4 +1,4 @@
-import { NavItem } from '../../core/models/nav-item.model';
+import { NavItem } from '../models/common/nav-item.model';
 
 export const baseNavItems: NavItem[] = [
   {
@@ -32,7 +32,7 @@ export const baseNavItems: NavItem[] = [
     route: 'public-sessions',
   },
   {
-    displayName: 'My sessions',
+    displayName: 'Scheduled sessions',
     iconName: 'event_note',
     route: 'private-sessions',
   },

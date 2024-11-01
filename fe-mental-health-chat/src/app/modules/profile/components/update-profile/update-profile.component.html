@@ -1,0 +1,113 @@
+<div class="root-container">
+  @if (isLoading) {
+    <div class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+    <div class="content">
+      <div class="section-container avatar">
+        <p class="mat-title-large">Avatar</p>
+        <img [src]="previewUrl" class="avatar-preview" />
+        <button mat-button (click)="triggerFileInput()">Select Avatar</button>
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden />
+      </div>
+
+      <div class="section-container bio">
+        <p class="mat-title-large">Biography</p>
+        <mat-form-field appearance="outline">
+        <textarea
+          [formControl]="bioFormControl"
+          matInput
+          placeholder="Informative information about you"
+        ></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="section-container personal-information">
+        <p class="mat-title-large">Personal information</p>
+        <form [formGroup]="personalInfoFormGroup">
+          <div class="input-row">
+            <mat-form-field appearance="outline">
+              <mat-label>First name</mat-label>
+              <input matInput formControlName="firstName" required />
+              <mat-error
+                *ngIf="personalInfoFormGroup.get('firstName')?.hasError('required')"
+              >Required
+              </mat-error
+              >
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Last name</mat-label>
+              <input matInput formControlName="lastName" required />
+              <mat-error *ngIf="personalInfoFormGroup.get('lastName')?.hasError('required')"
+              >Required
+              </mat-error
+              >
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" required />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Phone number</mat-label>
+            <input matInput formControlName="phoneNumber" />
+            <mat-error *ngIf="personalInfoFormGroup.get('phoneNumber')?.hasError('pattern')"
+            >Invalid phone number
+            </mat-error
+            >
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Date of birth</mat-label>
+            <input matInput formControlName="dateOfBirth" [matDatepicker]="picker" />
+            <mat-hint align="end">MM/DD/YYYY</mat-hint>
+            <mat-error
+              *ngIf="personalInfoFormGroup.get('dateOfBirth')?.hasError('required')"
+            >Required field
+            </mat-error>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker touchUi #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="gender" required>
+              <mat-option>-- None --</mat-option>
+              <mat-option *ngFor="let gender of genders" [value]="gender.key">{{
+                  gender.value
+                }}
+              </mat-option>
+            </mat-select>
+            <mat-label>Gender</mat-label>
+            <mat-error>Required field</mat-error>
+          </mat-form-field>
+        </form>
+      </div>
+      <div class="section-container therapist-information">
+        <p class="mat-title-large">Therapist information</p>
+        <app-therapist-information-input
+          appearance="outline"
+          [allIssueTags]="allIssueTags"
+          [selectedIssueTags]="selectedIssueTags"
+          [educations]="educations"
+          [certifications]="certifications"
+          [experiences]="experiences"
+          [description]="description"
+          [isTherapist]="isTherapist"
+          (selectedIssueTagsChange)="onSelectedIssueTagsChange($event)"
+          (educationsChange)="onEducationsChange($event)"
+          (certificationsChange)="onCertificationsChange($event)"
+          (experiencesChange)="onExperiencesChange($event)"
+          (descriptionChange)="onDescriptionChange($event)"
+          (isTherapistChange)="onIsTherapistChange($event)"
+        ></app-therapist-information-input>
+      </div>
+      @if (!isUpdating) {
+        <button mat-button (click)="onSaveChanges()">Save</button>
+      } @else {
+        <mat-spinner></mat-spinner>
+      }
+      @if (error) {
+        <app-error-display [error]="error!"></app-error-display>
+      }
+    </div>
+  }
+</div>

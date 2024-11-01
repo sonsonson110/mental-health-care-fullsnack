@@ -1,7 +1,7 @@
 import { Gender } from '../../enums/gender.enum';
-import { CreateCertificationRequest } from './create-certification-request.model';
-import { CreateEducationRequest } from './create-education-request.model';
-import { CreateExperienceRequest } from './create-experience-request.model';
+import { TherapistCertification } from '../../common/therapist-certification.model';
+import { TherapistEducation } from '../../common/therapist-education.model';
+import { TherapistExperience } from '../../common/therapist-experience.model';
 
 export interface CreateUserRequest {
   userName: string;
@@ -13,9 +13,9 @@ export interface CreateUserRequest {
   phoneNumber: string | null;
   password: string;
   isTherapist: boolean;
-  educations: CreateEducationRequest[];
-  certifications: CreateCertificationRequest[];
-  experiences: CreateExperienceRequest[];
+  educations: TherapistEducation[];
+  certifications: TherapistCertification[];
+  experiences: TherapistExperience[];
   bio: string | null;
   issueTagIds: string[];
   avatarName: string | null;

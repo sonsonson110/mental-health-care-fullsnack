@@ -45,4 +45,21 @@ public class FileStorageService : IFileStorageService
 
         return new UploadAvatarResponseDto { FileName = newFileName };
     }
+    
+    public void DeleteAvatar(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+        {
+            throw new ArgumentException("Invalid file name");
+        }
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "avatar");
+        var filePath = Path.Combine(uploadsFolder, fileName);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        // nothing found, do nothing
+    }
 }

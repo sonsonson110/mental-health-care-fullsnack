@@ -22,12 +22,11 @@ public static class DatabaseInitializer
         if (await dbContext.Database.EnsureCreatedAsync())
         {
             var roles = RoleSeed.Seed(dbContext);
-            var user = await UsersSeed.Seed(userManager);
             var issueTags = IssueTagsSeed.Seed(dbContext);
-            var therapist = await TherapistsSeed.Seed(dbContext, userManager, issueTags);
-            var conversations = ConversationsSeed.Seed(dbContext, user, therapist);
-            var availabilityTemplates = AvailabilityTemplateSeed.Seed(dbContext, therapist);
-            var notifications = NotificationSeed.Seed(dbContext, user);
+            var users = await UsersSeed.Seed(dbContext, userManager, issueTags);
+            var conversations = ConversationsSeed.Seed(dbContext, users[0], users[1]);
+            var availabilityTemplates = AvailabilityTemplateSeed.Seed(dbContext, users[1]);
+            var notifications = NotificationSeed.Seed(dbContext, users[0]);
             await Console.Out.WriteLineAsync("Database created, migration applied and seeded");
         }
     }

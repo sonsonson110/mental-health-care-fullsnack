@@ -1,8 +1,7 @@
 ﻿using Application.DTOs.MessagesService;
-using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data.Interfaces;
+using Infrastructure.Data;
 using Infrastructure.Integrations.Gemini;
 using Infrastructure.Integrations.Model;
 using LanguageExt.Common;
@@ -12,10 +11,10 @@ namespace Application.Services;
 
 public class MessagesService : IMessagesService
 {
-    private readonly IMentalHealthContext _context;
+    private readonly MentalHealthContext _context;
     private readonly IGeminiService _geminiService;
 
-    public MessagesService(IMentalHealthContext context, IGeminiService geminiService)
+    public MessagesService(MentalHealthContext context, IGeminiService geminiService)
     {
         _context = context;
         _geminiService = geminiService;

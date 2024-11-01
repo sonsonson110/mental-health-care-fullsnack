@@ -102,6 +102,6 @@ app.MapHub<ChatHub>("/chat");
 app.MapControllers();
 
 // Initialize the database
-// await DatabaseInitializer.Initialize(app.Services);
+await DatabaseInitializer.Initialize(app.Services);
 
 app.Run();

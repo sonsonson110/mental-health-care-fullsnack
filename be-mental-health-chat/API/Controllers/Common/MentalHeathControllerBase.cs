@@ -12,4 +12,12 @@ public abstract class MentalHeathControllerBase : ControllerBase
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         return Guid.Parse(userIdString!);
     }
+
+    protected List<string> GetUserRoles()
+    {
+        return User.Claims
+            .Where(x => x.Type == ClaimTypes.Role)
+            .Select(x => x.Value)
+            .ToList();
+    }
 }

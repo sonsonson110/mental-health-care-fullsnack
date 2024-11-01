@@ -37,35 +37,9 @@
       gap: 0.25rem;
       margin: 1rem 0;
 
-      .add-button {
-        align-self: flex-start;
-      }
-
-      .warn-button {
-        color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
-
-        &:hover {
-          background-color: mat.get-theme-color(
-              $fe-mental-health-chat-theme,
-              error,
-              80
-          );
-        }
-      }
-
-      .form-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-
-
-        .row {
-          display: flex;
-          gap: 0.5rem;
-
-          .submit {
-            width: fit-content;
-          }
+      &.account-identity {
+        mat-form-field {
+          width: 300px !important;
         }
       }
 
@@ -102,7 +76,7 @@
           border-radius: 50%;
           object-fit: cover;
           margin-bottom: 0.5rem;
-          border: 2px solid mat.get-theme-color($fe-mental-health-chat-theme, primary, 60);;
+          border: 2px solid mat.get-theme-color($fe-mental-health-chat-theme, primary, 60);
         }
       }
 

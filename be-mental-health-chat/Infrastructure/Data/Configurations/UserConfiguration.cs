@@ -25,9 +25,23 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(p => p.TimeZoneId)
             .HasMaxLength(50);
 
+        builder.Property(p => p.IsTherapist)
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.Description)
+            .HasMaxLength(500);
+
         // configure for DateOnly type
         builder
             .Property(e => e.DateOfBirth)
             .HasColumnType("date");
+
+        // Many to many relationship between Therapist (User) and IssueTag
+        builder.HasMany(e => e.IssueTags)
+            .WithMany()
+            .UsingEntity<TherapistIssueTag>(
+                r => r.HasOne<IssueTag>().WithMany(),
+                l => l.HasOne<User>().WithMany(e => e.TherapistIssueTags).HasForeignKey(e => e.TherapistId)
+            );
     }
 }

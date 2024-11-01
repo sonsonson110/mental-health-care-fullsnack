@@ -6,7 +6,14 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { CLIPBOARD_OPTIONS, ClipboardButtonComponent, provideMarkdown } from 'ngx-markdown';
+import {
+  CLIPBOARD_OPTIONS,
+  ClipboardButtonComponent,
+  provideMarkdown,
+} from 'ngx-markdown';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +29,10 @@ export const appConfig: ApplicationConfig = {
           buttonComponent: ClipboardButtonComponent,
         },
       },
-    })
+    }),
+    // ngx-toastr
+    provideToastr(),
+    provideAnimations(),
+    provideNativeDateAdapter()
   ],
 };

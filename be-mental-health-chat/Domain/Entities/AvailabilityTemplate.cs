@@ -14,7 +14,7 @@ public class AvailabilityTemplate: EntityBase
 
     #region navigation properties 
 
-    public Therapist Therapist { get; set; } = null!;
+    public User Therapist { get; set; } = null!;
 
     #endregion
 }

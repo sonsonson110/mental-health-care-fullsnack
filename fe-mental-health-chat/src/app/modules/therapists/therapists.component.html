@@ -90,42 +90,20 @@
         </mat-card>
       }
     </div>
-    <mat-sidenav [mode]="fileterPanelMode" position="end" [opened]="isFilterPanelOpen">
+    <mat-sidenav [mode]="filterPanelMode" position="end" [opened]="isFilterPanelOpen">
       <div class="filter-container">
         <p class="mat-title-medium">Advanced filters</p>
         <mat-slide-toggle [(ngModel)]="isFilterEnabled">Enable</mat-slide-toggle>
-        <mat-form-field appearance="outline" class="tag">
-          <mat-label>Issues/Specializations</mat-label>
-          <mat-chip-grid #chipGrid>
-            @for (issueTag of issueTags(); track $index) {
-              <mat-chip-row (removed)="remove(issueTag.id)">
-                {{ issueTag.name }}
-                <button matChipRemove>
-                  <mat-icon>cancel</mat-icon>
-                </button>
-              </mat-chip-row>
-            }
-          </mat-chip-grid>
-          <input
-            #chipInput
-            placeholder="New tag..."
-            [(ngModel)]="currentIssueTag"
-            [matChipInputFor]="chipGrid"
-            [matAutocomplete]="auto"
-            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-            [disabled]="!isFilterEnabled"
-          />
-          <mat-hint *ngIf="!isFilterEnabled">Disabled</mat-hint>
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            @for (item of filteredIssueTags(); track item.id) {
-              <mat-option [value]="item.id">{{ item.name }}</mat-option>
-            }
-          </mat-autocomplete>
-        </mat-form-field>
+        <app-issue-tag-input class="tag"
+          [allIssueTags]="allIssueTags"
+          [(selectedIssueTags)]="issueTags"
+          [disabled]="!isFilterEnabled"
+          appearance="outline"
+        ></app-issue-tag-input>
 
         <span class="spacer"></span>
 
-        <label class="mat-title-small">Rating ⭐</label>
+        <span class="mat-title-small">Rating ⭐</span>
         <mat-slider
           min="0"
           max="5"

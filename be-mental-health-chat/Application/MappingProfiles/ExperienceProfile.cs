@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Shared;
 using AutoMapper;
+using Domain.Entities;
 
 namespace Application.MappingProfiles;
 
@@ -7,10 +8,16 @@ public class ExperienceProfile : Profile
 {
     public ExperienceProfile()
     {
-        CreateMap<CreateExperienceDto, Domain.Entities.Experience>()
+        CreateMap<TherapistExperienceDto, Experience>()
             .ForMember(
                 dest => dest.Id,
-                opt => opt.MapFrom(_ => Guid.NewGuid())
-            );;
+                opt 
+                    => opt.MapFrom(src 
+                        => src.Id == Guid.Empty 
+                            ? Guid.NewGuid() 
+                            : src.Id)
+            );
+
+        CreateMap<Experience, TherapistExperienceDto>();
     }
 }

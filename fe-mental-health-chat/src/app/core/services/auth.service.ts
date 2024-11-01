@@ -3,7 +3,7 @@ import { environment } from '../../environment/dev.environment';
 import { HttpClient } from '@angular/common/http';
 import { LoginRequest } from '../models/modules/login/login-request.model';
 import { map } from 'rxjs';
-import { JwtPayload } from '../models/jwt-payload.model';
+import { JwtPayload } from '../models/common/jwt-payload.model';
 import { LoginResponse } from '../models/modules/login/login-response.model';
 
 @Injectable({ providedIn: 'root' })

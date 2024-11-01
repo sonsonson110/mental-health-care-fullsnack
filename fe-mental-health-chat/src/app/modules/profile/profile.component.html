@@ -1,0 +1,16 @@
+<div class="root-container">
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav mode="side" opened>
+      <mat-nav-list class="nav-items-container">
+        @for (navItem of navItems; track $index) {
+          <mat-list-item (click)="onClick(navItem.route)" [activated]="isMatchCurrentBrowserUrl(navItem.route)">
+            <span matListItemTitle>{{ navItem.displayName }}</span>
+          </mat-list-item>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

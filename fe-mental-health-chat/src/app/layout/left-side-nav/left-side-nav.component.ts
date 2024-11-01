@@ -36,7 +36,9 @@ export class LeftSideNavComponent {
     });
   }
 
-  onClick = (route: string) => this.router.navigate([route]);
+  onClick(route: string) {
+    this.router.navigate([route]);
+  };
 
   isMatchCurrentBrowserUrl(route: string): boolean {
     const uriSegments = this.currentBrowserUrl?.split('/');

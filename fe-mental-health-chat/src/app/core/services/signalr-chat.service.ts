@@ -4,7 +4,6 @@ import * as signalR from '@microsoft/signalr';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { P2pMessageRequest } from '../models/p2p-message-request.model';
-import { P2pMessageConfirmationResponse } from '../models/p2p-message-confirmation-response.model';
 import { P2pConversationMessageDisplay } from '../models/p2p-conversation-mesage-display.model';
 
 @Injectable()

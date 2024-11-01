@@ -18,7 +18,7 @@ public class PrivateSessionRegistration: TimestampMarkedEntityBase
 
     #region navigation properties
 
-    public Therapist Therapist { get; set; } = null!;
+    public User Therapist { get; set; } = null!;
     public User Client { get; set; } = null!;
     public List<PrivateSessionSchedule> PrivateSessionSchedules { get; set; } = null!;
 

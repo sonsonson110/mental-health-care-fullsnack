@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ProblemDetail } from '../../../core/models/problem-detail.model';
+import { ProblemDetail } from '../../../core/models/common/problem-detail.model';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';

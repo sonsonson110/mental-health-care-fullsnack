@@ -1,12 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
   Component,
-  computed,
   ElementRef,
-  model,
   OnInit,
-  signal,
   ViewChild,
 } from '@angular/core';
 import {
@@ -21,38 +17,32 @@ import { MatInputModule } from '@angular/material/input';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatListModule } from '@angular/material/list';
-
-import {
-  MatAutocompleteModule,
-  MatAutocompleteSelectedEvent,
-} from '@angular/material/autocomplete';
-import { IssueTag } from '../../core/models/issue-tag.model';
-import { CreateEducationRequest } from '../../core/models/modules/register/create-education-request.model';
-import { CreateCertificationRequest } from '../../core/models/modules/register/create-certification-request.model';
-import { CreateExperienceRequest } from '../../core/models/modules/register/create-experience-request.model';
+import { IssueTag } from '../../core/models/common/issue-tag.model';
+import { TherapistEducation } from '../../core/models/common/therapist-education.model';
+import { TherapistCertification } from '../../core/models/common/therapist-certification.model';
+import { TherapistExperience } from '../../core/models/common/therapist-experience.model';
 import { UsersService } from '../../core/services/users.service';
 import { genders } from '../../core/constants/gender.constant';
 import { TagsService } from '../../core/services/tags.service';
-import { ProblemDetail } from '../../core/models/problem-detail.model';
+import { ProblemDetail } from '../../core/models/common/problem-detail.model';
 import { ErrorDisplayComponent } from '../../shared/components/error-display/error-display.component';
 import { Router } from '@angular/router';
 import { CreateUserRequest } from '../../core/models/modules/register/create-user-request.model';
 import { Gender } from '../../core/models/enums/gender.enum';
 import { FilesService } from '../../core/services/files.service';
 import { switchMap } from 'rxjs';
+import {
+  TherapistInformationInputComponent
+} from '../../shared/components/therapist-information-input/therapist-information-input.component';
+import { parseBackendConsumableDate } from '../../shared/utils/date-parse.utils';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [
-    MatAutocompleteModule,
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
@@ -64,12 +54,9 @@ import { switchMap } from 'rxjs';
     CommonModule,
     MatDatepickerModule,
     MatSelectModule,
-    MatCheckboxModule,
-    MatDividerModule,
-    MatListModule,
     ErrorDisplayComponent,
+    TherapistInformationInputComponent,
   ],
-  providers: [provideNativeDateAdapter()],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
@@ -77,31 +64,15 @@ export class RegisterComponent implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef;
   @ViewChild('chipInput') chipInput!: ElementRef<HTMLInputElement>;
 
-  // issue tags input
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  readonly currentIssueTag = model('');
-  readonly issueTags = signal<IssueTag[]>([]);
   allIssueTags: IssueTag[] = [];
-  readonly filteredIssueTags = computed(() => {
-    const current = this.currentIssueTag().toLowerCase();
-    const issueTagsPreFiltered = this.allIssueTags.filter(
-      e =>
-        !this.issueTags()
-          .map(e => e.id)
-          .includes(e.id)
-    );
-    return current
-      ? issueTagsPreFiltered.filter(
-          issueTag =>
-            (issueTag.name.toLowerCase().includes(current) ||
-              issueTag.shortName?.toLowerCase().includes(current)) &&
-            this.issueTags().every(e => e.id !== issueTag.id)
-        )
-      : issueTagsPreFiltered;
-  });
+  selectedIssueTags: IssueTag[] = [];
+  educations: TherapistEducation[] = [];
+  certifications: TherapistCertification[] = [];
+  experiences: TherapistExperience[] = [];
+  description: string | null = null;
+  isTherapist = false;
 
   isMdBreakpoint = false;
-  isTherapist = false;
 
   // constant
   genders = genders;
@@ -111,70 +82,34 @@ export class RegisterComponent implements OnInit {
   personalInfoFormGroup;
   selectedFile: File | null = null;
   previewUrl: string | ArrayBuffer | null = null;
-  therapistEducationFormGroup;
-  therapistCertificationFormGroup;
-  therapistDescriptionForm;
-  therapistExperienceFormGroup;
-
-  // preview items
-  educations = signal<CreateEducationRequest[]>([]);
-  certifications = signal<CreateCertificationRequest[]>([]);
-  experiences = signal<CreateExperienceRequest[]>([]);
-
-  // form panel state
-  isEducationFormPanelOpen = false;
-  isCertificationFormPanelOpen = false;
-  isExperienceFormPanelOpen = false;
 
   error: ProblemDetail | null = null;
 
   constructor(
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private userService: UsersService,
+    private usersService: UsersService,
     private tagsService: TagsService,
     private filesService: FilesService,
-    _formBuilder: FormBuilder
+    formBuilder: FormBuilder
   ) {
     // Observe screen size to determine if we should show the side nav
     this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
       this.isMdBreakpoint = result.matches;
     });
     // set up form groups
-    this.identityFormGroup = _formBuilder.group({
+    this.identityFormGroup = formBuilder.group({
       userName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
-    this.personalInfoFormGroup = _formBuilder.group({
+    this.personalInfoFormGroup = formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
       phoneNumber: [null, Validators.pattern('^[0-9]*$')],
       gender: [null as number | null, Validators.required],
       bio: [null],
-    });
-    this.therapistEducationFormGroup = _formBuilder.group({
-      institution: ['', Validators.required],
-      degree: [null],
-      major: [null],
-      startDate: ['', Validators.required],
-      endDate: [null],
-    });
-    this.therapistCertificationFormGroup = _formBuilder.group({
-      name: ['', Validators.required],
-      issuingOrganization: ['', Validators.required],
-      dateIssued: ['', Validators.required],
-      expirationDate: [null],
-      referenceUrl: [null],
-    });
-    this.therapistDescriptionForm = _formBuilder.control(null);
-    this.therapistExperienceFormGroup = _formBuilder.group({
-      organization: ['', Validators.required],
-      position: ['', Validators.required],
-      description: [null],
-      startDate: ['', Validators.required],
-      endDate: [null],
     });
   }
 
@@ -220,92 +155,28 @@ export class RegisterComponent implements OnInit {
       : 'assets/default-avatar/boy.png';
   }
 
-  onTherapistCheckboxChange() {
-    this.isTherapist = !this.isTherapist;
-    const action = this.isTherapist ? 'enable' : 'disable';
-    this.therapistEducationFormGroup[action]();
-    this.therapistCertificationFormGroup[action]();
-    this.therapistExperienceFormGroup[action]();
-    this.therapistDescriptionForm[action]();
+  onSelectedIssueTagsChange(tags: IssueTag[]): void {
+    this.selectedIssueTags = tags;
   }
 
-  // region tags methods
-  remove(id: string): void {
-    this.issueTags.update(issueTags => {
-      const index = issueTags.findIndex(e => e.id === id);
-      if (index < 0) {
-        return issueTags;
-      }
-
-      issueTags.splice(index, 1);
-      return [...issueTags];
-    });
+  onEducationsChange(educations: TherapistEducation[]): void {
+    this.educations = educations;
   }
 
-  selected(event: MatAutocompleteSelectedEvent): void {
-    this.issueTags.update(issueTags => {
-      const newIssueTag = this.allIssueTags.find(e => e.id === event.option.value);
-      return newIssueTag !== undefined ? [...issueTags, newIssueTag] : [...issueTags];
-    });
-    this.chipInput.nativeElement.value = '';
-    event.option.deselect();
+  onCertificationsChange(certifications: TherapistCertification[]): void {
+    this.certifications = certifications;
   }
 
-  onSaveEducationClick() {
-    const education = this.therapistEducationFormGroup
-      .value as unknown as CreateEducationRequest;
-    this.educations.update(educations => [...educations, education]);
-    this.therapistEducationFormGroup.reset();
-    this.isEducationFormPanelOpen = false;
+  onExperiencesChange(experiences: TherapistExperience[]): void {
+    this.experiences = experiences;
   }
 
-  onAddCertificationClick() {
-    const certification = this.therapistCertificationFormGroup
-      .value as unknown as CreateCertificationRequest;
-    this.certifications.update(certifications => [...certifications, certification]);
-    this.therapistCertificationFormGroup.reset();
-    this.isCertificationFormPanelOpen = false;
+  onDescriptionChange(description: string | null): void {
+    this.description = description;
   }
 
-  onAddExperienceClick() {
-    const experience = this.therapistExperienceFormGroup
-      .value as unknown as CreateExperienceRequest;
-    this.experiences.update(experiences => [...experiences, experience]);
-    this.therapistExperienceFormGroup.reset();
-    this.isExperienceFormPanelOpen = false;
-  }
-
-  onEducationFormPanelToggle() {
-    this.isEducationFormPanelOpen = !this.isEducationFormPanelOpen;
-  }
-
-  onExperienceFormPanelToggle() {
-    this.isExperienceFormPanelOpen = !this.isExperienceFormPanelOpen;
-  }
-
-  onCertificationFormPanelToggle() {
-    this.isCertificationFormPanelOpen = !this.isCertificationFormPanelOpen;
-  }
-
-  onRemoveEducationClick(index: number) {
-    this.educations.update(educations => {
-      educations.splice(index, 1);
-      return [...educations];
-    });
-  }
-
-  onRemoveCertificationClick(index: number) {
-    this.certifications.update(certifications => {
-      certifications.splice(index, 1);
-      return [...certifications];
-    });
-  }
-
-  onRemoveExperienceClick(index: number) {
-    this.experiences.update(experiences => {
-      experiences.splice(index, 1);
-      return [...experiences];
-    });
+  onIsTherapistChange(isTherapist: boolean): void {
+    this.isTherapist = isTherapist;
   }
 
   registrable() {
@@ -316,28 +187,28 @@ export class RegisterComponent implements OnInit {
     this.error = null;
 
     // convert to the date format that the backend expects
-    const dateOfBirth = this.parseBackendConsumableDate(
+    const dateOfBirth = parseBackendConsumableDate(
       this.personalInfoFormGroup.value.dateOfBirth!
     );
     const educations = this.isTherapist
-      ? this.educations().map(e => {
-          e.startDate = this.parseBackendConsumableDate(e.startDate);
-          e.endDate = e.endDate && this.parseBackendConsumableDate(e.endDate);
+      ? this.educations.map(e => {
+          e.startDate = parseBackendConsumableDate(e.startDate);
+          e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
           return e;
         })
       : [];
     const certifications = this.isTherapist
-      ? this.certifications().map(e => {
-          e.dateIssued = this.parseBackendConsumableDate(e.dateIssued);
+      ? this.certifications.map(e => {
+          e.dateIssued = parseBackendConsumableDate(e.dateIssued);
           e.expirationDate =
-            e.expirationDate && this.parseBackendConsumableDate(e.expirationDate);
+            e.expirationDate && parseBackendConsumableDate(e.expirationDate);
           return e;
         })
       : [];
     const experiences = this.isTherapist
-      ? this.experiences().map(e => {
-          e.startDate = this.parseBackendConsumableDate(e.startDate);
-          e.endDate = e.endDate && this.parseBackendConsumableDate(e.endDate);
+      ? this.experiences.map(e => {
+          e.startDate = parseBackendConsumableDate(e.startDate);
+          e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
           return e;
         })
       : [];
@@ -355,22 +226,22 @@ export class RegisterComponent implements OnInit {
       educations: educations,
       certifications: certifications,
       experiences: experiences,
-      description: this.isTherapist ? this.therapistDescriptionForm.value : null,
-      issueTagIds: this.isTherapist ? this.issueTags().map(e => e.id) : [],
+      description: this.isTherapist ? this.description : null,
+      issueTagIds: this.isTherapist ? this.selectedIssueTags.map(e => e.id) : [],
       avatarName: null,
       bio: this.personalInfoFormGroup.value.bio!,
     };
 
-    const avatarUpload$ = this.selectedFile
+    const createUser$ = this.selectedFile
       ? this.filesService.uploadAvatar(this.selectedFile).pipe(
           switchMap(resp => {
             createUserRequest.avatarName = resp.fileName;
-            return this.userService.register(createUserRequest);
+            return this.usersService.register(createUserRequest);
           })
         )
-      : this.userService.register(createUserRequest);
+      : this.usersService.register(createUserRequest);
 
-    avatarUpload$.subscribe({
+    createUser$.subscribe({
       error: (problemDetail: ProblemDetail) => (this.error = problemDetail),
       next: () => {
         stepper.next();
@@ -378,11 +249,6 @@ export class RegisterComponent implements OnInit {
       },
     });
   }
-
-  private parseBackendConsumableDate(date: string): string {
-    return new Date(date).toISOString().split('T')[0];
-  }
-
   onFinishClick() {
     this.router.navigate(['/login']);
   }

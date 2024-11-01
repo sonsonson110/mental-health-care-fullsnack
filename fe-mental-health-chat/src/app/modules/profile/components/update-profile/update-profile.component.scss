@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+@import '../../../../shared/style/variables.scss';
+@import '../../../../../styles.scss';
+
+
+.root-container {
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box; /* Ensure padding and border are included in the width */
+  overflow-x: hidden;
+  overflow-y: scroll;
+
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  .content {
+    max-width: $breakpoint-sm;
+    margin: 0 auto;
+  }
+
+  .section-container {
+    display: flex;
+    flex-direction: column;
+
+    mat-form-field {
+      width: 100% !important;
+    }
+
+    button {
+      align-self: flex-end;
+    }
+
+    &.avatar {
+      .avatar-preview {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 0.5rem;
+        border: 2px solid mat.get-theme-color($fe-mental-health-chat-theme, primary, 60);
+        align-self: center;
+      }
+
+      button {
+        align-self: center;
+        width: fit-content;
+      }
+    }
+
+    &.bio {
+      mat-form-field {
+        width: auto !important;
+        margin-bottom: -1rem;
+      }
+    }
+
+    &.personal-information {
+      .input-row {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      mat-form-field {
+        margin-bottom: 0.2rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}

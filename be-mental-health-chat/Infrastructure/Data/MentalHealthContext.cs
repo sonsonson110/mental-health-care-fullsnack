@@ -1,6 +1,5 @@
 ﻿using Domain.Common.Interface;
 using Domain.Entities;
-using Infrastructure.Data.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,7 @@ namespace Infrastructure.Data;
 
 public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, IdentityUserRole<Guid>,
     IdentityUserLogin<Guid>,
-    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>, IMentalHealthContext
+    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
     public MentalHealthContext(DbContextOptions<MentalHealthContext> options) : base(options)
     {
@@ -64,6 +63,5 @@ public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityU
     public DbSet<PublicSession> PublicSessions { get; set; }
     public DbSet<PublicSessionFollower> PublicSessionFollowers { get; set; }
     public DbSet<Review> Reviews { get; set; }
-    public DbSet<Therapist> Therapists { get; set; }
     public DbSet<TherapistIssueTag> TherapistIssueTags { get; set; }
 }

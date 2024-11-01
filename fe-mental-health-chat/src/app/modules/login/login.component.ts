@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -11,7 +11,7 @@ import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { ProblemDetail } from '../../core/models/problem-detail.model';
+import { ProblemDetail } from '../../core/models/common/problem-detail.model';
 
 @Component({
   selector: 'app-login',

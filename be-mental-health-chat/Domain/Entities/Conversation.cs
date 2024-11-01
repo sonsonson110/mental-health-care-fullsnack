@@ -14,7 +14,7 @@ public class Conversation : TimestampMarkedEntityBase
     #region navigation properties
 
     public User Client { get; set; } = null!;
-    public Therapist? Therapist { get; set; }
+    public User? Therapist { get; set; }
     public List<Message> Messages { get; set; } = null!;
 
     #endregion
