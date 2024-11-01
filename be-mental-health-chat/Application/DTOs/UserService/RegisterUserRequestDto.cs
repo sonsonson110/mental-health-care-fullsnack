@@ -15,11 +15,15 @@ public class RegisterUserRequestDto
     [Required]
     public DateOnly DateOfBirth { get; set; }
     [Required]
+    [MinLength(8)]
     public required string UserName { get; set; }
     [Required]
+    [EmailAddress]
     public required string Email { get; set; }
+    [Phone]
     public string? PhoneNumber { get; set; }
     [Required]
+    [MinLength(8)]
     public required string Password { get; set; }
     public string? Bio { get; set; }
     public string? AvatarName { get; set; }

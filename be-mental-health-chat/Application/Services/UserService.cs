@@ -309,6 +309,39 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<Result<bool>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request)
+    {
+        // validate
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return new Result<bool>(new NotFoundException("User not found"));
+        }
+        
+        var verifyOldPassword = await _userManager.CheckPasswordAsync(user, request.OldPassword);
+        if (!verifyOldPassword)
+        {
+            return new Result<bool>(new BadRequestException("Old password is incorrect", null));
+        }
+        
+        if (request.NewPassword == request.OldPassword)
+        {
+            return new Result<bool>(new BadRequestException("New password must be different from old password", null));
+        }
+        
+        var updatePasswordResult = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+        if (!updatePasswordResult.Succeeded)
+        {
+            var errorDict = new Dictionary<string, string[]>
+                { { "Identity", updatePasswordResult.Errors.Select(x => x.Description).ToArray() } };
+            return new Result<bool>(new BadRequestException("Change password failed", errorDict));
+        }
+        
+        // update security stamp to invalidate existing sessions (if session is used in any other way?)
+        await _userManager.UpdateSecurityStampAsync(user);
+        return true;
+    }
+
     private async Task<Dictionary<string, string[]>> ValidateUpdateUserRequest(Guid userId,
         UpdateUserRequestDto request)
     {

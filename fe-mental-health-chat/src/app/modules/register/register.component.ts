@@ -99,9 +99,9 @@ export class RegisterComponent implements OnInit {
     });
     // set up form groups
     this.identityFormGroup = formBuilder.group({
-      userName: ['', Validators.required],
+      userName: ['', [Validators.required, Validators.minLength(8)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
     });
     this.personalInfoFormGroup = formBuilder.group({
       firstName: ['', Validators.required],

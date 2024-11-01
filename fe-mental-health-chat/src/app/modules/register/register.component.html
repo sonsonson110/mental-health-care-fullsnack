@@ -20,6 +20,10 @@
           >User name is required
           </mat-error
           >
+          <mat-error *ngIf="identityFormGroup.get('userName')?.hasError('minlength')"
+          >Password must be at least 8 characters
+          </mat-error
+          >
         </mat-form-field>
         <mat-form-field>
           <mat-label>Email</mat-label>
@@ -41,7 +45,7 @@
           </mat-error
           >
           <mat-error *ngIf="identityFormGroup.get('password')?.hasError('minlength')"
-          >Password must be at least 6 characters
+          >Password must be at least 8 characters
           </mat-error
           >
         </mat-form-field>

@@ -45,4 +45,13 @@ public class UsersController : MentalHeathControllerBase
         var result = await _userService.UpdateUserAsync(GetUserId(), request);
         return result.ReturnFromGet();
     }
+    
+    // PUT: /users/me/change-password
+    [Authorize]
+    [HttpPut("me/change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+    {
+        var result = await _userService.ChangePasswordAsync(GetUserId(), request);
+        return result.ReturnFromGet();
+    }
 }

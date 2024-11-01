@@ -14,7 +14,9 @@ public class UpdateUserRequestDto
     [Required]
     public required string LastName { get; set; }
     [Required]
+    [EmailAddress]
     public required string Email { get; set; }
+    [Phone]
     public string? PhoneNumber { get; set; }
     [Required]
     public DateOnly DateOfBirth { get; set; }

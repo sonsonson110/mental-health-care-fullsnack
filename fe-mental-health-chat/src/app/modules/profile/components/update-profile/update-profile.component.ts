@@ -282,11 +282,11 @@ export class UpdateProfileComponent implements OnInit {
       .subscribe({
         error: (problemDetail: ProblemDetail) => {
           this.error = problemDetail;
-          this.toastr.error('More info in error', 'User updated failed!');
+          this.toastr.error(problemDetail.detail);
         },
         next: resp => {
           this.userDetail = resp;
-          this.toastr.success('Success', 'User updated!');
+          this.toastr.success('User updated!');
         },
       });
   }

@@ -48,6 +48,10 @@
           <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput formControlName="email" required />
+            <mat-error *ngIf="personalInfoFormGroup.get('email')?.hasError('email')"
+            >Invalid email
+            </mat-error
+            >
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Phone number</mat-label>
