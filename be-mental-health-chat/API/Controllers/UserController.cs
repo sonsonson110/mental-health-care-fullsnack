@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
+[Authorize]
 public class UsersController : MentalHeathControllerBase
 {
     private readonly IUserService _userService;
@@ -20,6 +21,7 @@ public class UsersController : MentalHeathControllerBase
 
     // POST: /users/register
     [HttpPost("register")]
+    [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequestDto request)
     {
         var result = await _userService.RegisterUserAsync(request);
@@ -27,7 +29,6 @@ public class UsersController : MentalHeathControllerBase
     }
     
     // GET: /users/me
-    [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -39,7 +40,6 @@ public class UsersController : MentalHeathControllerBase
     }
     
     // PUT: /users/me
-    [Authorize]
     [HttpPut("me")]
     public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequestDto request)
     {
@@ -48,7 +48,6 @@ public class UsersController : MentalHeathControllerBase
     }
     
     // PUT: /users/me/change-password
-    [Authorize]
     [HttpPut("me/change-password")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -59,7 +58,6 @@ public class UsersController : MentalHeathControllerBase
     }
     
     // POST: /users/me/delete
-    [Authorize]
     [HttpPost("me/delete")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

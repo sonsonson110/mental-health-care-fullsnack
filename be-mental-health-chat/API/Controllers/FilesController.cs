@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize]
 public class FilesController: MentalHeathControllerBase
 {
     private readonly IFileStorageService _fileStorageService;

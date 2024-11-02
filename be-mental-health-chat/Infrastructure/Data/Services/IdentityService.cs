@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Data.Services;

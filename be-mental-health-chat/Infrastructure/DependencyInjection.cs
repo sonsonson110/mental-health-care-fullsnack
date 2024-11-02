@@ -55,6 +55,8 @@ public static class DependencyInjection
         // Register HttpClient
         services.AddHttpClient<IGeminiService, GeminiService>();
 
+        services.AddScoped<CustomJwtBearerEvents>();
+        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,6 +73,8 @@ public static class DependencyInjection
                 ValidAudience = configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
             };
+            
+            options.EventsType = typeof(CustomJwtBearerEvents);
         });
         services.AddAuthorization();
 
