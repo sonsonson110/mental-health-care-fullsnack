@@ -1,12 +1,11 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using Domain.Entities;
-using Infrastructure.Integrations.Model;
+using Application.Interfaces;
+using Application.Services.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Integrations.Gemini;
+namespace Infrastructure.Integrations;
 
 public class GeminiService : IGeminiService
 {

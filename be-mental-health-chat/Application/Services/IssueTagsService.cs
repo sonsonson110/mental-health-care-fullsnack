@@ -1,15 +1,15 @@
-﻿using Application.Services.Interfaces;
+﻿using Application.Interfaces;
+using Application.Services.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
 public class IssueTagsService : IIssueTagsService
 {
-    private readonly MentalHealthContext _context;
+    private readonly IMentalHealthContext _context;
     
-    public IssueTagsService(MentalHealthContext context)
+    public IssueTagsService(IMentalHealthContext context)
     {
         _context = context;
     }

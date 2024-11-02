@@ -1,8 +1,10 @@
 ﻿using System.Text;
 using Application.Interfaces;
 using Domain.Entities;
+using Infrastructure.Data;
+using Infrastructure.Data.Services;
 using Infrastructure.FileStorage;
-using Infrastructure.Integrations.Gemini;
+using Infrastructure.Integrations;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,10 +19,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<Data.MentalHealthContext>(opt =>
+        services.AddDbContext<MentalHealthContext>(opt =>
         {
             opt.UseNpgsql(configuration.GetConnectionString("MentalHealthContext"));
         });
+        
+        services.AddScoped<IMentalHealthContext>(provider => provider.GetRequiredService<MentalHealthContext>());
 
         services.AddIdentity<User, Role>(options =>
             {
@@ -40,10 +44,11 @@ public static class DependencyInjection
                     RequireConfirmedAccount = false
                 };
             })
-            .AddEntityFrameworkStores<Data.MentalHealthContext>()
+            .AddEntityFrameworkStores<MentalHealthContext>()
             .AddDefaultTokenProviders();
 
-        services.AddTransient<IJwtGenerator, JwtGenerator>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IGeminiService, GeminiService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
 

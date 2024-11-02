@@ -1,6 +1,6 @@
 ﻿using API.Controllers.Common;
+using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Integrations.Gemini;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;

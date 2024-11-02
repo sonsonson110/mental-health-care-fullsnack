@@ -1,8 +1,8 @@
 ﻿using Application.DTOs.UserService;
+using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Entities;
-using Infrastructure.Data;
 using LanguageExt.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +11,12 @@ namespace Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly MentalHealthContext _context;
+    private readonly IMentalHealthContext _context;
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
 
 
-    public UserService(MentalHealthContext context, IMapper mapper, UserManager<User> userManager)
+    public UserService(IMentalHealthContext context, IMapper mapper, UserManager<User> userManager)
     {
         _context = context;
         _mapper = mapper;

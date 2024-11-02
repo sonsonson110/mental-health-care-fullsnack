@@ -1,31 +1,26 @@
 ﻿using Application.DTOs.AuthService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
-using Domain.Entities;
 using LanguageExt.Common;
-using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly UserManager<User> _userManager;
-    private readonly IJwtGenerator _jwtGenerator;
-    private readonly SignInManager<User> _signInManager;
+    private readonly IIdentityService _identityService;
+    private readonly IJwtService _jwtService;
 
     public AuthService(
-        UserManager<User> userManager,
-        IJwtGenerator jwtGenerator,
-        SignInManager<User> signInManager)
+        IIdentityService identityService,
+        IJwtService jwtService)
     {
-        _userManager = userManager;
-        _jwtGenerator = jwtGenerator;
-        _signInManager = signInManager;
+        _identityService = identityService;
+        _jwtService = jwtService;
     }
 
     public async Task<Result<AuthenticationResponseDto>> AuthenticateAsync(AuthenticationRequestDto request)
     {
-        var user = await _userManager.FindByNameAsync(request.UserName);
+        var user = await _identityService.FindUserByNameAsync(request.UserName);
 
         // validate
         if (user == null)
@@ -33,7 +28,7 @@ public class AuthService : IAuthService
             return new Result<AuthenticationResponseDto>(new NotFoundException("User name is not found"));
         }
 
-        var passwordSignInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        var passwordSignInResult = await _identityService.CheckPasswordSignInAsync(user, request.Password);
         if (!passwordSignInResult.Succeeded)
         {
             return new Result<AuthenticationResponseDto>(
@@ -46,7 +41,7 @@ public class AuthService : IAuthService
                 new BadRequestException("User has been deleted"));
         }
 
-        var userRoles = await _userManager.GetRolesAsync(user);
-        return new AuthenticationResponseDto { Token = _jwtGenerator.GenerateJwtToken(user, userRoles) };
+        var userRoles = await _identityService.GetUserRolesAsync(user);
+        return new AuthenticationResponseDto { Token = _jwtService.GenerateJwtToken(user, userRoles) };
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Application.DTOs.ConversationsService;
 using Application.DTOs.Shared;
+using Application.Interfaces;
 using Application.Services.Interfaces;
+using Application.Services.Model;
 using Domain.Entities;
-using Infrastructure.Data;
-using Infrastructure.Integrations.Gemini;
-using Infrastructure.Integrations.Model;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,10 +11,10 @@ namespace Application.Services;
 
 public class ConversationsService : IConversationsService
 {
-    private readonly MentalHealthContext _context;
+    private readonly IMentalHealthContext _context;
     private readonly IGeminiService _geminiService;
 
-    public ConversationsService(MentalHealthContext context, IGeminiService geminiService)
+    public ConversationsService(IMentalHealthContext context, IGeminiService geminiService)
     {
         _context = context;
         _geminiService = geminiService;

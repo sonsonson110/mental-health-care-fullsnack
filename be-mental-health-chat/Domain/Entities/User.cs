@@ -20,6 +20,7 @@ public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
     public bool IsTherapist { get; set; }
     public string? Description { get; set; }
     public bool IsDeleted { get; set; }
+    public DateTime? LastInvalidatedAt { get; set; }
     public List<Education> Educations { get; set; } = [];
     public List<Experience> Experiences { get; set; } = [];
     public List<Certification> Certifications { get; set; } = [];

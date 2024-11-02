@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Infrastructure.Integrations.Model;
+namespace Application.Services.Model;
 
 public class GeminiRequest
 {

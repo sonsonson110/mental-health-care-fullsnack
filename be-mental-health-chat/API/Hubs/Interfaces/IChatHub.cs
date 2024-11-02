@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.MessagesService;
-using Application.Interfaces;
 using Application.Services.Interfaces;
 
 namespace API.Hubs.Interfaces;

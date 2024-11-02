@@ -1,6 +1,6 @@
-﻿using Infrastructure.Integrations.Model;
+﻿using Application.Services.Model;
 
-namespace Infrastructure.Integrations.Gemini;
+namespace Application.Interfaces;
 
 public interface IGeminiService
 {

@@ -1,5 +1,4 @@
-﻿using Application.Interfaces;
-using Application.Services;
+﻿using Application.Services;
 using Application.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
