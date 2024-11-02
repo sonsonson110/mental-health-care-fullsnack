@@ -1,8 +1,9 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   EventEmitter,
-  Input,
+  Input, model,
   OnInit,
   Output,
   ViewChild,
@@ -12,12 +13,12 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { IssueTag } from '../../../core/models/common/issue-tag.model';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-issue-tag-input',
@@ -28,10 +29,11 @@ import { MatIconModule } from '@angular/material/icon';
     MatAutocompleteModule,
     MatChipsModule,
     MatIconModule,
-    ReactiveFormsModule,
+    FormsModule,
   ],
   templateUrl: './issue-tag-input.component.html',
   styleUrl: './issue-tag-input.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IssueTagInputComponent implements OnInit {
   @Input() disabled = false;
@@ -44,12 +46,12 @@ export class IssueTagInputComponent implements OnInit {
   @ViewChild('chipInput') chipInput!: ElementRef<HTMLInputElement>;
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  currentIssueTag = new FormControl('');
+  readonly currentIssueTag = model('');
   filteredIssueTags: IssueTag[] = [];
 
   ngOnInit(): void {
-    this.currentIssueTag.valueChanges.subscribe(() => {
-      const current = this.currentIssueTag.value?.toLowerCase() || '';
+    this.currentIssueTag.subscribe(() => {
+      const current = this.currentIssueTag().toLowerCase() || '';
       const issueTagsPreFiltered = this.allIssueTags.filter(
         e => !this.selectedIssueTags.map(tag => tag.id).includes(e.id)
       );
@@ -80,6 +82,6 @@ export class IssueTagInputComponent implements OnInit {
       this.selectedIssueTagsChange.emit(this.selectedIssueTags);
     }
     this.chipInput.nativeElement.value = '';
-    this.currentIssueTag.setValue('');
+    this.currentIssueTag.set('');
   }
 }

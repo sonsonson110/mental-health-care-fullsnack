@@ -14,7 +14,6 @@ import { CommonModule } from '@angular/common';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';
 import { UsersService } from '../../../../core/services/users.service';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -48,7 +47,6 @@ export class DeleteAccountComponent {
     private usersService: UsersService,
     private toastr: ToastrService,
     private authService: AuthService,
-    private router: Router
   ) {}
 
   onSubmit() {
@@ -60,11 +58,10 @@ export class DeleteAccountComponent {
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
         next: () => {
-          this.authService.removeToken();
-          this.router.navigate(['/login']);
+          this.toastr.success('Your account has been deleted');
+          this.authService.handleLogout();
         },
         error: (error: ProblemDetail) => {
-          this.toastr.error(error.detail);
           this.error = error;
         },
       });

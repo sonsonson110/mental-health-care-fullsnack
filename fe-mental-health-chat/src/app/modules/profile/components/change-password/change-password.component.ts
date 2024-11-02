@@ -111,7 +111,6 @@ export class ChangePasswordComponent {
             formGroupDirective.resetForm();
           },
           error: (problemDetail: ProblemDetail) => {
-            this.toastr.error(problemDetail.detail);
             this.error = problemDetail;
           },
         });

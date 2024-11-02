@@ -40,6 +40,8 @@ public class JwtService: IJwtService
             audience: _configuration["Jwt:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(lifetimeMinutes),
+            // for testing
+            // expires: DateTime.UtcNow.AddSeconds(5),
             signingCredentials: CreateSigningCredentials());
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);

@@ -13,7 +13,7 @@
   <input
     #chipInput
     placeholder="New tag..."
-    [formControl]="currentIssueTag"
+    [(ngModel)]="currentIssueTag"
     [matChipInputFor]="chipGrid"
     [matAutocomplete]="auto"
     [matChipInputSeparatorKeyCodes]="separatorKeysCodes"

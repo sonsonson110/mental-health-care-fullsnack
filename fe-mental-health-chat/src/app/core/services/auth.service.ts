@@ -2,29 +2,60 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
 import { HttpClient } from '@angular/common/http';
 import { LoginRequest } from '../models/modules/login/login-request.model';
-import { map } from 'rxjs';
+import { BehaviorSubject, map } from 'rxjs';
 import { JwtPayload } from '../models/common/jwt-payload.model';
 import { LoginResponse } from '../models/modules/login/login-response.model';
+import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseEndpoint = environment.apiBaseUrl + '/auth';
   private readonly localStorageTokenKey = 'Jwt';
 
-  constructor(private http: HttpClient) {}
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+
+  private isLoadingSubject = new BehaviorSubject<boolean>(true);
+  isLoading$ = this.isLoadingSubject.asObservable();
+
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    this.checkAuthStatus();
+  }
 
   login(body: LoginRequest) {
     return this.http
       .post<LoginResponse>(this.baseEndpoint + '/login', body)
       .pipe(
-        map(response => localStorage.setItem(this.localStorageTokenKey, response.token))
+        map(response => this.setToken(response.token))
       );
   }
 
-  removeToken = () => localStorage.removeItem(this.localStorageTokenKey);
+  private checkAuthStatus() {
+    const token = this.getToken();
+    this.isAuthenticatedSubject.next(!!token);
+    this.isLoadingSubject.next(false);
+  }
 
   getToken(): string | null {
     return localStorage.getItem(this.localStorageTokenKey);
+  }
+
+  private setToken(token: string) {
+    localStorage.setItem(this.localStorageTokenKey, token);
+    this.isAuthenticatedSubject.next(true);
+  }
+
+  removeToken() {
+    localStorage.removeItem(this.localStorageTokenKey);
+    this.isAuthenticatedSubject.next(false);
+  }
+
+  handleLogout(): void {
+    this.removeToken();
+    this.router.navigate(['/login']);
   }
 
   private decodeToken(): JwtPayload | null {
@@ -49,8 +80,10 @@ export class AuthService {
     this.decodeToken()?.[
       'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
     ];
+
   getSessionUserName = (): string | undefined =>
     this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+
   getSessionUserRole = (): string | undefined =>
     this.decodeToken()?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 }

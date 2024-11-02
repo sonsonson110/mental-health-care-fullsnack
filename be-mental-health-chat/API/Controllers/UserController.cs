@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize]
 public class UsersController : MentalHeathControllerBase
 {
     private readonly IUserService _userService;

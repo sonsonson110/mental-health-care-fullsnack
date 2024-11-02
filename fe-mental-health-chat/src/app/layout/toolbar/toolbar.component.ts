@@ -3,7 +3,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-toolbar',
@@ -15,14 +14,13 @@ import { Router } from '@angular/router';
 export class ToolbarComponent {
   @Output() toggleMenu = new EventEmitter<void>();
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   onMenuClick() {
     this.toggleMenu.emit();
   }
 
   onLogoutClick() {
-    this.authService.removeToken();
-    this.router.navigate(['/login']);
+    this.authService.handleLogout();
   }
 }

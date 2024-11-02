@@ -64,6 +64,7 @@ builder.Services.AddCors(option =>
         .AllowAnyHeader()
         .AllowCredentials()
         .WithExposedHeaders("Content-Disposition")
+        .WithExposedHeaders("WWW-Authenticate") // For client to handle 401 responses gracefully
     );
 });
 

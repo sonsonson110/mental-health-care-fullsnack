@@ -1,5 +1,6 @@
 ﻿using API.Controllers.Common;
 using Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -14,6 +15,7 @@ public class TagsController : MentalHeathControllerBase
     
     // GET /tags
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetIssueTags()
     {

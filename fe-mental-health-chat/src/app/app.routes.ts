@@ -12,11 +12,14 @@ import { ProfileComponent } from './modules/profile/profile.component';
 import { UpdateProfileComponent } from './modules/profile/components/update-profile/update-profile.component';
 import { ChangePasswordComponent } from './modules/profile/components/change-password/change-password.component';
 import { DeleteAccountComponent } from './modules/profile/components/delete-account/delete-account.component';
+import { authGuard } from './core/guards/auth.guard';
+import { publicOnlyGuard } from './core/guards/public-only.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', component: WelcomeComponent, pathMatch: 'full' },
       {
@@ -70,8 +73,8 @@ export const routes: Routes = [
     ],
   },
 
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginComponent, canActivate: [publicOnlyGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [publicOnlyGuard] },
 
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

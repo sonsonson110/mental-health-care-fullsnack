@@ -133,7 +133,6 @@ export class UpdateProfileComponent implements OnInit {
         : this.getDefaultAvatar();
       this.initializeUserDetailData();
       this.isLoading = false;
-      console.log(this.previewUrl)
     });
   }
 
@@ -282,7 +281,6 @@ export class UpdateProfileComponent implements OnInit {
       .subscribe({
         error: (problemDetail: ProblemDetail) => {
           this.error = problemDetail;
-          this.toastr.error(problemDetail.detail);
         },
         next: resp => {
           this.userDetail = resp;

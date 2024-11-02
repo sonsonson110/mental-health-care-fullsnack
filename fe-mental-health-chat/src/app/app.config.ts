@@ -31,7 +31,13 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     // ngx-toastr
-    provideToastr(),
+    provideToastr({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      progressBar: true,
+      closeButton: true
+    }),
     provideAnimations(),
     provideNativeDateAdapter()
   ],
