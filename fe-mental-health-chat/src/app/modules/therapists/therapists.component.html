@@ -16,12 +16,12 @@
   </mat-toolbar>
   <mat-sidenav-container>
     <div class="content-container">
-      @for (therapist of therapistSummaryData; track therapist.id) {
+      @for (therapist of therapistSummaryResponses; track therapist.id) {
         <mat-card class="card" appearance="outlined">
           <mat-card-header>
             <img
               mat-card-avatar
-              [src]="therapist.avatarUrl | parseAvatarUrl: therapist.gender"
+              [src]="therapist.avatarName | parseAvatarUrl: therapist.gender"
             />
             <mat-card-title>{{ therapist.fullName }}</mat-card-title>
             <mat-card-subtitle class="subtitle"

@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  model,
-  OnInit,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, model, OnInit, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -28,6 +21,8 @@ import { MatListModule, MatSelectionList } from '@angular/material/list';
 import { experienceLevelFilterOptions } from './constants/experience-level-filter-option.constant';
 import { availabilityFilterOptions } from './constants/availability-filter-option.constant';
 import { IssueTagInputComponent } from '../../shared/components/issue-tag-input/issue-tag-input.component';
+import { TherapistsService } from '../../core/services/therapists.service';
+import { TherapistSummaryResponse } from '../../core/models/modules/therapists/therapist-summary-response.model';
 
 @Component({
   selector: 'app-therapists',
@@ -47,7 +42,7 @@ import { IssueTagInputComponent } from '../../shared/components/issue-tag-input/
     ReactiveFormsModule,
     MatSliderModule,
     MatListModule,
-    IssueTagInputComponent
+    IssueTagInputComponent,
   ],
   providers: [FilterFormService],
   templateUrl: './therapists.component.html',
@@ -57,7 +52,7 @@ export class TherapistsComponent implements OnInit {
   @ViewChild('chipInput') chipInput!: ElementRef<HTMLInputElement>;
   @ViewChild('genderSelect') genderSelect!: MatSelectionList;
 
-  readonly therapistSummaryData = therapistSummaryData;
+  therapistSummaryResponses: TherapistSummaryResponse[] = [];
   isFilterPanelOpen = false;
   filterPanelMode: 'side' | 'over' = 'over';
   isFilterEnabled = false;
@@ -79,7 +74,8 @@ export class TherapistsComponent implements OnInit {
 
   constructor(
     breakpointObserver: BreakpointObserver,
-    private readonly tagsService: TagsService
+    private readonly tagsService: TagsService,
+    private readonly therapistsService: TherapistsService
   ) {
     breakpointObserver.observe(['(min-width: 992px)']).subscribe(result => {
       if (result.matches) {
@@ -87,112 +83,21 @@ export class TherapistsComponent implements OnInit {
       }
     });
   }
+
   ngOnInit(): void {
     this.tagsService.getAll().subscribe(tags => {
       this.allIssueTags = tags;
     });
+
+    this.therapistsService
+      .getTherapistSummaries()
+      .subscribe(therapistSummaryResponses => {
+        this.therapistSummaryResponses = therapistSummaryResponses;
+      });
   }
 
   toggleFilterPanel(): void {
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
-
     console.log(this.genderSelect.selectedOptions.selected.map(e => e.value));
   }
 }
-
-interface TherapistSummaryResponse {
-  id: string;
-  fullName: string;
-  gender: Gender;
-  avatarUrl: string | null;
-  bio: string | null;
-  issueTags: string[];
-  lastExperience: string;
-  experienceCount: number;
-  lastEducation: string;
-  educationCount: number;
-  certificationCount: number;
-  rating: number;
-  clientCount: number;
-}
-
-const therapistSummaryData: TherapistSummaryResponse[] = [
-  {
-    id: 't001',
-    fullName: 'Dr. Emily Johnson',
-    gender: Gender.FEMALE,
-    avatarUrl:
-      'http://localhost:5285/images/avatar/45ee8355-6c0b-4def-920c-36cf977be134.png',
-    bio: null,
-    issueTags: ['Anxiety', 'Depression', 'Stress Management'],
-    lastExperience: 'Senior Therapist at Mindful Wellness Center',
-    experienceCount: 3,
-    lastEducation: 'Ph.D. in Clinical Psychology, Stanford University',
-    educationCount: 2,
-    certificationCount: 4,
-    rating: 4.8,
-    clientCount: 127,
-  },
-  {
-    id: 't002',
-    fullName: 'Mark Rodriguez',
-    gender: Gender.FEMALE,
-    avatarUrl: null,
-    bio: 'I am a licensed therapist with over 10 years of experience working with individuals, couples, and families. I have worked with clients with a wide range of concerns including depression, anxiety, relationship issues, parenting problems, career challenges, OCD, and ADHD. I also helped many people who have experienced physical trauma or emotional abuse.',
-    issueTags: ['Relationship Issues', 'Family Therapy', 'LGBTQ+ Support'],
-    lastExperience: 'Private Practice Therapist',
-    experienceCount: 2,
-    lastEducation: 'M.A. in Counseling Psychology, Columbia University',
-    educationCount: 1,
-    certificationCount: 0,
-    rating: 4.6,
-    clientCount: 85,
-  },
-  {
-    id: 't003',
-    fullName: 'Dr. Sarah Kim',
-    gender: Gender.OTHER,
-    avatarUrl: null,
-    bio: 'I am a licensed clinical psychologist with over 10 years of experience working with adults, adolescents, and children. I have worked with clients with a wide range of concerns including depression, anxiety, relationship issues, parenting problems, career challenges, OCD, and ADHD. I also helped many people who have experienced physical trauma or emotional abuse.',
-    issueTags: ['Trauma', 'PTSD', 'Grief Counseling'],
-    lastExperience: 'Clinical Psychologist at Veterans Affairs Hospital',
-    experienceCount: 4,
-    lastEducation: 'Psy.D. in Clinical Psychology, Yale University',
-    educationCount: 3,
-    certificationCount: 5,
-    rating: 4.9,
-    clientCount: 203,
-  },
-  {
-    id: 't004',
-    fullName: 'James Thompson',
-    gender: Gender.FEMALE,
-    avatarUrl:
-      'http://localhost:5285/images/avatar/45ee8355-6c0b-4def-920c-36cf977be134.png',
-    bio: 'I am a licensed therapist with over 10 years of experience working with individuals, couples, and families. I have worked with clients with a wide range of concerns including depression, anxiety, relationship issues, parenting problems, career challenges, OCD, and ADHD. I also helped many people who have experienced physical trauma or emotional abuse.',
-    issueTags: ['Addiction', 'Substance Abuse', 'Behavioral Therapy'],
-    lastExperience: 'Addiction Counselor at Harmony Recovery Center',
-    experienceCount: 2,
-    lastEducation: 'M.S. in Addiction Studies, University of California, Los Angeles',
-    educationCount: 2,
-    certificationCount: 3,
-    rating: 4.7,
-    clientCount: 96,
-  },
-  {
-    id: 't005',
-    fullName: 'James Thompson',
-    gender: Gender.FEMALE,
-    avatarUrl:
-      'http://localhost:5285/images/avatar/45ee8355-6c0b-4def-920c-36cf977be134.png',
-    bio: 'I am a licensed therapist with over 10 years of experience working with individuals, couples, and families. I have worked with clients with a wide range of concerns including depression, anxiety, relationship issues, parenting problems, career challenges, OCD, and ADHD. I also helped many people who have experienced physical trauma or emotional abuse.',
-    issueTags: ['Addiction', 'Substance Abuse', 'Behavioral Therapy'],
-    lastExperience: 'Addiction Counselor at Harmony Recovery Center',
-    experienceCount: 2,
-    lastEducation: 'M.S. in Addiction Studies, University of California, Los Angeles',
-    educationCount: 2,
-    certificationCount: 3,
-    rating: 4.7,
-    clientCount: 96,
-  },
-];

@@ -1,28 +1,20 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Gender } from '../../core/models/enums/gender.enum';
+import { environment } from '../../environment/dev.environment';
 
 @Pipe({
   name: 'parseAvatarUrl',
   standalone: true,
 })
 export class ParseAvatarUrlPipe implements PipeTransform {
-  transform(avatarUrl: string | null, gender: Gender): string {
+  transform(avatarName: string | null, gender: Gender): string {
     const defaultFemaleAvatar = '/assets/default-avatar/girl.png';
     const defaultMaleAvatar = '/assets/default-avatar/boy.png';
 
-    if (avatarUrl && this.isValidUrl(avatarUrl)) {
-      return avatarUrl;
+    if (avatarName) {
+      return `${environment.avatarUrl}/${avatarName}`;
     }
 
     return gender === Gender.FEMALE ? defaultFemaleAvatar : defaultMaleAvatar;
-  }
-
-  private isValidUrl(url: string): boolean {
-    try {
-      new URL(url);
-      return true;
-    } catch (_) {
-      return false;
-    }
   }
 }
