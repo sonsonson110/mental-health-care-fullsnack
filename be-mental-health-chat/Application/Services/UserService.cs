@@ -91,11 +91,6 @@ public class UserService : IUserService
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == userId);
 
-        if (user == null || user.IsDeleted)
-        {
-            return new Result<UserDetailResponseDto>(new NotFoundException("User is not found"));
-        }
-
         var userDetail = _mapper.Map<UserDetailResponseDto>(user);
         return new Result<UserDetailResponseDto>(userDetail);
     }
@@ -111,10 +106,6 @@ public class UserService : IUserService
 
         // find existing user first
         var existingUser = await _userManager.FindByIdAsync(userId.ToString());
-        if (existingUser == null || existingUser.IsDeleted)
-        {
-            return new Result<UserDetailResponseDto>(new NotFoundException("User not found"));
-        }
 
         // update properties of existing user, only map the properties from request to existing user
         // ignoring the navigation properties, map them manually
@@ -314,11 +305,7 @@ public class UserService : IUserService
     {
         // validate
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null || user.IsDeleted)
-        {
-            return new Result<bool>(new NotFoundException("User not found"));
-        }
-
+        
         var verifyOldPassword = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!verifyOldPassword)
         {

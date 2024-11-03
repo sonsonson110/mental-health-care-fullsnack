@@ -5,6 +5,8 @@ import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { P2pMessageRequest } from '../models/p2p-message-request.model';
 import { P2pConversationMessageDisplay } from '../models/p2p-conversation-mesage-display.model';
+import { ToastrService } from 'ngx-toastr';
+import { ProblemDetail } from '../models/common/problem-detail.model';
 
 @Injectable()
 export class SignalrChatService {
@@ -12,17 +14,45 @@ export class SignalrChatService {
   private readonly hubUrl = environment.apiBaseUrl + '/chat';
   private hubConnection!: signalR.HubConnection;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private toastr: ToastrService
+  ) {}
 
   async startConnection(): Promise<void> {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.authService.getToken()!,
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: retryContext => {
+          // Recommended every 2 seconds
+          return 2000 + retryContext.previousRetryCount;
+        },
+      })
       .build();
 
-    await this.hubConnection.start();
+    this.hubConnection
+      .start()
+      .then(() => this.toastr.clear())
+      .catch(() =>
+        this.toastr.error(
+          'Try to refresh the page or contact author',
+          'Websocket failed to start',
+          { disableTimeOut: true }
+        )
+      );
+
+    this.hubConnection.onreconnecting(() => {
+      this.toastr.warning('Attempting to reconnect...', undefined, {
+        disableTimeOut: true,
+      });
+    });
+
+    this.hubConnection.onreconnected(connectionId => {
+      this.toastr.clear();
+      this.toastr.success(connectionId || '', 'Connection restored');
+    });
   }
 
   async stopConnection() {
@@ -31,9 +61,10 @@ export class SignalrChatService {
     }
   }
 
-  onException(): Observable<string> {
-    return new Observable<string>(observer => {
-      this.hubConnection.on(this.hubExceptionMethodName, (data: string) => {
+  onException(): Observable<ProblemDetail> {
+    return new Observable<ProblemDetail>(observer => {
+      this.hubConnection.on(this.hubExceptionMethodName, (data: ProblemDetail) => {
+        this.toastr.error(data.detail, data.title);
         observer.next(data);
       });
     });
@@ -52,9 +83,9 @@ export class SignalrChatService {
       this.hubConnection
         .invoke<P2pMessageRequest>('SendP2PMessage', message)
         .then(() => {
-          observer.next();
           observer.complete();
-        });
+        })
+        .catch(reason => this.toastr.error(reason, "Message wasn't sent"));
     });
   }
 }

@@ -5,37 +5,41 @@ namespace Infrastructure.Data.Seeder;
 
 public static class AvailabilityTemplateSeed
 {
-    public static List<AvailabilityTemplate> Seed(MentalHealthContext context, User therapist)
+    public static List<AvailabilityTemplate> Seed(MentalHealthContext context, List<User> therapists)
     {
-        var therapistId = therapist.Id;
         var availabilityTemplates = new List<AvailabilityTemplate>();
-
-        foreach (DateOfWeek day in Enum.GetValues(typeof(DateOfWeek)))
+        
+        foreach (var therapist in therapists)
         {
-            // Morning session (9:00 - 12:00)
-            for (var hour = 9; hour < 12; hour++)
-            {
-                availabilityTemplates.Add(new AvailabilityTemplate
-                {
-                    DateOfWeek = day,
-                    StartTime = new TimeOnly(hour, 0),
-                    EndTime = new TimeOnly(hour + 1, 0),
-                    IsAvailable = true,
-                    TherapistId = therapistId
-                });
-            }
+            var therapistId = therapist.Id;
 
-            // Afternoon session (14:00 - 18:00)
-            for (var hour = 14; hour < 18; hour++)
+            foreach (DateOfWeek day in Enum.GetValues(typeof(DateOfWeek)))
             {
-                availabilityTemplates.Add(new AvailabilityTemplate
+                // Morning session (9:00 - 12:00)
+                for (var hour = 9; hour < 12; hour++)
                 {
-                    DateOfWeek = day,
-                    StartTime = new TimeOnly(hour, 0),
-                    EndTime = new TimeOnly(hour + 1, 0),
-                    IsAvailable = true,
-                    TherapistId = therapistId
-                });
+                    availabilityTemplates.Add(new AvailabilityTemplate
+                    {
+                        DateOfWeek = day,
+                        StartTime = new TimeOnly(hour, 0),
+                        EndTime = new TimeOnly(hour + 1, 0),
+                        IsAvailable = true,
+                        TherapistId = therapistId
+                    });
+                }
+
+                // Afternoon session (14:00 - 18:00)
+                for (var hour = 14; hour < 18; hour++)
+                {
+                    availabilityTemplates.Add(new AvailabilityTemplate
+                    {
+                        DateOfWeek = day,
+                        StartTime = new TimeOnly(hour, 0),
+                        EndTime = new TimeOnly(hour + 1, 0),
+                        IsAvailable = true,
+                        TherapistId = therapistId
+                    });
+                }
             }
         }
 

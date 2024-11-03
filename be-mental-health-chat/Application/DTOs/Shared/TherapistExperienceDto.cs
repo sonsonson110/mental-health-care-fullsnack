@@ -6,9 +6,9 @@ public class TherapistExperienceDto
 {
     public Guid? Id { get; set; }
 
-    [Required] public string Organization { get; set; } = string.Empty;
+    [Required] [MinLength(3)] public string Organization { get; set; } = null!;
 
-    [Required] public string Position { get; set; } = string.Empty;
+    [Required] [MinLength(3)] public string Position { get; set; } = null!;
 
     public string? Description { get; set; }
 

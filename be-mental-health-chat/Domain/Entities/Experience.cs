@@ -6,9 +6,10 @@ namespace Domain.Entities;
 public class Experience : EntityBase
 {
     [MaxLength(200)]
-    public string Organization { get; set; }
+    public string Organization { get; set; } = null!;
+
     [MaxLength(50)]
-    public string Position { get; set; }
+    public string Position { get; set; } = null!;
     [MaxLength(200)]
     public string? Description { get; set; }
     public DateOnly StartDate { get; set; }

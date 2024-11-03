@@ -5,8 +5,8 @@ namespace Domain.Entities;
 
 public class Education : EntityBase
 {
-    [MaxLength(200)]
-    public string Institution { get; set; }
+    [MaxLength(200)] 
+    public string Institution { get; set; } = null!;
     [MaxLength(50)]
     public string? Degree { get; set; }
     [MaxLength(50)]
