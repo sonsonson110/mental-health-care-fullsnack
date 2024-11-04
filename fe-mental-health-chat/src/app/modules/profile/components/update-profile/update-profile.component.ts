@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { UserDetailResponse } from '../../../../core/models/modules/profile/user-detail-response.model';
 import { IssueTag } from '../../../../core/models/common/issue-tag.model';
 import { IssueTagInputComponent } from '../../../../shared/components/issue-tag-input/issue-tag-input.component';
-import { TagsService } from '../../../../core/services/tags.service';
+import { TagsApiService } from '../../../../core/api-services/tags-api.service';
 import { TherapistEducation } from '../../../../core/models/common/therapist-education.model';
 import { TherapistCertification } from '../../../../core/models/common/therapist-certification.model';
 import { TherapistExperience } from '../../../../core/models/common/therapist-experience.model';
@@ -24,10 +24,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TherapistInformationInputComponent } from '../../../../shared/components/therapist-information-input/therapist-information-input.component';
-import { UsersService } from '../../../../core/services/users.service';
+import { UsersApiService } from '../../../../core/api-services/users-api.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Gender } from '../../../../core/models/enums/gender.enum';
-import { FilesService } from '../../../../core/services/files.service';
+import { FilesApiService } from '../../../../core/api-services/files-api.service';
 import { parseBackendConsumableDate } from '../../../../shared/utils/date-parse';
 import { UpdateUserRequest } from '../../../../core/models/modules/profile/update-user-request.model';
 import { finalize, switchMap } from 'rxjs';
@@ -92,9 +92,9 @@ export class UpdateProfileComponent implements OnInit {
   //endregion
 
   constructor(
-    private tagsService: TagsService,
-    private usersService: UsersService,
-    private filesService: FilesService,
+    private tagsService: TagsApiService,
+    private usersService: UsersApiService,
+    private filesService: FilesApiService,
     private toastr: ToastrService,
     formBuilder: FormBuilder
   ) {

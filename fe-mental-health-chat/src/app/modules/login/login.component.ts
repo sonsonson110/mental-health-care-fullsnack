@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthApiService } from '../../core/api-services/auth-api.service';
 import { Router } from '@angular/router';
 import { ProblemDetail } from '../../core/models/common/problem-detail.model';
 import { passwordRequirementsValidator } from '../../shared/validators/password-requirement.validator';
@@ -40,7 +40,7 @@ export class LoginComponent {
   isLoggingIn = false;
 
   constructor(
-    private authService: AuthService,
+    private authService: AuthApiService,
     private router: Router
   ) {}
 

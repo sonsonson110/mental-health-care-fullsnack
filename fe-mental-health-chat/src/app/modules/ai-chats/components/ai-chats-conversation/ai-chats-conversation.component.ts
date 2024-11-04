@@ -18,14 +18,14 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ConversationsService } from '../../../../core/services/conversations.service';
+import { AuthApiService } from '../../../../core/api-services/auth-api.service';
+import { ConversationsApiService } from '../../../../core/api-services/conversations-api.service';
 import {
   ChatbotConversationDetailResponse,
   ChatbotConversationMessageResponse,
 } from '../../../../core/models/modules/ai-chats/chatbot-conversation-detail-response';
 import { ChatbotMessageDisplay } from '../../../../core/models/modules/ai-chats/chatbot-message-display.model';
-import { MessagesService } from '../../../../core/services/messages.service';
+import { MessagesApiService } from '../../../../core/api-services/messages-api.service';
 import { CreateChatbotMessageResponse } from '../../../../core/models/modules/ai-chats/create-chatbot-message-response.model';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CreateChatbotConversationResponse } from '../../../../core/models/modules/ai-chats/create-chatbot-conversation-response.model';
@@ -56,7 +56,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 export class AiChatsConversationComponent implements OnInit {
   @ViewChild('messagesContainer')
   private messagesContainer!: ElementRef;
-  
+
   isSmOrLargerScreen = false;
   isSideNavOpen = true;
 
@@ -76,15 +76,15 @@ export class AiChatsConversationComponent implements OnInit {
 
   constructor(
     private router: Router,
-    authService: AuthService,
+    authService: AuthApiService,
     private cdr: ChangeDetectorRef,
     private matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private breakpointObserver: BreakpointObserver,
     private sidenavStateService: SidenavStateService,
     private route: ActivatedRoute,
-    private conversationsService: ConversationsService,
-    private messagesService: MessagesService
+    private conversationsService: ConversationsApiService,
+    private messagesService: MessagesApiService
   ) {
     this.sessionUserId = authService.getSessionUserId();
     this.sessionUserFullName = authService.getSessionUserName();
@@ -201,8 +201,8 @@ export class AiChatsConversationComponent implements OnInit {
               isRead: response.isRead,
             };
             const currentMessages = this.messagesSubject.value;
-            let lastUserSendingMessage = currentMessages.pop();
-            // adjust for successfull response
+            const lastUserSendingMessage = currentMessages.pop();
+            // adjust for successful response
             lastUserSendingMessage!.isSending = false;
             lastUserSendingMessage!.id = response.lastUserMessageId;
             lastUserSendingMessage!.createdAt = response.lastUserMessageCreatedAt;
@@ -215,12 +215,11 @@ export class AiChatsConversationComponent implements OnInit {
 
             this.userTypingMessage.reset();
           },
-          error: err => {
+          error: () => {
             const currentMessages = this.messagesSubject.value;
-            let lastUserSendingMessage = currentMessages.pop();
+            const lastUserSendingMessage = currentMessages.pop();
             lastUserSendingMessage!.isError = true;
             this.messagesSubject.next([...currentMessages, lastUserSendingMessage!]);
-            // add notifcation to user later
           },
         });
     }
@@ -243,10 +242,7 @@ export class AiChatsConversationComponent implements OnInit {
               title: response.title,
             });
             this.router.navigate(['ai-chats', response.conversationId]);
-          },
-          error: err => {
-            // add notifcation to user later
-          },
+          }
         });
     }
   }

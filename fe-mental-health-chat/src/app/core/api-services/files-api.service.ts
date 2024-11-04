@@ -6,7 +6,7 @@ import { UploadAvatarResponse } from '../models/modules/register/upload-avatar-r
 @Injectable({
   providedIn: 'root',
 })
-export class FilesService {
+export class FilesApiService {
   private readonly baseUrl = environment.apiBaseUrl + '/files';
   constructor(private http: HttpClient) {}
 

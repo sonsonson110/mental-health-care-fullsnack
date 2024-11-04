@@ -44,11 +44,11 @@ internal static class TherapistsSeed
 
     private static readonly List<(string Comment, int Rating)> ReviewTemplates =
     [
-        ("Excellent therapist! Really helped me work through my anxiety.", 5),
-        ("Very professional and knowledgeable. Highly recommend.", 4),
-        ("Great listener and provided practical solutions.", 5),
+        ("Excellent therapist! Really helped me work through my anxiety.", 3),
+        ("Very professional and knowledgeable. Highly recommend.", 2),
+        ("Great listener and provided practical solutions.", 4),
         ("Helped me develop effective coping strategies.", 4),
-        ("Understanding and patient. Made me feel comfortable.", 5)
+        ("Understanding and patient. Made me feel comfortable.", 3)
     ];
     
     private static readonly List<string?> AvatarNames =

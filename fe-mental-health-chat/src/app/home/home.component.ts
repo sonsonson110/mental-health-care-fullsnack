@@ -4,7 +4,7 @@ import { ToolbarComponent } from '../layout/toolbar/toolbar.component';
 import { LeftSideNavComponent } from '../layout/left-side-nav/left-side-nav.component';
 import { Router, RouterOutlet } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { AuthService } from '../core/services/auth.service';
+import { AuthApiService } from '../core/api-services/auth-api.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private authService: AuthService,
+    private authService: AuthApiService,
     private router: Router
   ) {
     this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {

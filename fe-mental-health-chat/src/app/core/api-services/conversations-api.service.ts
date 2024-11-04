@@ -11,7 +11,7 @@ import { P2pConversationDetailResponseDto } from '../models/p2p-conversation-det
 @Injectable({
   providedIn: 'root'
 })
-export class ConversationsService {
+export class ConversationsApiService {
   private readonly baseUrl = environment.apiBaseUrl + '/conversations';
 
   constructor(private http: HttpClient) { }

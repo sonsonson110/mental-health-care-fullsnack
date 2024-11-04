@@ -11,9 +11,9 @@ import { P2pConversationSidenavItem } from '../../../core/models/p2p-conversatio
 import { Observable } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DomSanitizer } from '@angular/platform-browser';
-import { AuthService } from '../../../core/services/auth.service';
-import { ConversationsService } from '../../../core/services/conversations.service';
-import { SignalrChatService } from '../../../core/services/signalr-chat.service';
+import { AuthApiService } from '../../../core/api-services/auth-api.service';
+import { ConversationsApiService } from '../../../core/api-services/conversations-api.service';
+import { SignalrChatService } from '../../../core/api-services/signalr-chat.service';
 
 @Component({
   selector: 'app-p2p-conversation-chatbox',
@@ -46,10 +46,10 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
     matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private p2pConversationSidenavStateService: P2pConversationSidenavStateService,
-    private conversationsService: ConversationsService,
+    private conversationsService: ConversationsApiService,
     location: Location,
     breakpointObserver: BreakpointObserver,
-    authService: AuthService,
+    authService: AuthApiService,
     private signalrChatService: SignalrChatService
   ) {
     matIconRegistry.addSvgIcon(

@@ -6,7 +6,7 @@ import { IssueTag } from '../models/common/issue-tag.model';
 @Injectable({
   providedIn: 'root'
 })
-export class TagsService {
+export class TagsApiService {
   readonly baseEndpoint = environment.apiBaseUrl + '/tags';
 
   constructor(private http: HttpClient) { }

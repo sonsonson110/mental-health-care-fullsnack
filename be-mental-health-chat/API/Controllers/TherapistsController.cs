@@ -1,4 +1,5 @@
 ﻿using API.Controllers.Common;
+using Application.DTOs.TherapistsService;
 using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,9 +16,9 @@ public class TherapistsController: MentalHeathControllerBase
     
     [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTherapistSummariesAsync()
+    public async Task<IActionResult> GetTherapistSummariesAsync([FromQuery] GetTherapistSummariesRequestDto request)
     {
-        var therapists = await _therapistsService.GetTherapistSummariesAsync();
+        var therapists = await _therapistsService.GetTherapistSummariesAsync(request);
         return Ok(therapists);
     }
 }

@@ -11,7 +11,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
-import { UsersService } from '../../../../core/services/users.service';
+import { UsersApiService } from '../../../../core/api-services/users-api.service';
 import { ToastrService } from 'ngx-toastr';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';
 import { finalize } from 'rxjs';
@@ -49,7 +49,7 @@ export class ChangePasswordComponent {
   );
 
   constructor(
-    private usersService: UsersService,
+    private usersService: UsersApiService,
     private toastr: ToastrService
   ) {}
 

@@ -10,7 +10,7 @@ import { DeleteUserRequest } from '../models/modules/profile/delete-user-request
 @Injectable({
   providedIn: 'root'
 })
-export class UsersService {
+export class UsersApiService {
   private readonly baseEndpoint = environment.apiBaseUrl + '/users';
 
   constructor(private http: HttpClient) { }

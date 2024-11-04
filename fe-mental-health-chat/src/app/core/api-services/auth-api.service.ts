@@ -8,7 +8,7 @@ import { LoginResponse } from '../models/modules/login/login-response.model';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
-export class AuthService {
+export class AuthApiService {
   private readonly baseEndpoint = environment.apiBaseUrl + '/auth';
   private readonly localStorageTokenKey = 'Jwt';
 

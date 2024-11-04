@@ -21,6 +21,9 @@ public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
     public string? Description { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? LastInvalidatedAt { get; set; }
+    
+    #region navigation properties
+
     public List<Education> Educations { get; set; } = [];
     public List<Experience> Experiences { get; set; } = [];
     public List<Certification> Certifications { get; set; } = [];
@@ -29,4 +32,6 @@ public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
     public List<AvailabilityTemplate> AvailabilityTemplates { get; set; } = [];
     public List<IssueTag> IssueTags { get; } = [];
     public List<TherapistIssueTag> TherapistIssueTags { get; } = [];
+
+    #endregion
 }

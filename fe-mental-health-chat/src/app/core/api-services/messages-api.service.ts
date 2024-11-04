@@ -7,7 +7,7 @@ import { CreateChatbotMessageResponse } from '../models/modules/ai-chats/create-
 @Injectable({
   providedIn: 'root'
 })
-export class MessagesService {
+export class MessagesApiService {
   private readonly baseUrl = environment.apiBaseUrl + '/messages';
 
   constructor(private http: HttpClient) { }

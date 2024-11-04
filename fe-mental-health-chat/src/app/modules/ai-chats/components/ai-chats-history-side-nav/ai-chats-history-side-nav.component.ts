@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { SidenavStateService } from '../../services/sidenav-state.service';
 import { Observable } from 'rxjs';
 import { ChatbotHistorySideNavItem } from '../../../../core/models/modules/ai-chats/chatbot-history-side-nav-item.model';
-import { ConversationsService } from '../../../../core/services/conversations.service';
+import { ConversationsApiService } from '../../../../core/api-services/conversations-api.service';
 import { CommonModule, Location } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -35,7 +35,7 @@ export class AiChatsHistorySideNavComponent implements OnInit {
     matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private sidenavStateService: SidenavStateService,
-    private conversationsService: ConversationsService,
+    private conversationsService: ConversationsApiService,
     location: Location
   ) {
     matIconRegistry.addSvgIcon(

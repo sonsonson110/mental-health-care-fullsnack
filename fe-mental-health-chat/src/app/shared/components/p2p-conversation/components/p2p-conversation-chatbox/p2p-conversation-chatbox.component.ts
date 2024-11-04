@@ -12,14 +12,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MarkdownModule } from 'ngx-markdown';
 import { P2pConversationSidenavStateService } from '../../services/p2p-conversation-sidenav-state.service';
 import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../../../../core/services/auth.service';
+import { AuthApiService } from '../../../../../core/api-services/auth-api.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { BehaviorSubject, finalize } from 'rxjs';
-import { ConversationsService } from '../../../../../core/services/conversations.service';
+import { ConversationsApiService } from '../../../../../core/api-services/conversations-api.service';
 import { P2pConversationMessageDisplay } from '../../../../../core/models/p2p-conversation-mesage-display.model';
 import { P2pMessageDto } from '../../../../../core/models/p2p-conversation-detail-response.model';
-import { SignalrChatService } from '../../../../../core/services/signalr-chat.service';
+import { SignalrChatService } from '../../../../../core/api-services/signalr-chat.service';
 import { P2pMessageRequest } from '../../../../../core/models/p2p-message-request.model';
 import { P2pConversationMessageDisplayService } from '../../services/p2p-conversation-message-display.service';
 
@@ -68,13 +68,13 @@ export class P2pConversationChatboxComponent {
   constructor(
     private p2pConversationSidenavStateService: P2pConversationSidenavStateService,
     public p2pConversationMessageDisplayService: P2pConversationMessageDisplayService,
-    authService: AuthService,
+    authService: AuthApiService,
     private cdr: ChangeDetectorRef,
     private matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
-    private conversationsService: ConversationsService,
+    private conversationsService: ConversationsApiService,
     private signalRChatService: SignalrChatService
   ) {
     this.sessionUserId = authService.getSessionUserId();
@@ -98,7 +98,7 @@ export class P2pConversationChatboxComponent {
     this.route.data.subscribe(data => {
       this.conversationType = data['forModule'];
     });
-    
+
     this.route.paramMap.subscribe(params => {
       const conversationId = params.get('id');
 

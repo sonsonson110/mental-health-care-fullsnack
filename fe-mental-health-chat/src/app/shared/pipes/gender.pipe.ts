@@ -11,7 +11,7 @@ export class GenderPipe implements PipeTransform {
   private readonly genders = genders;
 
   transform(gender: Gender): string {
-    var genderString = genders.find(g => g.key === gender);
-    return genderString ? genderString.value : 'Undifined';
+    const genderString = genders.find(g => g.key === gender);
+    return genderString ? genderString.value : 'Undefined';
   }
 }

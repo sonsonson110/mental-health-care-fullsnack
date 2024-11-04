@@ -4,7 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthApiService } from '../../core/api-services/auth-api.service';
 import { UserType } from '../../core/models/enums/user-type.enum';
 import { userTypes } from '../../core/constants/user-type.constant';
 import { Location } from '@angular/common';
@@ -25,7 +25,7 @@ export class LeftSideNavComponent {
 
   constructor(
     private router: Router,
-    authService: AuthService,
+    authService: AuthApiService,
     location: Location
   ) {
     this.sessionUserRole = authService.getSessionUserRole();

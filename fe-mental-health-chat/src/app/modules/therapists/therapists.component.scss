@@ -17,8 +17,8 @@
     top: 0;
     z-index: 1000;
     background-color: mat.get-theme-color(
-      $fe-mental-health-chat-theme,
-      surface-container-low
+        $fe-mental-health-chat-theme,
+        surface-container-low
     );
 
     .logo {
@@ -43,8 +43,8 @@
       padding: 0 1rem;
       border-radius: 9999px;
       background-color: mat.get-theme-color(
-        $fe-mental-health-chat-theme,
-        surface-container
+          $fe-mental-health-chat-theme,
+          surface-container
       );
 
       .search-input {
@@ -55,11 +55,28 @@
         background-color: transparent;
       }
     }
+
+    .filter-icon {
+
+      &.enabled {
+        font-weight: bold;
+        color: mat.get-theme-color(
+            $fe-mental-health-chat-theme,
+            primary
+        );
+      }
+    }
   }
 
   .filter-panel {
     padding: 1rem;
     display: flex;
+  }
+
+  mat-sidenav-container {
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
   }
 
   .content-container {
@@ -95,8 +112,8 @@
         .addition {
           border-radius: 1000px;
           background-color: mat.get-theme-color(
-            $fe-mental-health-chat-theme,
-            surface-container-high
+              $fe-mental-health-chat-theme,
+              surface-container-high
           );
           padding: 0 0.5rem;
         }
@@ -120,9 +137,10 @@
       flex-grow: 1;
     }
   }
-  
+
   mat-sidenav {
     border-radius: 0%;
+    height: 100%;
   }
 
   .filter-container {

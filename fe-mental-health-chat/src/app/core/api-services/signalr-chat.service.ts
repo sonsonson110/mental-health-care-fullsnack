@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
 import * as signalR from '@microsoft/signalr';
-import { AuthService } from './auth.service';
+import { AuthApiService } from './auth-api.service';
 import { Observable } from 'rxjs';
 import { P2pMessageRequest } from '../models/p2p-message-request.model';
 import { P2pConversationMessageDisplay } from '../models/p2p-conversation-mesage-display.model';
@@ -15,7 +15,7 @@ export class SignalrChatService {
   private hubConnection!: signalR.HubConnection;
 
   constructor(
-    private authService: AuthService,
+    private authService: AuthApiService,
     private toastr: ToastrService
   ) {}
 

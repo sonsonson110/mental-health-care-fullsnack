@@ -1,8 +1,7 @@
-import { Component, ElementRef, model, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, model, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Gender } from '../../core/models/enums/gender.enum';
 import { MatCardModule } from '@angular/material/card';
 import { ParseAvatarUrlPipe } from '../../shared/pipes/parse-avatar-url.pipe';
 import { GenderPipe } from '../../shared/pipes/gender.pipe';
@@ -12,17 +11,19 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FilterFormService } from './services/filter-form.service';
 import { MatSliderModule } from '@angular/material/slider';
 import { IssueTag } from '../../core/models/common/issue-tag.model';
-import { TagsService } from '../../core/services/tags.service';
 import { genders } from '../../core/constants/gender.constant';
 import { MatListModule, MatSelectionList } from '@angular/material/list';
-import { experienceLevelFilterOptions } from './constants/experience-level-filter-option.constant';
-import { availabilityFilterOptions } from './constants/availability-filter-option.constant';
+import { experienceLevelOptions } from './constants/experience-level-filter-option.constant';
+import { availabilityDateOptions } from './constants/availability-filter-option.constant';
 import { IssueTagInputComponent } from '../../shared/components/issue-tag-input/issue-tag-input.component';
-import { TherapistsService } from '../../core/services/therapists.service';
 import { TherapistSummaryResponse } from '../../core/models/modules/therapists/therapist-summary-response.model';
+import { TherapistsDataService } from './services/therapists-data.service';
+import { Observable } from 'rxjs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TherapistSummariesRequest } from '../../core/models/modules/therapists/therapist-summaries-request.model';
+import { ExperienceLevelOption } from '../../core/models/enums/filters/experience-level-option.enum';
 
 @Component({
   selector: 'app-therapists',
@@ -43,16 +44,21 @@ import { TherapistSummaryResponse } from '../../core/models/modules/therapists/t
     MatSliderModule,
     MatListModule,
     IssueTagInputComponent,
+    MatProgressBarModule,
   ],
-  providers: [FilterFormService],
+  providers: [TherapistsDataService],
   templateUrl: './therapists.component.html',
   styleUrl: './therapists.component.scss',
 })
-export class TherapistsComponent implements OnInit {
-  @ViewChild('chipInput') chipInput!: ElementRef<HTMLInputElement>;
+export class TherapistsComponent {
   @ViewChild('genderSelect') genderSelect!: MatSelectionList;
+  @ViewChild('dateSelect') dateSelect!: MatSelectionList;
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
-  therapistSummaryResponses: TherapistSummaryResponse[] = [];
+  therapistSummaries$: Observable<TherapistSummaryResponse[]>;
+  therapistsLoadingState$: Observable<boolean>;
+  allIssueTags: IssueTag[] = [];
+
   isFilterPanelOpen = false;
   filterPanelMode: 'side' | 'over' = 'over';
   isFilterEnabled = false;
@@ -60,44 +66,85 @@ export class TherapistsComponent implements OnInit {
   // region tags properties
   readonly currentIssueTag = model('');
   readonly issueTags = signal<IssueTag[]>([]);
-  allIssueTags: IssueTag[] = [];
 
   // region slider properties
   minRating = 0;
-  maxRating = 5;
+  endRating = 5;
 
   readonly genders = genders;
-  readonly experienceLevelFilterOptions = experienceLevelFilterOptions;
-  readonly availabilityFilterOptions = availabilityFilterOptions;
+  readonly experienceLevelOptions = experienceLevelOptions;
+  readonly availabilityDateOptions = availabilityDateOptions;
 
-  experienceLevelControl = new FormControl([0]);
+  experienceLevelControl = new FormControl([ExperienceLevelOption.DISABLE]);
 
   constructor(
     breakpointObserver: BreakpointObserver,
-    private readonly tagsService: TagsService,
-    private readonly therapistsService: TherapistsService
+    private readonly therapistsDataService: TherapistsDataService
   ) {
     breakpointObserver.observe(['(min-width: 992px)']).subscribe(result => {
       if (result.matches) {
         this.filterPanelMode = 'side';
+      } else {
+        this.filterPanelMode = 'over';
       }
     });
+
+    this.therapistSummaries$ = this.therapistsDataService.therapistSummaries;
+    this.therapistsLoadingState$ = this.therapistsDataService.loadingState;
+    this.therapistsDataService.issueTags.subscribe(data => (this.allIssueTags = data));
   }
 
-  ngOnInit(): void {
-    this.tagsService.getAll().subscribe(tags => {
-      this.allIssueTags = tags;
-    });
+  search() {
+    let minYear: number | null = null;
+    let maxYear: number | null = null;
 
-    this.therapistsService
-      .getTherapistSummaries()
-      .subscribe(therapistSummaryResponses => {
-        this.therapistSummaryResponses = therapistSummaryResponses;
-      });
+    if (this.isFilterEnabled) {
+      switch (this.experienceLevelControl.value![0]) {
+        case ExperienceLevelOption.ZERO_TO_TWO_YEARS:
+          minYear = 0;
+          maxYear = 2;
+          break;
+
+        case ExperienceLevelOption.TWO_TO_FIVE_YEARS:
+          minYear = 2;
+          maxYear = 5;
+          break;
+
+        case ExperienceLevelOption.FIVE_TO_TEN_YEARS:
+          minYear = 5;
+          maxYear = 10;
+          break;
+
+        case ExperienceLevelOption.TEN_PLUS_YEARS:
+          minYear = 10;
+          maxYear = null;
+          break;
+
+        default:
+          minYear = null;
+          maxYear = null;
+          break;
+      }
+    }
+
+    const request: TherapistSummariesRequest = {
+      searchText: this.searchInput.nativeElement.value,
+      issueTagIds: this.isFilterEnabled ? this.issueTags().map(tag => tag.id) : [],
+      startRating: this.isFilterEnabled ? this.minRating : null,
+      endRating: this.isFilterEnabled ? this.endRating : null,
+      genders: this.isFilterEnabled
+        ? this.genderSelect.selectedOptions.selected.map(e => e.value)
+        : [],
+      minExperienceYear: minYear,
+      maxExperienceYear: maxYear,
+      dateOfWeekOptions: this.isFilterEnabled
+        ? this.dateSelect.selectedOptions.selected.map(e => e.value)
+        : [],
+    };
+    this.therapistsDataService.search(request);
   }
 
   toggleFilterPanel(): void {
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
-    console.log(this.genderSelect.selectedOptions.selected.map(e => e.value));
   }
 }

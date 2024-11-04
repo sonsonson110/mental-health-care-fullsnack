@@ -24,15 +24,15 @@ import { IssueTag } from '../../core/models/common/issue-tag.model';
 import { TherapistEducation } from '../../core/models/common/therapist-education.model';
 import { TherapistCertification } from '../../core/models/common/therapist-certification.model';
 import { TherapistExperience } from '../../core/models/common/therapist-experience.model';
-import { UsersService } from '../../core/services/users.service';
+import { UsersApiService } from '../../core/api-services/users-api.service';
 import { genders } from '../../core/constants/gender.constant';
-import { TagsService } from '../../core/services/tags.service';
+import { TagsApiService } from '../../core/api-services/tags-api.service';
 import { ProblemDetail } from '../../core/models/common/problem-detail.model';
 import { ErrorDisplayComponent } from '../../shared/components/error-display/error-display.component';
 import { Router } from '@angular/router';
 import { CreateUserRequest } from '../../core/models/modules/register/create-user-request.model';
 import { Gender } from '../../core/models/enums/gender.enum';
-import { FilesService } from '../../core/services/files.service';
+import { FilesApiService } from '../../core/api-services/files-api.service';
 import { switchMap } from 'rxjs';
 import {
   TherapistInformationInputComponent
@@ -89,9 +89,9 @@ export class RegisterComponent implements OnInit {
   constructor(
     private router: Router,
     private breakpointObserver: BreakpointObserver,
-    private usersService: UsersService,
-    private tagsService: TagsService,
-    private filesService: FilesService,
+    private usersService: UsersApiService,
+    private tagsService: TagsApiService,
+    private filesService: FilesApiService,
     formBuilder: FormBuilder
   ) {
     // Observe screen size to determine if we should show the side nav

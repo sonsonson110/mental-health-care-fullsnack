@@ -12,11 +12,11 @@ import { passwordRequirementsValidator } from '../../../../shared/validators/pas
 import { ErrorDisplayComponent } from '../../../../shared/components/error-display/error-display.component';
 import { CommonModule } from '@angular/common';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';
-import { UsersService } from '../../../../core/services/users.service';
+import { UsersApiService } from '../../../../core/api-services/users-api.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthApiService } from '../../../../core/api-services/auth-api.service';
 
 @Component({
   selector: 'app-delete-account',
@@ -44,9 +44,9 @@ export class DeleteAccountComponent {
   ]);
 
   constructor(
-    private usersService: UsersService,
+    private usersService: UsersApiService,
     private toastr: ToastrService,
-    private authService: AuthService,
+    private authService: AuthApiService,
   ) {}
 
   onSubmit() {

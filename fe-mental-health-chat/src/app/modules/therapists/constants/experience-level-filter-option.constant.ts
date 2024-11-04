@@ -1,6 +1,9 @@
-export const experienceLevelFilterOptions = [
-    { key: 0, value: '0-2 years' },
-    { key: 1, value: '3-5 years' },
-    { key: 2, value: '6-10 years' },
-    { key: 4, value: '10+ years' },
+import { ExperienceLevelOption } from '../../../core/models/enums/filters/experience-level-option.enum';
+
+export const experienceLevelOptions = [
+    { key: ExperienceLevelOption.DISABLE, value: 'Disable' },
+    { key: ExperienceLevelOption.ZERO_TO_TWO_YEARS, value: '0-2 years' },
+    { key: ExperienceLevelOption.TWO_TO_FIVE_YEARS, value: '2-5 years' },
+    { key: ExperienceLevelOption.FIVE_TO_TEN_YEARS, value: '5-10 years' },
+    { key: ExperienceLevelOption.TEN_PLUS_YEARS, value: '10+ years' },
 ]

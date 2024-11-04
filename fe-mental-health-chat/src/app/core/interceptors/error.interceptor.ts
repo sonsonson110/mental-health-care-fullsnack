@@ -1,12 +1,12 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { ProblemDetail } from '../models/common/problem-detail.model';
-import { AuthService } from '../services/auth.service';
+import { AuthApiService } from '../api-services/auth-api.service';
 import { inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+  const authService = inject(AuthApiService);
   const toastr = inject(ToastrService);
 
   return next(req).pipe(
