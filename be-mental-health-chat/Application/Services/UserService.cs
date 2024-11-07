@@ -95,13 +95,13 @@ public class UserService : IUserService
         return new Result<UserDetailResponseDto>(userDetail);
     }
 
-    public async Task<Result<UserDetailResponseDto>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request)
+    public async Task<Result<bool>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request)
     {
         // validate
         var errors = await ValidateUpdateUserRequest(userId, request);
         if (errors.Count > 0)
         {
-            return new Result<UserDetailResponseDto>(new BadRequestException("Update user failed", errors));
+            return new Result<bool>(new BadRequestException("Update user failed", errors));
         }
 
         // find existing user first
@@ -120,7 +120,7 @@ public class UserService : IUserService
             {
                 var errorDict = new Dictionary<string, string[]>
                     { { "Identity", updateUserResult.Result.Errors.Select(x => x.Description).ToArray() } };
-                return new Result<UserDetailResponseDto>(new BadRequestException("Update user failed", errorDict));
+                return new Result<bool>(new BadRequestException("Update user failed", errorDict));
             }
 
             // update identity role
@@ -140,7 +140,7 @@ public class UserService : IUserService
                 {
                     var errorDict = new Dictionary<string, string[]>
                         { { "Identity", updateRoleResult.Errors.Select(x => x.Description).ToArray() } };
-                    return new Result<UserDetailResponseDto>(new BadRequestException("Update user failed", errorDict));
+                    return new Result<bool>(new BadRequestException("Update user failed", errorDict));
                 }
             }
 
@@ -275,23 +275,13 @@ public class UserService : IUserService
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-
-            var userToReturn = await _context.Users
-                .Include(e => e.Educations)
-                .Include(e => e.Certifications)
-                .Include(e => e.Experiences)
-                .Include(e => e.IssueTags)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.Id == userId);
-
-            var userDetail = _mapper.Map<UserDetailResponseDto>(userToReturn);
-            return new Result<UserDetailResponseDto>(userDetail);
+            return true;
         }
         // issue tag ids may not valid
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync();
-            return new Result<UserDetailResponseDto>(
+            return new Result<bool>(
                 new NotFoundException("Issue tags may not valid. User wasn't updated"));
         }
         catch (Exception ex)
@@ -305,6 +295,11 @@ public class UserService : IUserService
     {
         // validate
         var user = await _userManager.FindByIdAsync(userId.ToString());
+        
+        if (user == null)
+        {
+            return new Result<bool>(new NotFoundException("User not found"));
+        }
         
         var verifyOldPassword = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!verifyOldPassword)

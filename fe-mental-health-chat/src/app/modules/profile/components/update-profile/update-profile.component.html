@@ -107,7 +107,7 @@
       @if (!isUpdating) {
         <button mat-button (click)="onSaveChanges()">Save</button>
       } @else {
-        <mat-spinner></mat-spinner>
+        <mat-spinner diameter="20"></mat-spinner>
       }
       @if (error) {
         <app-error-display [error]="error!"></app-error-display>
