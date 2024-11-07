@@ -230,21 +230,20 @@ export class UpdateProfileComponent implements OnInit {
       this.personalInfoFormGroup.value.dateOfBirth!
     );
     const educations = this.educations.map(e => {
-          e.startDate = parseBackendConsumableDate(e.startDate);
-          e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
-          return e;
-        });
+      e.startDate = parseBackendConsumableDate(e.startDate);
+      e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
+      return e;
+    });
     const certifications = this.certifications.map(e => {
-          e.dateIssued = parseBackendConsumableDate(e.dateIssued);
-          e.expirationDate =
-            e.expirationDate && parseBackendConsumableDate(e.expirationDate);
-          return e;
-        });
+      e.dateIssued = parseBackendConsumableDate(e.dateIssued);
+      e.expirationDate = e.expirationDate && parseBackendConsumableDate(e.expirationDate);
+      return e;
+    });
     const experiences = this.experiences.map(e => {
-          e.startDate = parseBackendConsumableDate(e.startDate);
-          e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
-          return e;
-        });
+      e.startDate = parseBackendConsumableDate(e.startDate);
+      e.endDate = e.endDate && parseBackendConsumableDate(e.endDate);
+      return e;
+    });
 
     const updateUserRequest: UpdateUserRequest = {
       avatarName: null,
@@ -274,6 +273,7 @@ export class UpdateProfileComponent implements OnInit {
 
     updateUser$
       .pipe(
+        switchMap(() => this.usersService.getUserDetail()),
         finalize(() => {
           this.isUpdating = false;
         })
@@ -282,8 +282,8 @@ export class UpdateProfileComponent implements OnInit {
         error: (problemDetail: ProblemDetail) => {
           this.error = problemDetail;
         },
-        next: resp => {
-          this.userDetail = resp;
+        next: userDetail => {
+          this.userDetail = userDetail;
           this.toastr.success('User updated!');
         },
       });
