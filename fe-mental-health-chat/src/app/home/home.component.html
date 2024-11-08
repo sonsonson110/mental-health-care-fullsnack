@@ -1,7 +1,7 @@
 <div class="root-container">
     <app-toolbar (toggleMenu)="toggleMenu()"></app-toolbar>
     <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav class="left-nav-container"  [mode]="getSidenavMode()" [opened]="isMdOrLargerScreen">
+      <mat-sidenav class="left-nav-container"  [mode]="sideNavMode" [opened]="isLgOrLargerScreen">
         <app-left-side-nav></app-left-side-nav>
       </mat-sidenav>
       <mat-sidenav-content class="content-container">

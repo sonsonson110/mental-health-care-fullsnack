@@ -1,7 +1,9 @@
-﻿using Application.DTOs.TherapistsService;
+﻿using Application.DTOs.Shared;
+using Application.DTOs.TherapistsService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using Domain.Enums;
+using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
@@ -20,14 +22,15 @@ public class TherapistsService : ITherapistsService
     {
         var query = _context.Users
             .Where(t => t.IsTherapist);
-        
+
         #region filtering query
 
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
-            query = query.Where(t => t.FirstName.Contains(request.SearchText) || t.LastName.Contains(request.SearchText));
+            query = query.Where(
+                t => t.FirstName.Contains(request.SearchText) || t.LastName.Contains(request.SearchText));
         }
-        
+
         // filter if a therapist has any of requested issue tags
         if (request.IssueTagIds.Any())
         {
@@ -41,34 +44,35 @@ public class TherapistsService : ITherapistsService
 
         if (request.StartRating.HasValue)
         {
-            query = query.Where(t => 
-                t.TherapistReviews.Any() && 
+            query = query.Where(t =>
+                t.TherapistReviews.Any() &&
                 t.TherapistReviews.Select(r => (decimal)r.Rating).Average() >= request.StartRating.Value);
         }
 
         if (request.EndRating.HasValue)
         {
-            query = query.Where(t => 
-                t.TherapistReviews.Any() && 
+            query = query.Where(t =>
+                t.TherapistReviews.Any() &&
                 t.TherapistReviews.Select(r => (decimal)r.Rating).Average() <= request.EndRating.Value);
         }
-        
+
         if (request.MinExperienceYear.HasValue)
         {
-            query = query.Where(t => t.Experiences.Sum(e => 
-                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year + 
+            query = query.Where(t => t.Experiences.Sum(e =>
+                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year +
                 ((e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Month - e.StartDate.Month) / 12m
             ) >= request.MinExperienceYear.Value);
         }
+
         // fewer and not equal to
         if (request.MaxExperienceYear.HasValue)
         {
-            query = query.Where(t => t.Experiences.Sum(e => 
-                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year + 
+            query = query.Where(t => t.Experiences.Sum(e =>
+                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year +
                 ((e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Month - e.StartDate.Month) / 12m
             ) < request.MaxExperienceYear.Value);
         }
-        
+
         // filter that a therapist must be available on all requested days
         if (request.DateOfWeekOptions.Any())
         {
@@ -85,9 +89,11 @@ public class TherapistsService : ITherapistsService
             FullName = t.FirstName + " " + t.LastName,
             Gender = t.Gender,
             AvatarName = t.AvatarName,
-            Bio = t.Bio,
+            Description = t.Description,
             IssueTags = t.IssueTags
-                .Select(i => i.ShortName ?? i.Name).ToList(),
+                .Select(i => i.ShortName ?? i.Name)
+                .OrderBy(i => i)
+                .ToList(),
             LastExperience = t.Experiences
                 .OrderByDescending(e => e.StartDate)
                 .Select(e => e.Position + " at " + e.Organization)
@@ -120,5 +126,82 @@ public class TherapistsService : ITherapistsService
 
         return result;
     }
-    
+
+    public async Task<Result<GetTherapistDetailResponseDto>> GetTherapistDetailAsync(Guid therapistId)
+    {
+        var therapist = await _context.Users
+            .Where(e => e.Id == therapistId)
+            .Select(e => new GetTherapistDetailResponseDto
+            {
+                FullName = e.FirstName + " " + e.LastName,
+                Gender = e.Gender,
+                DateOfBirth = e.DateOfBirth,
+                AvatarName = e.AvatarName,
+                CreatedAt = e.CreatedAt,
+                Description = e.Description,
+                Educations = e.Educations
+                    .Select(edu => new TherapistEducationDto
+                    {
+                        Degree = edu.Degree,
+                        Major = edu.Major,
+                        Institution = edu.Institution,
+                        StartDate = edu.StartDate,
+                        EndDate = edu.EndDate,
+                    })
+                    .OrderByDescending(edu => edu.StartDate)
+                    .ToList(),
+                Experiences = e.Experiences
+                    .Select(exp => new TherapistExperienceDto
+                    {
+                        Position = exp.Position,
+                        Organization = exp.Organization,
+                        StartDate = exp.StartDate,
+                        EndDate = exp.EndDate,
+                    })
+                    .OrderByDescending(exp => exp.StartDate)
+                    .ToList(),
+                Certifications = e.Certifications
+                    .Select(cert => new TherapistCertificationDto
+                    {
+                        Name = cert.Name,
+                        IssuingOrganization = cert.IssuingOrganization,
+                        DateIssued = cert.DateIssued,
+                        ExpirationDate = cert.ExpirationDate,
+                        ReferenceUrl = cert.ReferenceUrl,
+                    })
+                    .OrderByDescending(cert => cert.DateIssued)
+                    .ToList(),
+                TherapistReviews = e.TherapistReviews
+                    .Select(r => new ReviewDto
+                    {
+                        Id = r.Id,
+                        ClientId = r.ClientId,
+                        ClientFullName = r.Client.FirstName + " " + r.Client.LastName,
+                        ClientAvatarName = r.Client.AvatarName,
+                        ClientGender = r.Client.Gender,
+                        Rating = r.Rating,
+                        Comment = r.Comment,
+                        UpdatedAt = r.UpdatedAt
+                    })
+                    .OrderByDescending(r => r.UpdatedAt)
+                    .ToList(),
+                IssueTags = e.IssueTags.OrderBy(i => i.Name).ToList(),
+                AvailabilityTemplates = e.AvailabilityTemplates
+                    .Select(at => new TherapistAvailabilityTemplateDto
+                    {
+                        Id = at.Id,
+                        DateOfWeek = at.DateOfWeek,
+                        StartTime = at.StartTime,
+                        EndTime = at.EndTime,
+                    })
+                    .OrderBy(at => at.DateOfWeek)
+                    .ThenBy(at => at.StartTime)
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync();
+
+        return therapist == null
+            ? new Result<GetTherapistDetailResponseDto>(new NotFoundException("Therapist not found"))
+            : new Result<GetTherapistDetailResponseDto>(therapist);
+    }
 }

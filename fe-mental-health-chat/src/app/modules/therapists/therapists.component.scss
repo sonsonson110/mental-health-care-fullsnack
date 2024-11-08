@@ -74,6 +74,7 @@
   }
 
   mat-sidenav-container {
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -83,7 +84,7 @@
       flex-grow: 1;
       display: grid;
       padding: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1rem;
 
       .card {
@@ -149,6 +150,11 @@
     padding: 1rem;
     display: flex;
     flex-direction: column;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+    }
 
     .spacer {
       height: 0.25rem;

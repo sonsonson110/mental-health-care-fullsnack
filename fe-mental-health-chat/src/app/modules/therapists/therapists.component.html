@@ -1,9 +1,7 @@
 <div class="root-container">
   <mat-toolbar class="toolbar">
-    <img class="logo" src="assets/icons/angularGradient.png" />
     <span class="title">Therapist dicovery</span>
     <div class="search-container">
-      <mat-icon class="search-icon">search</mat-icon>
       <input
         #searchInput
         type="text"
@@ -83,7 +81,7 @@
                   <span class="description">Be the first client!</span>
                 }
               </div>
-              <p class="bio">{{ therapist.bio || 'Bio of therapist is not mentioned' }}</p>
+              <p class="bio">{{ therapist.description || 'Description of therapist is not mentioned' }}</p>
               <mat-chip-set>
                 @for (tag of therapist.issueTags; track $index) {
                   <mat-chip>{{ tag }}</mat-chip>
@@ -92,7 +90,7 @@
             </mat-card-content>
             <span class="spacer"></span>
             <mat-card-actions>
-              <button mat-button>MORE...</button>
+              <button mat-button (click)="onUserDetailsClick(therapist.id)">MORE...</button>
             </mat-card-actions>
           </mat-card>
         }
@@ -100,7 +98,10 @@
     </div>
     <mat-sidenav [mode]="filterPanelMode" position="end" [opened]="isFilterPanelOpen">
       <div class="filter-container">
-        <p class="mat-title-medium">Advanced filters</p>
+        <div class="header">
+          <p class="mat-title-medium">Advanced filters</p>
+          <button mat-button (click)="resetFilters()">Reset</button>
+        </div>
         <mat-slide-toggle [(ngModel)]="isFilterEnabled">Enable</mat-slide-toggle>
         <app-issue-tag-input class="tag"
                              [allIssueTags]="allIssueTags"

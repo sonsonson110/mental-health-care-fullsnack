@@ -85,7 +85,7 @@ internal static class TherapistsSeed
                 PhoneNumber = $"123456{789 + i}",
                 TimeZoneId = "SE Asia Standard Time",
                 IsTherapist = true,
-                Bio = $"Experienced therapist specializing in {issueTags[i].Name} and {issueTags[(i + 1) % issueTags.Count].Name}, with a focus on evidence-based therapy approaches.",
+                Description = $"Experienced therapist specializing in {issueTags[i].Name} and {issueTags[(i + 1) % issueTags.Count].Name}, with a focus on evidence-based therapy approaches.",
                 UserName = baseInfo.Email.Split('@')[0],
                 AvatarName = AvatarNames[i],
                 
@@ -167,7 +167,8 @@ internal static class TherapistsSeed
             Name = template.Name,
             IssuingOrganization = template.Organization,
             DateIssued = new DateOnly(year, 1, 1),
-            ExpirationDate = new DateOnly(year + 2, 12, 31)
+            ExpirationDate = new DateOnly(year + 2, 12, 31),
+            ReferenceUrl = "https://interpersonalpsychotherapy.org/therapist-certification/"
         };
 
     private static List<Review> CreateReviews(int therapistIndex, List<User> users)

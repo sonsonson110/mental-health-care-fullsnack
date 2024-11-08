@@ -5,7 +5,7 @@ export interface TherapistSummaryResponse {
   fullName: string;
   gender: Gender;
   avatarName: string | null;
-  bio: string | null;
+  description: string | null;
   issueTags: string[];
   lastExperience: string;
   experienceCount: number;

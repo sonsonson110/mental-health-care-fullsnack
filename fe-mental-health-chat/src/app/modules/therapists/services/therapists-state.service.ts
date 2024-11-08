@@ -6,8 +6,8 @@ import { IssueTag } from '../../../core/models/common/issue-tag.model';
 import { TagsApiService } from '../../../core/api-services/tags-api.service';
 import { TherapistSummariesRequest } from '../../../core/models/modules/therapists/therapist-summaries-request.model';
 
-@Injectable()
-export class TherapistsDataService {
+@Injectable({providedIn: 'root'})
+export class TherapistsStateService {
   private therapistSummaries$ = new BehaviorSubject<TherapistSummaryResponse[]>([]);
   therapistSummaries = this.therapistSummaries$.asObservable();
 

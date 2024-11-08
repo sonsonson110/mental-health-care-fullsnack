@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environment/dev.environment';
 import { TherapistSummaryResponse } from '../models/modules/therapists/therapist-summary-response.model';
 import { TherapistSummariesRequest } from '../models/modules/therapists/therapist-summaries-request.model';
+import { TherapistDetailResponse } from '../models/modules/therapists/therapist-detail-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,5 +52,9 @@ export class TherapistsApiService {
     return this.http.get<TherapistSummaryResponse[]>(this.baseEndpoint + '/summary', {
       params,
     });
+  }
+
+  getTherapistDetail(therapistId: string) {
+    return this.http.get<TherapistDetailResponse>(this.baseEndpoint + '/' + therapistId);
   }
 }

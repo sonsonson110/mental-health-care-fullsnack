@@ -1,4 +1,4 @@
-import { Component, ElementRef, model, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -19,11 +19,12 @@ import { experienceLevelOptions } from './constants/experience-level-filter-opti
 import { availabilityDateOptions } from './constants/availability-filter-option.constant';
 import { IssueTagInputComponent } from '../../shared/components/issue-tag-input/issue-tag-input.component';
 import { TherapistSummaryResponse } from '../../core/models/modules/therapists/therapist-summary-response.model';
-import { TherapistsDataService } from './services/therapists-data.service';
+import { TherapistsStateService } from './services/therapists-state.service';
 import { Observable } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TherapistSummariesRequest } from '../../core/models/modules/therapists/therapist-summaries-request.model';
 import { ExperienceLevelOption } from '../../core/models/enums/filters/experience-level-option.enum';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-therapists',
@@ -46,11 +47,10 @@ import { ExperienceLevelOption } from '../../core/models/enums/filters/experienc
     IssueTagInputComponent,
     MatProgressBarModule,
   ],
-  providers: [TherapistsDataService],
   templateUrl: './therapists.component.html',
   styleUrl: './therapists.component.scss',
 })
-export class TherapistsComponent {
+export class TherapistsComponent implements AfterViewInit, OnDestroy{
   @ViewChild('genderSelect') genderSelect!: MatSelectionList;
   @ViewChild('dateSelect') dateSelect!: MatSelectionList;
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
@@ -63,13 +63,18 @@ export class TherapistsComponent {
   filterPanelMode: 'side' | 'over' = 'over';
   isFilterEnabled = false;
 
-  // region tags properties
+  //region tags properties
   readonly currentIssueTag = model('');
   readonly issueTags = signal<IssueTag[]>([]);
+  //endregion
 
-  // region slider properties
+  //region slider properties
   minRating = 0;
   endRating = 5;
+  //endregion
+
+  //region selection properties
+  //endregion
 
   readonly genders = genders;
   readonly experienceLevelOptions = experienceLevelOptions;
@@ -79,7 +84,8 @@ export class TherapistsComponent {
 
   constructor(
     breakpointObserver: BreakpointObserver,
-    private readonly therapistsDataService: TherapistsDataService
+    private router: Router,
+    private readonly therapistsDataService: TherapistsStateService
   ) {
     breakpointObserver.observe(['(min-width: 992px)']).subscribe(result => {
       if (result.matches) {
@@ -92,6 +98,63 @@ export class TherapistsComponent {
     this.therapistSummaries$ = this.therapistsDataService.therapistSummaries;
     this.therapistsLoadingState$ = this.therapistsDataService.loadingState;
     this.therapistsDataService.issueTags.subscribe(data => (this.allIssueTags = data));
+  }
+
+  ngAfterViewInit() {
+    this.loadFilterState();
+  }
+
+  ngOnDestroy() {
+    this.saveFilterState();
+  }
+
+  saveFilterState() {
+    const filterState = {
+      isFilterPanelOpen: this.isFilterPanelOpen,
+      isFilterEnabled: this.isFilterEnabled,
+      issueTags: this.issueTags(),
+      minRating: this.minRating,
+      endRating: this.endRating,
+      experienceLevel: this.experienceLevelControl.value,
+      searchText: this.searchInput.nativeElement.value,
+      selectedGenders: this.genderSelect.selectedOptions.selected.map(e => e.value),
+      selectedDates: this.dateSelect.selectedOptions.selected.map(e => e.value),
+    };
+    localStorage.setItem('therapistsFilterState', JSON.stringify(filterState));
+  }
+
+  loadFilterState() {
+    const filterState = localStorage.getItem('therapistsFilterState');
+    if (filterState) {
+      const state = JSON.parse(filterState);
+      this.isFilterPanelOpen = state.isFilterPanelOpen;
+      this.isFilterEnabled = state.isFilterEnabled;
+      this.issueTags.set(state.issueTags);
+      this.minRating = state.minRating;
+      this.endRating = state.endRating;
+      this.experienceLevelControl.setValue(state.experienceLevel);
+      this.searchInput.nativeElement.value = state.searchText;
+      this.genderSelect.options.forEach(option => {
+        if (state.selectedGenders.includes(option.value)) {
+          option.selected = true;
+        }
+      });
+      this.dateSelect.options.forEach(option => {
+        if (state.selectedDates.includes(option.value)) {
+          option.selected = true;
+        }
+      });
+    }
+  }
+
+  resetFilters() {
+    this.isFilterEnabled = false;
+    this.issueTags.set([]);
+    this.minRating = 0;
+    this.endRating = 5;
+    this.experienceLevelControl.setValue([ExperienceLevelOption.DISABLE]);
+    this.genderSelect.deselectAll();
+    this.dateSelect.deselectAll();
   }
 
   search() {
@@ -146,5 +209,9 @@ export class TherapistsComponent {
 
   toggleFilterPanel(): void {
     this.isFilterPanelOpen = !this.isFilterPanelOpen;
+  }
+
+  onUserDetailsClick(therapistId: string): void {
+    this.router.navigate(['/therapists', therapistId]);
   }
 }

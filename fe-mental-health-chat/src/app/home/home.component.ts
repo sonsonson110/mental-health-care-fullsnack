@@ -17,15 +17,17 @@ import { filter } from 'rxjs';
 export class HomeComponent implements OnInit {
   @ViewChild(MatSidenav) sidenav!: MatSidenav;
   sideNavOpened = false;
-  isMdOrLargerScreen = false;
+  isLgOrLargerScreen = false;
+  sideNavMode: 'over' | 'side' = 'over';
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthApiService,
     private router: Router
   ) {
-    this.breakpointObserver.observe('(min-width: 768px)').subscribe(result => {
-      this.isMdOrLargerScreen = result.matches;
+    this.breakpointObserver.observe('(min-width: 992px)').subscribe(result => {
+      this.sideNavMode = result.matches ? 'side' : 'over';
+      this.isLgOrLargerScreen = result.matches;
     });
   }
 
@@ -41,9 +43,5 @@ export class HomeComponent implements OnInit {
   toggleMenu() {
     this.sidenav.toggle();
     this.sideNavOpened = !this.sideNavOpened;
-  }
-
-  getSidenavMode(): 'side' | 'over' {
-    return this.isMdOrLargerScreen ? 'side' : 'over';
   }
 }

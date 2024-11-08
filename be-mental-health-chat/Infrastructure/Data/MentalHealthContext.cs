@@ -34,8 +34,12 @@ public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityU
             switch (changedEntity.State)
             {
                 case EntityState.Added:
-                    entity.CreatedAt = now;
-                    entity.UpdatedAt = now;
+                    // Only set timestamps if they haven't been explicitly set
+                    if (entity.CreatedAt == default)
+                    {
+                        entity.CreatedAt = now;
+                        entity.UpdatedAt = now;
+                    }
                     break;
                 case EntityState.Modified:
                     Entry(entity).Property(x => x.CreatedAt).IsModified = false;

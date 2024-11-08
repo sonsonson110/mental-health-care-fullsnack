@@ -84,10 +84,10 @@ public class UserService : IUserService
     public async Task<Result<UserDetailResponseDto>> GetUserDetailAsync(Guid userId)
     {
         var user = await _context.Users
-            .Include(e => e.Educations)
-            .Include(e => e.Certifications)
-            .Include(e => e.Experiences)
-            .Include(e => e.IssueTags)
+            .Include(e => e.Educations.OrderByDescending(edu => edu.StartDate))
+            .Include(e => e.Certifications.OrderByDescending(cert => cert.DateIssued))
+            .Include(e => e.Experiences.OrderByDescending(exp => exp.StartDate))
+            .Include(e => e.IssueTags.OrderBy(i => i.Name))
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == userId);
 

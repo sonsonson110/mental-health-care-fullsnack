@@ -6,8 +6,8 @@ import { inject } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthApiService);
   const toastr = inject(ToastrService);
+  const authService = inject(AuthApiService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -39,17 +39,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           };
 
           toastr.error(problemDetail.detail, problemDetail.title);
-
           return throwError(() => problemDetail);
         }
       }
 
-      // other server-side error
-      return throwError(() => {
-        const problemDetail = error.error as ProblemDetail;
-        toastr.error(problemDetail.detail, problemDetail.title);
-        return problemDetail;
-      });
+      const problemDetail = error.error as ProblemDetail;
+      toastr.error(problemDetail.detail, problemDetail.title);
+
+      // other server-side error (400)
+      return throwError(() => problemDetail);
     })
   );
 };

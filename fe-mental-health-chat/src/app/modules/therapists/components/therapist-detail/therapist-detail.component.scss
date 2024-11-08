@@ -1,0 +1,122 @@
+@import '../../../../shared/style/variables.scss';
+
+.root-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-grow: 1;
+  }
+
+  .content-container {
+    width: $breakpoint-lg;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+
+    .info {
+      mat-card-header {
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        @media screen and (min-width: $breakpoint-sm) {
+          flex-direction: row;
+          align-items: start;
+
+          img {
+            margin-top: 0;
+          }
+        }
+
+        img {
+          width: 160px;
+          height: 160px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin-top: 0.5rem;
+        }
+
+        table {
+          th {
+            text-align: start;
+          }
+
+          td {
+            padding-left: 1rem;
+          }
+        }
+      }
+    }
+
+    .split {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      @media screen and (min-width: $breakpoint-md) {
+        flex-direction: row;
+      }
+
+      .left {
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        @media screen and (min-width: $breakpoint-md) {
+          width: 380px;
+        }
+      }
+
+      .right {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .reviews {
+          mat-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            .review-container {
+              display: flex;
+              flex-direction: column;
+              gap: 0.2rem;
+
+              .header {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                .avatar {
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .cal-week-view .cal-day-headers span {
+    display: none;
+  }
+}

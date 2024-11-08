@@ -33,7 +33,6 @@ public static class AvailabilityTemplateSeed
                         DateOfWeek = day,
                         StartTime = new TimeOnly(hour, 0),
                         EndTime = new TimeOnly(hour + 1, 0),
-                        IsAvailable = true,
                         TherapistId = therapist.Id
                     });
                 }
@@ -46,7 +45,6 @@ public static class AvailabilityTemplateSeed
                         DateOfWeek = day,
                         StartTime = new TimeOnly(hour, 0),
                         EndTime = new TimeOnly(hour + 1, 0),
-                        IsAvailable = true,
                         TherapistId = therapist.Id
                     });
                 }

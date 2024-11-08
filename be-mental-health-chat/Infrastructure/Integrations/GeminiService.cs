@@ -26,8 +26,7 @@ public class GeminiService : IGeminiService
                                                       """;
 
     private const string TitleGenerationPrompt = """
-                                                 You are a mental health assistant. Your task is to provide helpful information and support related to mental health topics.
-                                                 You need to generate a title for the conversation based on the user's prompt.
+                                                 You need to generate a title for the conversation based on the user's prompt. It should be about mental health topics
                                                  If the question is not related to mental health, just return 'Untitled'.
                                                  Here's the user's prompt:
                                                  """;

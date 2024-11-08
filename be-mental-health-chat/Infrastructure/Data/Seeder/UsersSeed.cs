@@ -36,7 +36,7 @@ internal static class UsersSeed
         {
             Id = Guid.NewGuid(),
             FirstName = "John",
-            LastName = "Doe",
+            LastName = "Doey",
             Gender = Gender.MALE,
             DateOfBirth = new DateOnly(1985, 5, 15),
             Email = "johnny.dang@example.com",

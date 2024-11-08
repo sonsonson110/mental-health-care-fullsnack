@@ -14,6 +14,8 @@ import { ChangePasswordComponent } from './modules/profile/components/change-pas
 import { DeleteAccountComponent } from './modules/profile/components/delete-account/delete-account.component';
 import { authGuard } from './core/guards/auth.guard';
 import { publicOnlyGuard } from './core/guards/public-only.guard';
+import { TherapistDetailComponent } from './modules/therapists/components/therapist-detail/therapist-detail.component';
+import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +49,7 @@ export const routes: Routes = [
         path: 'therapists',
         component: TherapistsComponent,
       },
+      { path: 'therapists/:id', component: TherapistDetailComponent, pathMatch: 'full' },
       {
         path: 'client-chats',
         component: P2pConversationComponent,
@@ -75,6 +78,6 @@ export const routes: Routes = [
 
   { path: 'login', component: LoginComponent, canActivate: [publicOnlyGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [publicOnlyGuard] },
-
-  { path: '**', redirectTo: '', pathMatch: 'full' },
+  { path: 'not-found', component: NotFoundComponent },
+  { path: '**', redirectTo: 'not-found', pathMatch: 'full' },
 ];

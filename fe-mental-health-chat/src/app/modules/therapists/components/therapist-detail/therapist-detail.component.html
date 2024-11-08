@@ -1,0 +1,194 @@
+<div class="root-container">
+  @if (isLoading) {
+    <div class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+    <div class="content-container">
+      <div class="info">
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <img mat-card-lg-image [src]="therapistDetail!.avatarName | parseAvatarUrl: therapistDetail!.gender"
+                 alt="therapist avatar" />
+            <mat-card-title class="mat-display-medium">{{ therapistDetail!.fullName }}</mat-card-title>
+            <mat-card-subtitle>
+              <table>
+                <tr>
+                  <th>Gender</th>
+                  <td>{{ therapistDetail!.gender | gender }}</td>
+                </tr>
+                <tr>
+                  <th>Date of birth</th>
+                  <td>{{ therapistDetail!.dateOfBirth | date: 'mediumDate' }}</td>
+                </tr>
+                <tr>
+                  <th>Joined since</th>
+                  <td>{{ therapistDetail!.createdAt | date: 'mediumDate' }}</td>
+                </tr>
+              </table>
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content *ngIf="therapistDetail!.description">
+            <p class="mat-body-large">{{ therapistDetail!.description }}</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button>Register</button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <div class="tags">
+        <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Tags</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (therapistDetail!.issueTags.length === 0) {
+              <p>No tags is listed</p>
+            } @else {
+              <mat-chip-set>
+                @for (tag of therapistDetail!.issueTags; track tag.id) {
+                  <mat-chip [matTooltip]="tag.definition">{{ tag.shortName ?? tag.name }}</mat-chip>
+                }
+              </mat-chip-set>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="split">
+        <div class="left">
+          <div class="experiences">
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Experiences</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (therapistDetail!.experiences.length === 0) {
+                  <p>No experience is listed</p>
+                } @else {
+                  <mat-list>
+                    @for (experience of therapistDetail!.experiences; track $index) {
+                      <mat-list-item>
+                        <span matListItemTitle>{{ experience.organization }}</span>
+                        <span matListItemLine>{{ experience.position }}</span>
+                        <span matListItemLine>{{ experience.startDate | date: 'MM/dd/yyyy' }}
+                          - {{ experience.endDate ? (experience.endDate | date: 'MM/dd/yyyy') : 'present' }}</span>
+                      </mat-list-item>
+                    }
+                  </mat-list>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="educations">
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Educations</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (therapistDetail!.educations.length === 0) {
+                  <p>No education is listed</p>
+                } @else {
+                  <mat-list>
+                    @for (education of therapistDetail!.educations; track $index) {
+                      <mat-list-item>
+                        <span matListItemTitle>{{ education.institution }}</span>
+                        <span matListItemLine *ngIf="education.major">{{ education.major }}<span
+                          *ngIf="education.degree">, {{ education.degree }}</span></span>
+                        <span matListItemLine>{{ education.startDate | date: 'MM/dd/yyyy' }}
+                          - {{ education.endDate ? (education.endDate | date: 'MM/dd/yyyy') : 'present' }}</span>
+                      </mat-list-item>
+                    }
+                  </mat-list>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div class="certifications">
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Certifications</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (therapistDetail!.certifications.length === 0) {
+                  <p>No certification is listed</p>
+                } @else {
+                  <mat-list>
+                    @for (certification of therapistDetail!.certifications; track $index) {
+                      <p>
+                        <mat-list-item lines="4">
+                          <span matListItemTitle>{{ certification.name }}</span>
+                          <span matListItemLine
+                                *ngIf="certification.issuingOrganization">{{ certification.issuingOrganization }}</span>
+                          <span matListItemLine
+                                class="mat-body-small">{{ certification.dateIssued | date: 'MM/dd/yyyy' }}
+                            - {{ (certification.expirationDate | date: 'MM/dd/yyyy') ?? '' }}</span>
+                          <a matListItemLine *ngIf="certification.referenceUrl" [href]="certification.referenceUrl"
+                             target="_blank">Reference link</a>
+                        </mat-list-item>
+                      </p>
+                    }
+                  </mat-list>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+        <div class="right">
+          <div class="reviews">
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Reviews</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (therapistDetail!.therapistReviews.length === 0) {
+                  <p>No review is listed</p>
+                } @else {
+                  @for (review of therapistDetail!.therapistReviews; track review.id) {
+                    <div class="review-container">
+                      <div class="header">
+                        <img class="avatar"
+                             [src]="review.clientAvatarName | parseAvatarUrl: review.clientGender"
+                             alt="client avatar">
+                        <span class="mat-body-large">{{ review.clientFullName }} • {{ review.rating }}⭐</span>
+                      </div>
+                      <span>{{ review.comment }}</span>
+                      <span class="mat-label-small">At {{ review.updatedAt | date: 'short' }}</span>
+                    </div>
+                  }
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <mwl-calendar-week-view
+            precision="minutes"
+            [viewDate]="viewDate"
+            [events]="getAvailabilityTemplate()"
+            [hourSegments]="1"
+            [weekStartsOn]="1"
+            [dayStartHour]="5"
+            [headerTemplate]="mwlCalendarWeekViewHeaderTemplate"
+          >
+            <ng-template
+              #mwlCalendarWeekViewHeaderTemplate
+              let-days="days"
+            >
+              <div class="cal-day-headers">
+                <div
+                  class="cal-header"
+                  *ngFor="let day of days"
+                >
+                  <b>{{ day.date | date:'E' }}</b>
+                </div>
+              </div>
+            </ng-template>
+          </mwl-calendar-week-view>
+        </div>
+      </div>
+    </div>
+  }
+</div>

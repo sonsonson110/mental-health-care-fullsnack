@@ -72,7 +72,7 @@ public class ConversationsService : IConversationsService
     public async Task<Result<CreateChatbotConversationResponseDto>> CreateChatbotConversationAsync(Guid userId,
         CreateChatbotConversationRequestDto request)
     {
-        var userMessageReceivedTime = DateTime.UtcNow;
+        var receivedTime = DateTime.UtcNow;
         request.Content = request.Content.Trim();
         
         // use template prompt for very first user question for chatbot
@@ -99,12 +99,13 @@ public class ConversationsService : IConversationsService
         var userPromptResponse = await userPromptResponseTask;
         var titleResponse = await generateTitleResponseTask;
         
+        var completionTime = DateTime.UtcNow;
         // create new conversation
         var conversation = new Conversation
         {
             Id = Guid.NewGuid(),
             ClientId = userId,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = completionTime,
             Title = titleResponse.FinalResponse,
         };
         _context.Conversations.Add(conversation);
@@ -115,7 +116,7 @@ public class ConversationsService : IConversationsService
             SenderId = userId,
             ConversationId = conversation.Id,
             Content = request.Content,
-            CreatedAt = userMessageReceivedTime,
+            CreatedAt = receivedTime,
             IsRead = true,
         };
         var geminiMessage = new Message
@@ -124,7 +125,7 @@ public class ConversationsService : IConversationsService
             SenderId = null,
             ConversationId = conversation.Id,
             Content = userPromptResponse.FinalResponse,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = completionTime,
             IsRead = false,
         };
         _context.Messages.AddRange(userMessage, geminiMessage);
