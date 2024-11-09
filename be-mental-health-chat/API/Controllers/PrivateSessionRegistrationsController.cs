@@ -9,11 +9,11 @@ namespace API.Controllers;
 [Route("private-session-registrations")]
 public class PrivateSessionRegistrationsController: MentalHeathControllerBase
 {
-    private readonly ITherapistsService _therapistsService;
+    private readonly IPrivateSessionRegistrationsService _privateSessionRegistrationsService;
     
-    public PrivateSessionRegistrationsController(ITherapistsService therapistsService)
+    public PrivateSessionRegistrationsController(IPrivateSessionRegistrationsService privateSessionRegistrationsService)
     {
-        _therapistsService = therapistsService;
+        _privateSessionRegistrationsService = privateSessionRegistrationsService;
     }
     
     [HttpPost("register")]
@@ -21,7 +21,7 @@ public class PrivateSessionRegistrationsController: MentalHeathControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterTherapistAsync([FromBody] RegisterTherapistRequestDto request)
     {
-        var result = await _therapistsService.RegisterTherapistAsync(GetUserId(), request);
+        var result = await _privateSessionRegistrationsService.RegisterTherapistAsync(GetUserId(), request);
         return result.ReturnFromPost();
     }
 }
