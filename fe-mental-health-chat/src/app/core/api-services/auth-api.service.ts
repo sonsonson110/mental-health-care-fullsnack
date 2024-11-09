@@ -84,6 +84,6 @@ export class AuthApiService {
   getSessionUserName = (): string | undefined =>
     this.decodeToken()?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
 
-  getSessionUserRole = (): string | undefined =>
+  getSessionUserRole = () =>
     this.decodeToken()?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 }

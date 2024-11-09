@@ -7,10 +7,8 @@ namespace Domain.Entities;
 public class PrivateSessionRegistration: TimestampMarkedEntityBase
 {
     public PrivateSessionRegistrationStatus Status { get; set; }
-    [MaxLength(255)]
     public string? NoteFromTherapist { get; set; }
-    [MaxLength(255)]
-    public string? NoteFromClient { get; set; }
+    public string NoteFromClient { get; set; } = String.Empty;
     public DateTime? EndDate { get; set; }
     
     public Guid TherapistId { get; set; }

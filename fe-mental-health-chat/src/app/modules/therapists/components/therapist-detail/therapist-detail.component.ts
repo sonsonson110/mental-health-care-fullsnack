@@ -19,6 +19,11 @@ import {
   setMinutes,
   startOfWeek,
 } from 'date-fns';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import {
+  TherapistRegistrationDialogComponent
+} from '../therapist-registration-dialog/therapist-registration-dialog.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-therapist-detail',
@@ -34,6 +39,7 @@ import {
     MatTooltipModule,
     MatListModule,
     CalendarModule,
+    MatDialogModule,
   ],
   templateUrl: './therapist-detail.component.html',
   styleUrl: './therapist-detail.component.scss',
@@ -43,11 +49,14 @@ export class TherapistDetailComponent implements OnInit {
   therapistDetail: TherapistDetailResponse | null = null;
 
   viewDate: Date = new Date();
+  events: CalendarEvent[] = [];
 
   constructor(
     private therapistsService: TherapistsApiService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +77,7 @@ export class TherapistDetailComponent implements OnInit {
       .subscribe({
         next: response => {
           this.therapistDetail = response;
+          this.loadAvailabilityTemplate();
         },
         error: () => {
           this.router.navigate(['/not-found']);
@@ -75,10 +85,10 @@ export class TherapistDetailComponent implements OnInit {
       });
   }
 
-  getAvailabilityTemplate(): CalendarEvent[] {
+  loadAvailabilityTemplate() {
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 = Monday
 
-    const events =
+    this.events =
       this.therapistDetail?.availabilityTemplates.map(template => {
         // Parse start time
         const [startHour, startMinute] = template.startTime.split(':').map(Number);
@@ -104,7 +114,20 @@ export class TherapistDetailComponent implements OnInit {
           },
         } as CalendarEvent;
       }) ?? [];
+  }
 
-    return events;
+  openRegistrationDialog(): void {
+    const dialogRef = this.dialog.open(TherapistRegistrationDialogComponent, {
+      data: {
+        therapistFullName: this.therapistDetail!.fullName,
+        therapistId: this.therapistDetail!.id,
+      },
+      maxWidth: '992px',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log(result);
+      }
+    })
   }
 }

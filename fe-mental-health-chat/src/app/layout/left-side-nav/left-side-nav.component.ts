@@ -20,7 +20,7 @@ import { baseNavItems, therapistNavItems } from '../../core/constants/nav-items.
 export class LeftSideNavComponent {
   readonly baseNavItems = baseNavItems;
   readonly therapistNavItems = therapistNavItems;
-  readonly sessionUserRole;
+  readonly sessionUserRoles: string | string[] | undefined;
   currentBrowserUrl: string | null = null;
 
   constructor(
@@ -28,7 +28,7 @@ export class LeftSideNavComponent {
     authService: AuthApiService,
     location: Location
   ) {
-    this.sessionUserRole = authService.getSessionUserRole();
+    this.sessionUserRoles = authService.getSessionUserRole();
     this.currentBrowserUrl = location.path();
     // Listen for navigation changes to update the current chat box id
     location.onUrlChange(url => {
@@ -47,6 +47,8 @@ export class LeftSideNavComponent {
 
   hasTherapistRole(): boolean {
     const therapistValue = userTypes.find(t => t.key === UserType.THERAPIST)?.value;
-    return this.sessionUserRole === therapistValue;
+    return therapistValue
+      ? this.sessionUserRoles?.includes(therapistValue) ?? false
+      : false;
   }
 }

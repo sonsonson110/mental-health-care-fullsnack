@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, model, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, model, OnDestroy, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -55,6 +55,8 @@ export class TherapistsComponent implements AfterViewInit, OnDestroy{
   @ViewChild('dateSelect') dateSelect!: MatSelectionList;
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
+  private readonly localStorageKey = 'app-therapists-filter-state';
+
   therapistSummaries$: Observable<TherapistSummaryResponse[]>;
   therapistsLoadingState$: Observable<boolean>;
   allIssueTags: IssueTag[] = [];
@@ -71,9 +73,6 @@ export class TherapistsComponent implements AfterViewInit, OnDestroy{
   //region slider properties
   minRating = 0;
   endRating = 5;
-  //endregion
-
-  //region selection properties
   //endregion
 
   readonly genders = genders;
@@ -120,11 +119,11 @@ export class TherapistsComponent implements AfterViewInit, OnDestroy{
       selectedGenders: this.genderSelect.selectedOptions.selected.map(e => e.value),
       selectedDates: this.dateSelect.selectedOptions.selected.map(e => e.value),
     };
-    localStorage.setItem('therapistsFilterState', JSON.stringify(filterState));
+    localStorage.setItem(this.localStorageKey, JSON.stringify(filterState));
   }
 
   loadFilterState() {
-    const filterState = localStorage.getItem('therapistsFilterState');
+    const filterState = localStorage.getItem(this.localStorageKey);
     if (filterState) {
       const state = JSON.parse(filterState);
       this.isFilterPanelOpen = state.isFilterPanelOpen;

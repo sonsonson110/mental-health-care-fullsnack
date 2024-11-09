@@ -2,9 +2,9 @@
 
 public enum PrivateSessionRegistrationStatus
 {
-    PENDING = 0,
-    APPROVED = 1,
-    REJECTED = 2,
-    FINISHED = 3,
-    CANCELED = 4
+    PENDING = 1,
+    APPROVED = 2,
+    REJECTED = 3,
+    FINISHED = 4,
+    CANCELED = 5
 }

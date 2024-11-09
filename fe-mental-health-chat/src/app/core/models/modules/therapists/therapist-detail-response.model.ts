@@ -6,11 +6,14 @@ import { Review } from '../../common/review.model';
 import { TherapistAvailabilityTemplateResponse } from './therapist-availability-template-response.model';
 
 export interface TherapistDetailResponse {
+  id: string,
   fullName: string;
   gender: number;
   dateOfBirth: string;
   avatarName: string | null;
+  email: string;
   createdAt: string;
+  clientCount: number;
   description: string | null;
   educations: TherapistEducation[];
   experiences: TherapistExperience[];

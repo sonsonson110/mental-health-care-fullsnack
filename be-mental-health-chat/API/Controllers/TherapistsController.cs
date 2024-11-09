@@ -23,12 +23,12 @@ public class TherapistsController: MentalHeathControllerBase
         return Ok(therapists);
     }
     
-    [HttpGet("{id:guid}")]
+    [HttpGet("{therapistId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetTherapistDetailAsync(Guid id)
+    public async Task<IActionResult> GetTherapistDetailAsync(Guid therapistId)
     {
-        var result = await _therapistsService.GetTherapistDetailAsync(id);
+        var result = await _therapistsService.GetTherapistDetailAsync(GetUserId(), therapistId);
         return result.ReturnFromGet();
     }
 }

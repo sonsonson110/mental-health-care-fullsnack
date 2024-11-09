@@ -8,7 +8,7 @@ public class GetTherapistSummaryResponseDto
     public required string FullName { get; set; }
     public Gender Gender { get; set; }
     public string? AvatarName { get; set; }
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     public List<string> IssueTags { get; set; } = [];
     public string? LastExperience { get; set; }
     public int ExperienceCount { get; set; }

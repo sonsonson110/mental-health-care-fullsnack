@@ -10,7 +10,7 @@
           <mat-card-header>
             <img mat-card-lg-image [src]="therapistDetail!.avatarName | parseAvatarUrl: therapistDetail!.gender"
                  alt="therapist avatar" />
-            <mat-card-title class="mat-display-medium">{{ therapistDetail!.fullName }}</mat-card-title>
+            <mat-card-title class="mat-display-small">{{ therapistDetail!.fullName }}</mat-card-title>
             <mat-card-subtitle>
               <table>
                 <tr>
@@ -20,6 +20,14 @@
                 <tr>
                   <th>Date of birth</th>
                   <td>{{ therapistDetail!.dateOfBirth | date: 'mediumDate' }}</td>
+                </tr>
+                <tr>
+                  <th>Email</th>
+                  <td>{{ therapistDetail!.email }}</td>
+                </tr>
+                <tr *ngIf="therapistDetail?.clientCount">
+                  <th>Clients helped</th>
+                  <td>{{ therapistDetail!.clientCount }}</td>
                 </tr>
                 <tr>
                   <th>Joined since</th>
@@ -32,32 +40,34 @@
             <p class="mat-body-large">{{ therapistDetail!.description }}</p>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button>Register</button>
+            <button mat-button (click)="openRegistrationDialog()">
+              Register
+            </button>
           </mat-card-actions>
-        </mat-card>
-      </div>
-
-      <div class="tags">
-        <mat-card appearance="outlined">
-          <mat-card-header>
-            <mat-card-title>Tags</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            @if (therapistDetail!.issueTags.length === 0) {
-              <p>No tags is listed</p>
-            } @else {
-              <mat-chip-set>
-                @for (tag of therapistDetail!.issueTags; track tag.id) {
-                  <mat-chip [matTooltip]="tag.definition">{{ tag.shortName ?? tag.name }}</mat-chip>
-                }
-              </mat-chip-set>
-            }
-          </mat-card-content>
         </mat-card>
       </div>
 
       <div class="split">
         <div class="left">
+          <div class="tags">
+            <mat-card appearance="outlined">
+              <mat-card-header>
+                <mat-card-title>Tags</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                @if (therapistDetail!.issueTags.length === 0) {
+                  <p>No tags is listed</p>
+                } @else {
+                  <mat-chip-set>
+                    @for (tag of therapistDetail!.issueTags; track tag.id) {
+                      <mat-chip [matTooltip]="tag.definition">{{ tag.shortName ?? tag.name }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                }
+              </mat-card-content>
+            </mat-card>
+          </div>
+
           <div class="experiences">
             <mat-card appearance="outlined">
               <mat-card-header>
@@ -164,29 +174,35 @@
             </mat-card>
           </div>
 
-          <mwl-calendar-week-view
-            precision="minutes"
-            [viewDate]="viewDate"
-            [events]="getAvailabilityTemplate()"
-            [hourSegments]="1"
-            [weekStartsOn]="1"
-            [dayStartHour]="5"
-            [headerTemplate]="mwlCalendarWeekViewHeaderTemplate"
-          >
-            <ng-template
-              #mwlCalendarWeekViewHeaderTemplate
-              let-days="days"
+          <span class="mat-title-large">Therapist available time</span>
+
+          @if (events) {
+            <mwl-calendar-week-view
+              precision="minutes"
+              [viewDate]="viewDate"
+              [events]="events"
+              [hourSegments]="1"
+              [weekStartsOn]="1"
+              [dayStartHour]="5"
+              [headerTemplate]="mwlCalendarWeekViewHeaderTemplate"
             >
-              <div class="cal-day-headers">
-                <div
-                  class="cal-header"
-                  *ngFor="let day of days"
-                >
-                  <b>{{ day.date | date:'E' }}</b>
+              <ng-template
+                #mwlCalendarWeekViewHeaderTemplate
+                let-days="days"
+              >
+                <div class="cal-day-headers">
+                  <div
+                    class="cal-header"
+                    *ngFor="let day of days"
+                  >
+                    <b>{{ day.date | date:'E' }}</b>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-          </mwl-calendar-week-view>
+              </ng-template>
+            </mwl-calendar-week-view>
+          } @else {
+            <p>No available time is listed</p>
+          }
         </div>
       </div>
     </div>
