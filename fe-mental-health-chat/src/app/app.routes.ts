@@ -16,6 +16,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { publicOnlyGuard } from './core/guards/public-only.guard';
 import { TherapistDetailComponent } from './modules/therapists/components/therapist-detail/therapist-detail.component';
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
+import { ManageRegistrationsComponent } from './modules/manage-registrations/manage-registrations.component';
+import { therapistOnlyGuard } from './core/guards/therapist-only.guard';
 
 export const routes: Routes = [
   {
@@ -73,11 +75,16 @@ export const routes: Routes = [
           { path: 'delete-account', component: DeleteAccountComponent },
         ],
       },
+      {
+        path: 'manage-registrations',
+        component: ManageRegistrationsComponent,
+        canActivate: [therapistOnlyGuard],
+      }
     ],
   },
 
   { path: 'login', component: LoginComponent, canActivate: [publicOnlyGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [publicOnlyGuard] },
   { path: 'not-found', component: NotFoundComponent },
-  { path: '**', redirectTo: 'not-found', pathMatch: 'full' },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

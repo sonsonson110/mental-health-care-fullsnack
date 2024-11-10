@@ -1,0 +1,69 @@
+<span mat-dialog-title>Registration detail</span>
+<mat-dialog-content>
+  <span class="mat-title-medium">Client</span>
+  <div class="split">
+    <table>
+      <tr>
+        <th>Name</th>
+        <td>{{ data.client.fullName }}</td>
+      </tr>
+      <tr>
+        <th>Gender</th>
+        <td>{{ data.client.gender | gender }}</td>
+      </tr>
+      <tr>
+        <th>Email</th>
+        <td>{{ data.client.email }}</td>
+      </tr>
+      <tr *ngIf="data.client.phoneNumber">
+        <th>Phone number</th>
+        <td>{{ data.client.phoneNumber }}</td>
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <th>Registered at</th>
+        <td>{{ data.createdAt | date: 'short' }}</td>
+      </tr>
+      <tr>
+        <th>Last updated</th>
+        <td>{{ data.updatedAt | date: 'short' }}</td>
+      </tr>
+      <tr *ngIf="data.endDate">
+        <th>Ended at</th>
+        <td>{{ data.endDate | date: 'short' }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <span class="mat-title-medium">Client message</span>
+  <p>{{ data.noteFromClient }}</p>
+
+  <span class="mat-title-medium">Edit</span>
+  <form [formGroup]="clientRegistrationFormGroup">
+    <mat-form-field class="select" appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        @for (item of statuses; track item.key) {
+          <mat-option [value]="item.key" [disabled]="shouldStatusBeDisabled(item.key)">{{ item.value }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Response to client</mat-label>
+      <textarea matInput formControlName="noteFromTherapist"></textarea>
+      <mat-hint align="end">{{ getMessageLength }}/500</mat-hint>
+      @if (clientRegistrationFormGroup.controls.noteFromTherapist.hasError('maxlength')) {
+        <mat-error>Message must below 500 characters</mat-error>
+      }
+      @if (clientRegistrationFormGroup.controls.noteFromTherapist.hasError('minlength')) {
+        <mat-error>Message must above 8 characters</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="onSummit()" [disabled]="shouldFormSubmitBeDisabled()" cdkFocusInitial>Save</button>
+</mat-dialog-actions>

@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<IConversationsService, ConversationsService>();
         services.AddScoped<IMessagesService, MessagesService>();
         services.AddScoped<ITherapistsService, TherapistsService>();
+        services.AddScoped<IPrivateSessionRegistrationsService, PrivateSessionRegistrationsService>();
         
         // Scan all assemblies for profiles
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

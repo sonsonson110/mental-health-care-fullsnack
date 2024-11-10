@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Application.DTOs.TherapistsService;
+namespace Application.DTOs.PrivateSessionRegistrationsService;
 
 public class RegisterTherapistRequestDto
 {
@@ -8,6 +8,6 @@ public class RegisterTherapistRequestDto
     public Guid TherapistId { get; set; }
     [Required]
     [MinLength(8)]
-    [MaxLength(300)]
+    [MaxLength(500)]
     public required string NoteFromClient { get; set; }
 }

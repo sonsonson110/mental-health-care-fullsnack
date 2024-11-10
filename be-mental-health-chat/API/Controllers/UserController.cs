@@ -58,7 +58,7 @@ public class UsersController : MentalHeathControllerBase
     
     // POST: /users/me/delete
     [HttpPost("me/delete")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequestDto request)
     {

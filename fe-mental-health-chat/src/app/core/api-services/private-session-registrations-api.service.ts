@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
 import { HttpClient } from '@angular/common/http';
 import { RegisterTherapist } from '../models/modules/therapists/register-therapist-request.model';
+import { ClientRegistrationResponse } from '../models/modules/manage-registrations/client-registration-response.model';
+import {
+  UpdateClientRegistrationRequest
+} from '../models/modules/manage-registrations/update-client-registration-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +15,15 @@ export class PrivateSessionRegistrationsApiService {
 
   constructor(private http: HttpClient) {}
 
-  public registerPrivateSession(body: RegisterTherapist) {
+  registerPrivateSession(body: RegisterTherapist) {
     return this.http.post(`${this.baseUrl}/register`, body);
+  }
+
+  getClientRegistrations() {
+    return this.http.get<ClientRegistrationResponse[]>(`${this.baseUrl}/client-registrations`);
+  }
+
+  updateClientRegistration(id: string, body: UpdateClientRegistrationRequest) {
+    return this.http.put(`${this.baseUrl}/${id}`, body);
   }
 }

@@ -29,16 +29,16 @@ public class TherapistsService : ITherapistsService
         if (!string.IsNullOrWhiteSpace(request.SearchText))
         {
             query = query.Where(
-                t => t.FirstName.Contains(request.SearchText) || t.LastName.Contains(request.SearchText));
+                t => (t.FirstName + " " + t.LastName).Contains(request.SearchText));
         }
 
         // filter if a therapist has any of requested issue tags
-        if (request.IssueTagIds.Any())
+        if (request.IssueTagIds.Count != 0)
         {
             query = query.Where(t => t.IssueTags.Any(tag => request.IssueTagIds.Contains(tag.Id)));
         }
 
-        if (request.Genders.Any())
+        if (request.Genders.Count != 0)
         {
             query = query.Where(t => request.Genders.Contains(t.Gender));
         }
@@ -53,7 +53,7 @@ public class TherapistsService : ITherapistsService
         if (request.EndRating.HasValue)
         {
             query = query.Where(t =>
-                t.TherapistReviews.Any() &&
+                t.TherapistReviews.Count != 0 &&
                 t.TherapistReviews.Select(r => (decimal)r.Rating).Average() <= request.EndRating.Value);
         }
 

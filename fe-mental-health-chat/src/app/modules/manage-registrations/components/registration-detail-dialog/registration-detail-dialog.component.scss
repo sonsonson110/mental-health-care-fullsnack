@@ -1,0 +1,38 @@
+@import '../../../../shared/style/variables.scss';
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .split {
+    display: flex;
+    flex-direction: column;
+
+    @media screen and (min-width: $breakpoint-md) {
+      flex-direction: row;
+      gap: 2rem;
+    }
+  }
+
+  table {
+    align-self: start;
+
+    th {
+      font-weight: normal;
+      text-align: start;
+    }
+
+    td {
+      padding-left: 1rem;
+    }
+  }
+
+  .select {
+    width: 180px;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}

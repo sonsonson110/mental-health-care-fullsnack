@@ -8,8 +8,8 @@ public class PrivateSessionRegistrationConfiguration: IEntityTypeConfiguration<P
 {
     public void Configure(EntityTypeBuilder<PrivateSessionRegistration> builder)
     {
-        builder.Property(e => e.NoteFromClient).HasMaxLength(300);
-        builder.Property(e => e.NoteFromTherapist).HasMaxLength(300);
+        builder.Property(e => e.NoteFromClient).HasMaxLength(500);
+        builder.Property(e => e.NoteFromTherapist).HasMaxLength(500);
         
         builder.HasOne(e=>e.Client)
             .WithMany()

@@ -33,6 +33,19 @@ public static class ControllerExtension
         }, HandleException);
     }
     
+    public static IActionResult ReturnFromPut<TResult>(this Result<TResult> result)
+    {
+        return result.Match<IActionResult>(data =>
+        {
+            if (data is bool)
+            {
+                return new NoContentResult();
+            }
+
+            return new ObjectResult(data);
+        }, HandleException);
+    }
+    
     private static IActionResult HandleException(Exception exception)
     {
         return exception switch

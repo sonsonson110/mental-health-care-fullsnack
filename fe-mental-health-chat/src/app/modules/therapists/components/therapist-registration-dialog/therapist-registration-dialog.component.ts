@@ -29,7 +29,7 @@ export class TherapistRegistrationDialogComponent {
   messageFormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(8),
-    Validators.maxLength(300),
+    Validators.maxLength(500),
   ]);
 
   constructor(

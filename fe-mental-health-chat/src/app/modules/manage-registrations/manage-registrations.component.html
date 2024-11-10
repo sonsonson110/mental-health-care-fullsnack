@@ -1,0 +1,37 @@
+<div class="root-container">
+  @if (isLoading$ | async) {
+    <div class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+    <div class="content-container">
+      <p class="mat-title-large">Client Registrations</p>
+      <p class="mat-body-small">Click on row to view detail and modify</p>
+
+      <table>
+        <thead>
+        <tr>
+          <th>#</th>
+          <th>Client Name</th>
+          <th>Registered At</th>
+          <th>Last Updated At</th>
+          <th>Status</th>
+          <th>End Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (registration of registrations$ | async; track registration.id) {
+          <tr (click)="openRegistrationDetailDialog(registration.id)">
+            <td>{{ $index+1 }}</td>
+            <td>{{ registration.client.fullName }}</td>
+            <td>{{ registration.createdAt | date: 'short' }}</td>
+            <td>{{ registration.updatedAt | date: 'short' }}</td>
+            <td><span class="status-chip status-{{ registration.status }}">{{ registration.status | privateSessionRegistrationStatus }}</span></td>
+            <td>{{ registration.endDate | date: 'short' }}</td>
+          </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
