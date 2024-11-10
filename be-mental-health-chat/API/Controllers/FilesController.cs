@@ -1,4 +1,5 @@
 ﻿using API.Controllers.Common;
+using Application.Interfaces;
 using Infrastructure.FileStorage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

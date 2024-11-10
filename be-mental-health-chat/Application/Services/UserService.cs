@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using LanguageExt.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -97,7 +98,7 @@ public class UserService : IUserService
 
     public async Task<Result<bool>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request)
     {
-        // validate
+        // validate info fields
         var errors = await ValidateUpdateUserRequest(userId, request);
         if (errors.Count > 0)
         {
@@ -106,6 +107,19 @@ public class UserService : IUserService
 
         // find existing user first
         var existingUser = await _userManager.FindByIdAsync(userId.ToString());
+        
+        if (existingUser!.IsTherapist) {
+            // validate if user has no active client
+            var hasActiveClient = await _context.PrivateSessionRegistrations
+                .Where(r => r.TherapistId == userId)
+                .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+                .OrderByDescending(r => r.UpdatedAt)
+                .AnyAsync();
+            if (hasActiveClient)
+            {
+                return new Result<bool>(new BadRequestException("User has active client"));
+            }
+        }
 
         // update properties of existing user, only map the properties from request to existing user
         // ignoring the navigation properties, map them manually
@@ -340,10 +354,29 @@ public class UserService : IUserService
         {
             return new Result<bool>(new BadRequestException("Current password is incorrect"));
         }
-        
-        // TODO later: validate if user has
-        // - no active client
-        // - no active therapist services
+
+        if (user.IsTherapist) {
+            // validate if user has no active client
+            var hasActiveClient = await _context.PrivateSessionRegistrations
+                .Where(r => r.TherapistId == userId)
+                .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+                .OrderByDescending(r => r.UpdatedAt)
+                .AnyAsync();
+            if (hasActiveClient)
+            {
+                return new Result<bool>(new BadRequestException("User has active client"));
+            }
+        }
+        // validate if user has no active therapist services
+        var hasActiveTherapyService = await _context.PrivateSessionRegistrations
+            .Where(r => r.ClientId == userId)
+            .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+            .OrderByDescending(r => r.UpdatedAt)
+            .AnyAsync();
+        if (hasActiveTherapyService)
+        {
+            return new Result<bool>(new BadRequestException("User has active therapy service"));
+        }
         
         // attempt to soft delete user
         user.IsDeleted = true;

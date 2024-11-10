@@ -1,7 +1,8 @@
-﻿using Infrastructure.FileStorage.Model;
+﻿using Application.DTOs;
+using Application.DTOs.FileService;
 using Microsoft.AspNetCore.Http;
 
-namespace Infrastructure.FileStorage;
+namespace Application.Interfaces;
 
 public interface IFileStorageService
 {

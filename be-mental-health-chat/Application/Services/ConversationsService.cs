@@ -2,8 +2,8 @@
 using Application.DTOs.Shared;
 using Application.Interfaces;
 using Application.Services.Interfaces;
-using Application.Services.Model;
 using Domain.Entities;
+using Domain.Model;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -74,9 +74,9 @@ public class ConversationsService : IConversationsService
     {
         var receivedTime = DateTime.UtcNow;
         request.Content = request.Content.Trim();
-        
+
         // use template prompt for very first user question for chatbot
-        var userPrompt = _geminiService.GetMentalHealthTemplatePrompt() + request.Content;
+        var userPrompt = string.Format(PromptTemplate.MentalHealthTemplatePrompt, request.Content);
         var userPromptResponseTask = _geminiService.GenerateContentAsync([
             new Content
             {
@@ -85,7 +85,7 @@ public class ConversationsService : IConversationsService
             }
         ]);
         // use template prompt to generate conversation title
-        var generateTitlePrompt = _geminiService.GetTitleGenerationPrompt() + request.Content;
+        var generateTitlePrompt = string.Format(PromptTemplate.TitleGenerationPrompt, request.Content);
         var generateTitleResponseTask = _geminiService.GenerateContentAsync([
             new Content
             {
@@ -98,7 +98,7 @@ public class ConversationsService : IConversationsService
         await Task.WhenAll(userPromptResponseTask, generateTitleResponseTask);
         var userPromptResponse = await userPromptResponseTask;
         var titleResponse = await generateTitleResponseTask;
-        
+
         var completionTime = DateTime.UtcNow;
         // create new conversation
         var conversation = new Conversation
@@ -147,21 +147,21 @@ public class ConversationsService : IConversationsService
             .Where(c => c.TherapistId != null)
             .Select(c => new
             {
-                Id = c.Id,
-                TherapistId = c.TherapistId,
+                c.Id,
+                c.TherapistId,
                 TherapistFullName = c.Therapist!.FirstName + " " + c.Therapist.LastName,
                 IsTherapistOnline = c.Therapist.IsOnline,
-                CreatedAt = c.CreatedAt,
+                c.CreatedAt,
                 LastMessage = c.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Select(m => new
                     {
-                        Id = m.Id,
-                        SenderId = m.SenderId,
+                        m.Id,
+                        m.SenderId,
                         SenderFullName = m.Sender!.FirstName + " " + m.Sender.LastName,
-                        Content = m.Content,
-                        IsRead = m.IsRead,
-                        CreatedAt = m.CreatedAt
+                        m.Content,
+                        m.IsRead,
+                        m.CreatedAt
                     })
                     .FirstOrDefault()
             })
@@ -195,21 +195,21 @@ public class ConversationsService : IConversationsService
             .Where(c => c.TherapistId == userId)
             .Select(c => new
             {
-                Id = c.Id,
-                ClientId = c.ClientId,
+                c.Id,
+                c.ClientId,
                 ClientFullName = c.Client.FirstName + " " + c.Client.LastName,
                 IsClientOnline = c.Client.IsOnline,
-                CreatedAt = c.CreatedAt,
+                c.CreatedAt,
                 LastMessage = c.Messages
                     .OrderByDescending(m => m.CreatedAt)
                     .Select(m => new
                     {
-                        Id = m.Id,
-                        SenderId = m.SenderId,
+                        m.Id,
+                        m.SenderId,
                         SenderFullName = m.Sender!.FirstName + " " + m.Sender.LastName,
-                        Content = m.Content,
-                        IsRead = m.IsRead,
-                        CreatedAt = m.CreatedAt
+                        m.Content,
+                        m.IsRead,
+                        m.CreatedAt
                     })
                     .FirstOrDefault()
             })
@@ -278,7 +278,8 @@ public class ConversationsService : IConversationsService
         });
     }
 
-    public async Task<Result<GetP2pConversationDetailResponseDto>> GetClientConversationDetailByIdAndUserId(Guid conversationId, Guid userId)
+    public async Task<Result<GetP2pConversationDetailResponseDto>> GetClientConversationDetailByIdAndUserId(
+        Guid conversationId, Guid userId)
     {
         #region validation
 

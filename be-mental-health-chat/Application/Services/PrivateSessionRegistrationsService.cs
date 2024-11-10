@@ -12,10 +12,12 @@ namespace Application.Services;
 public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsService
 {
     private readonly IMentalHealthContext _context;
+    private readonly IEmailService _emailService;
 
-    public PrivateSessionRegistrationsService(IMentalHealthContext context)
+    public PrivateSessionRegistrationsService(IMentalHealthContext context, IEmailService emailService)
     {
         _context = context;
+        _emailService = emailService;
     }
 
     public async Task<Result<bool>> RegisterTherapistAsync(Guid userId, RegisterTherapistRequestDto request)
@@ -76,8 +78,9 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
             Status = PrivateSessionRegistrationStatus.PENDING,
             NoteFromClient = request.NoteFromClient,
         });
-
-        return await _context.SaveChangesAsync() > 0;
+        await _context.SaveChangesAsync();
+        //TODO: send email to therapist
+        return true;
     }
 
     public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId)
@@ -121,6 +124,8 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         UpdateClientRegistrationRequestDto request)
     {
         var registration = await _context.PrivateSessionRegistrations
+            .Include(r => r.Client)
+            .Include(r => r.Therapist)
             .FirstOrDefaultAsync(r => r.Id == registrationId && r.TherapistId == therapistId);
 
         #region validate
@@ -162,8 +167,28 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         registration.Id = request.Id;
         registration.Status = request.Status;
         registration.NoteFromTherapist = request.NoteFromTherapist;
-
         _context.PrivateSessionRegistrations.Update(registration);
-        return await _context.SaveChangesAsync() > 0;
+
+        // create conversation if registration is approved and conversation does not exist
+        if (request.Status == PrivateSessionRegistrationStatus.APPROVED)
+        {
+            var conversationExists = await _context.Conversations
+                .AnyAsync(c => c.ClientId == registration.ClientId && c.TherapistId == registration.TherapistId);
+
+            if (!conversationExists)
+            {
+                _context.Conversations.Add(new Conversation
+                {
+                    Id = Guid.NewGuid(),
+                    ClientId = registration.ClientId,
+                    TherapistId = registration.TherapistId
+                });
+            }
+        }
+        await _context.SaveChangesAsync();
+        
+        //TODO: send registration update email
+
+        return true;
     }
 }

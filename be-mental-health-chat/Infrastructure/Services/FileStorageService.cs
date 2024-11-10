@@ -1,4 +1,6 @@
-﻿using Infrastructure.FileStorage.Model;
+﻿using Application.DTOs;
+using Application.DTOs.FileService;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
@@ -45,7 +47,7 @@ public class FileStorageService : IFileStorageService
 
         return new UploadAvatarResponseDto { FileName = newFileName };
     }
-    
+
     public void DeleteAvatar(string fileName)
     {
         if (string.IsNullOrEmpty(fileName))

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using Application.Interfaces;
-using Application.Services.Model;
+using Domain.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -13,23 +13,6 @@ public class GeminiService : IGeminiService
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
     private readonly JsonSerializerOptions _jsonOptions;
-
-    private const string MentalHealthTemplatePrompt = """
-                                                      You are a mental health assistant. Your task is to provide helpful information and support related to mental health topics.
-
-                                                      Before responding, consider the following:
-                                                      1. If the question is not related to mental health, ignore the question and respond with: 'Your question is not related to mental health.'
-                                                      2. If you're unsure about the answer or if it requires professional expertise, respond with: 'I'm not capable of answering this. Please reach out to a professional for help.'
-                                                           
-                                                      If the question is related to mental health and you can provide a helpful response.
-                                                      Here's the user's prompt:
-                                                      """;
-
-    private const string TitleGenerationPrompt = """
-                                                 You need to generate a title for the conversation based on the user's prompt. It should be about mental health topics
-                                                 If the question is not related to mental health, just return 'Untitled'.
-                                                 Here's the user's prompt:
-                                                 """;
 
     public GeminiService(HttpClient httpClient, IConfiguration configuration, ILogger<GeminiService> logger)
     {
@@ -49,9 +32,6 @@ public class GeminiService : IGeminiService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
     }
-
-    public string GetMentalHealthTemplatePrompt() => MentalHealthTemplatePrompt;
-    public string GetTitleGenerationPrompt() => TitleGenerationPrompt;
 
     public async Task<GeminiResponse> GenerateContentAsync(List<Content> promptContents)
     {

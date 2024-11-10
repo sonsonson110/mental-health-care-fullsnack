@@ -1,8 +1,9 @@
 ﻿using Application.DTOs.MessagesService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
-using Application.Services.Model;
 using Domain.Entities;
+using Domain.Enums;
+using Domain.Model;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,9 +41,7 @@ public class MessagesService : IMessagesService
             .ToListAsync();
 
         // user first question should use template prompt
-        messages[0].Content =
-            _geminiService.GetMentalHealthTemplatePrompt() +
-            messages[0].Content; // assumed that the first message is always from the user
+        messages[0].Content = string.Format(PromptTemplate.MentalHealthTemplatePrompt, messages[0].Content);
 
         // convert the messages to gemini content consumed model
         var geminiContents = messages.Select(message => new Content
@@ -121,8 +120,16 @@ public class MessagesService : IMessagesService
             return new Result<CreateP2pMessageResponse>(new NotFoundException("Conversation not found"));
         }
 
-        // TODO: validate if the user has access to the conversation later
-
+        // validate if the user has access to the conversation
+        var userHasAccess = await _context.PrivateSessionRegistrations
+            .Where(r => r.ClientId == userId || r.TherapistId == userId)
+            .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+            .AnyAsync();
+        
+        if (!userHasAccess)
+        {
+            return new Result<CreateP2pMessageResponse>(new BadRequestException("User has no access to the conversation"));
+        }
         #endregion
 
         var message = new Message
@@ -135,7 +142,7 @@ public class MessagesService : IMessagesService
         };
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
-        
+
         var senderFullName = await _context.Users
             .Where(u => u.Id == userId)
             .Select(u => u.FirstName + " " + u.LastName)

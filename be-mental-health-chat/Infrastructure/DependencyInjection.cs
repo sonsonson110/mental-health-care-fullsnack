@@ -5,7 +5,10 @@ using Infrastructure.Data;
 using Infrastructure.Data.Services;
 using Infrastructure.FileStorage;
 using Infrastructure.Integrations;
+using Infrastructure.Integrations.Common;
 using Infrastructure.Security;
+using Infrastructure.Services;
+using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +57,11 @@ public static class DependencyInjection
 
         // Register HttpClient
         services.AddHttpClient<IGeminiService, GeminiService>();
-
+        
+        // Jwt authentication
+        services.Configure<JwtSettings>(
+            configuration.GetSection("Jwt"));
+        
         services.AddScoped<CustomJwtBearerEvents>();
         
         services.AddAuthentication(options =>
@@ -63,21 +70,30 @@ public static class DependencyInjection
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
+            var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>();
+            
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
+                ValidIssuer = jwtSettings.Issuer,
+                ValidAudience = jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
                 ClockSkew = TimeSpan.Zero // remove default 5 minutes delay expiration check
             };
             
             options.EventsType = typeof(CustomJwtBearerEvents);
         });
         services.AddAuthorization();
+        
+        // Email service
+        services.Configure<EmailSettings>(
+            configuration.GetSection("EmailSettings"));
+            
+        services.AddScoped<IEmailSender, GmailSenderService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

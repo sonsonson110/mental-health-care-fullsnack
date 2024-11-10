@@ -4,20 +4,21 @@ using System.Text;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
+using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Security;
+namespace Infrastructure.Services;
 
 public class JwtService: IJwtService
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
     private readonly MentalHealthContext _context;
     
-    public JwtService(IConfiguration configuration, MentalHealthContext context)
+    public JwtService(IOptions<JwtSettings> jwtSettings, MentalHealthContext context)
     {
-        _configuration = configuration;
+        _jwtSettings = jwtSettings.Value;
         _context = context;
     }
     public string GenerateJwtToken(User user, IList<string> roles)
@@ -33,11 +34,11 @@ public class JwtService: IJwtService
         
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var lifetimeMinutes = int.Parse(_configuration["Jwt:LifetimeMinutes"]!);
-
+        var lifetimeMinutes = int.Parse(_jwtSettings.LifetimeMinutes);
+        
         var jwt = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: _jwtSettings.Issuer,
+            audience: _jwtSettings.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(lifetimeMinutes),
             // for testing
@@ -47,10 +48,13 @@ public class JwtService: IJwtService
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);
         return token;
     }
+    
     private SigningCredentials CreateSigningCredentials()
     {
         return new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt key is missing"))),
+            new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_jwtSettings.Key ?? 
+                                       throw new InvalidOperationException("Jwt key is missing"))),
             SecurityAlgorithms.HmacSha256);
     }
     

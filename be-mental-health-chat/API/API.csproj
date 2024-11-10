@@ -17,12 +17,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Application\Application.csproj" />
-      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+      <Folder Include="wwwroot\images\avatar\" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\images\avatar\" />
+      <ProjectReference Include="..\Application\Application.csproj" />
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

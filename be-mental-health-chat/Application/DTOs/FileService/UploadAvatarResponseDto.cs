@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.FileStorage.Model;
+﻿namespace Application.DTOs.FileService;
 
 public class UploadAvatarResponseDto
 {
