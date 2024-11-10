@@ -1,5 +1,11 @@
-import { DatePipe, CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -10,18 +16,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MarkdownModule } from 'ngx-markdown';
-import { P2pConversationSidenavStateService } from '../../services/p2p-conversation-sidenav-state.service';
 import { ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../../../core/api-services/auth-api.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { BehaviorSubject, finalize } from 'rxjs';
-import { ConversationsApiService } from '../../../../../core/api-services/conversations-api.service';
 import { P2pConversationMessageDisplay } from '../../../../../core/models/p2p-conversation-mesage-display.model';
-import { P2pMessageDto } from '../../../../../core/models/p2p-conversation-detail-response.model';
-import { SignalrChatService } from '../../../../../core/api-services/signalr-chat.service';
 import { P2pMessageRequest } from '../../../../../core/models/p2p-message-request.model';
-import { P2pConversationMessageDisplayService } from '../../services/p2p-conversation-message-display.service';
+import { P2pConversationStateService } from '../../services/p2p-conversation-state.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-p2p-conversation-chatbox',
@@ -30,7 +32,6 @@ import { P2pConversationMessageDisplayService } from '../../services/p2p-convers
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    DatePipe,
     CommonModule,
     MatDividerModule,
     MatFormFieldModule,
@@ -40,15 +41,13 @@ import { P2pConversationMessageDisplayService } from '../../services/p2p-convers
     MarkdownModule,
     MatProgressBarModule,
   ],
-  providers: [P2pConversationMessageDisplayService],
   templateUrl: './p2p-conversation-chatbox.component.html',
   styleUrl: './p2p-conversation-chatbox.component.scss',
 })
-export class P2pConversationChatboxComponent {
+export class P2pConversationChatboxComponent implements OnInit {
   @ViewChild('messagesContainer')
   private messagesContainer!: ElementRef;
 
-  isSmOrLargerScreen = false;
   isSideNavOpen = true;
 
   // component metadata
@@ -58,40 +57,43 @@ export class P2pConversationChatboxComponent {
   isSending = false;
   conversationId: string | null = null;
   conversationTitle = '';
-  conversationType: string | null = null;
+  conversationType: 'therapist-chats' | 'client-chats' | null = null;
   receiverId: string | null = null;
+  messages$: Observable<P2pConversationMessageDisplay[]>;
   userTypingMessage = new FormControl(
     { value: '', disabled: false },
     Validators.required
   );
 
   constructor(
-    private p2pConversationSidenavStateService: P2pConversationSidenavStateService,
-    public p2pConversationMessageDisplayService: P2pConversationMessageDisplayService,
+    private p2pConversationStateService: P2pConversationStateService,
     authService: AuthApiService,
     private cdr: ChangeDetectorRef,
     private matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
     private breakpointObserver: BreakpointObserver,
-    private route: ActivatedRoute,
-    private conversationsService: ConversationsApiService,
-    private signalRChatService: SignalrChatService
+    private route: ActivatedRoute
   ) {
     this.sessionUserId = authService.getSessionUserId();
     this.sessionUserFullName = authService.getSessionUserName();
+
     this.matIconRegistry.addSvgIcon(
       'side_navigation',
       domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/side-navigation.svg')
     );
     this.breakpointObserver.observe('(min-width: 490px)').subscribe(result => {
       // should open sidenav when screen is 490px or larger and vice versa
-      this.p2pConversationSidenavStateService.emitStateEvent(result.matches);
+      this.p2pConversationStateService.setSidenavOpenState(result.matches);
     });
+
+    this.p2pConversationStateService.chatboxLoadingState$.subscribe(
+      state => (this.isLoading = state)
+    );
+    this.messages$ = this.p2pConversationStateService.messages$;
   }
 
   ngOnInit(): void {
-    this.isSideNavOpen = this.p2pConversationSidenavStateService.getState();
-    this.p2pConversationSidenavStateService.sidenavState$.subscribe(state => {
+    this.p2pConversationStateService.sidenavOpenState$.subscribe(state => {
       this.isSideNavOpen = state;
     });
 
@@ -104,91 +106,23 @@ export class P2pConversationChatboxComponent {
 
       if (conversationId) {
         this.conversationId = conversationId;
-        this.isLoading = true;
         this.userTypingMessage.disable();
-        this.loadConversationDetail(conversationId);
+
+        this.p2pConversationStateService
+          .loadMessages(conversationId, this.conversationType!)
+          .subscribe(response => {
+            this.conversationTitle = response.receiverFullName;
+            this.receiverId = response.receiverId;
+            this.scrollToBottom();
+            this.userTypingMessage.enable();
+          });
+
+        this.p2pConversationStateService.initSignalrConnection(
+          conversationId,
+          this.sessionUserId!
+        );
       }
     });
-
-    // signalr observation
-    this.signalRChatService
-      .receiveP2PMessage()
-      .subscribe((message: P2pConversationMessageDisplay) => {
-        if (message.conversationId !== this.conversationId) return;
-
-        if (message.senderId !== this.sessionUserId) {
-          this.p2pConversationMessageDisplayService.addMessage(message);
-        } else {
-          this.p2pConversationMessageDisplayService.markSendingMessageSent(message);
-        }
-        this.scrollToBottom(); // may be show a notification instead of scrolling to bottom
-      });
-
-    this.signalRChatService.onException().subscribe(error => {
-      this.isSending = false;
-      this.userTypingMessage.enable();
-      this.p2pConversationMessageDisplayService.markLastSendingMessageAsError();
-    });
-  }
-
-  private loadConversationDetail(conversationId: string): void {
-    if (this.conversationType === 'therapist-chats') {
-      this.conversationsService
-        .getTherapistConversationDetailById(conversationId)
-        .pipe(
-          finalize(() => {
-            this.isLoading = false;
-            this.userTypingMessage.enable();
-          })
-        )
-        .subscribe({
-          next: response => {
-            this.conversationTitle = response.receiverFullName;
-            this.receiverId = response.receiverId;
-            this.p2pConversationMessageDisplayService.initializeMessages(
-              response.messages.map(this.mapToP2pMessageDisplay)
-            );
-            this.scrollToBottom();
-          },
-          error: err => {
-            // TODO: handle error
-          },
-        });
-    } else if (this.conversationType === 'client-chats') {
-      this.conversationsService
-        .getClientConversationDetailById(conversationId)
-        .pipe(
-          finalize(() => {
-            this.isLoading = false;
-            this.userTypingMessage.enable();
-          })
-        )
-        .subscribe({
-          next: response => {
-            this.conversationTitle = response.receiverFullName;
-            this.receiverId = response.receiverId;
-            this.p2pConversationMessageDisplayService.initializeMessages(
-              response.messages.map(this.mapToP2pMessageDisplay)
-            );
-            this.scrollToBottom();
-          },
-          error: err => {
-            // TODO: handle error
-          },
-        });
-    }
-  }
-
-  private mapToP2pMessageDisplay(dto: P2pMessageDto): P2pConversationMessageDisplay {
-    return {
-      id: dto.id,
-      senderId: dto.senderId,
-      senderFullName: dto.senderFullName,
-      content: dto.content,
-      createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt,
-      isRead: dto.isRead,
-    };
   }
 
   private scrollToBottom(): void {
@@ -205,11 +139,12 @@ export class P2pConversationChatboxComponent {
   }
 
   onSidenavClick() {
-    this.p2pConversationSidenavStateService.toggleState();
+    this.p2pConversationStateService.toggleSidenavOpenState();
   }
 
   canSendMessage = () =>
     this.userTypingMessage.valid && !this.isSending && !this.isLoading;
+
   // add user typing message with sending state to the list of messages then call message service to send the message
   // when response is received, update user typing message state and add the response from chatbot
   onSendMessageClick() {
@@ -226,16 +161,16 @@ export class P2pConversationChatboxComponent {
       isRead: false,
       isSending: true,
     };
-    this.p2pConversationMessageDisplayService.addMessage(currentMessage);
+    this.p2pConversationStateService.addMessage(currentMessage);
     this.scrollToBottom();
 
-    var p2pMessageRequest: P2pMessageRequest = {
+    const p2pMessageRequest: P2pMessageRequest = {
       conversationId: this.conversationId!,
       content: this.userTypingMessage.value!,
       sentToUserId: this.receiverId!,
     };
 
-    this.signalRChatService.sendP2PMessage(p2pMessageRequest).subscribe(() => {
+    this.p2pConversationStateService.sendMessage(p2pMessageRequest).subscribe(() => {
       this.isSending = false;
       this.userTypingMessage.reset();
       this.userTypingMessage.enable();

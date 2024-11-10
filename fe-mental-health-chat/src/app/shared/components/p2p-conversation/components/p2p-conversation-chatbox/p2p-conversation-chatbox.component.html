@@ -7,8 +7,8 @@
         </button>
       }
       <span class="toolbar-title">{{
-        conversationTitle || 'Bonjour!'
-      }}</span>
+          conversationTitle || 'Bonjour!'
+        }}</span>
       <span class="spacer"></span>
     </mat-toolbar>
   </div>
@@ -20,36 +20,34 @@
         </div>
       } @else {
         <div #messagesContainer class="messages-container">
-          @if (p2pConversationMessageDisplayService.getMessages() | async; as messages) {
-            @for (message of messages; track message.id) {
-              <div
-                class="message"
-                [ngClass]="{
+          @for (message of messages$ | async; track message.id) {
+            <div
+              class="message"
+              [ngClass]="{
                   other: message.senderId !== sessionUserId,
                   self: message.senderId === sessionUserId,
                 }"
-              >
+            >
                 <span class="mat-label-small fullName"
-                  ><b>{{ message.senderFullName }}</b></span
+                ><b>{{ message.senderFullName }}</b></span
                 >
-                <markdown
-                  class="content"
-                  [ngClass]="{ sending: message.isSending || message.isError }"
-                  [data]="message.content"
-                ></markdown>
-                <span class="mat-label-small timestamp" *ngIf="!message.isSending"
-                  >At {{ message.createdAt | date: 'medium' }}</span
-                >
-                <span class="mat-label-small error" *ngIf="message.isError">Error</span>
-              </div>
-            }
+              <markdown
+                class="content"
+                [ngClass]="{ sending: message.isSending || message.isError }"
+                [data]="message.content"
+              ></markdown>
+              <span class="mat-label-small timestamp" *ngIf="!message.isSending"
+              >At {{ message.createdAt | date: 'medium' }}</span
+              >
+              <span class="mat-label-small error" *ngIf="message.isError">Error</span>
+            </div>
           }
         </div>
       }
     } @else if (conversationType !== null) {
       <div class="no-conversation-container">
         <span class="mat-headline-small no-conversation-text"
-          >Have you got a {{conversationType === 'therapist-chats' ? 'therapist' : 'client'}} partner?</span
+        >Have you got a {{ conversationType === 'therapist-chats' ? 'therapist' : 'client' }} partner?</span
         >
         <span class="mat-headline-large no-conversation-text">ヾ(•ω•`)o</span>
       </div>

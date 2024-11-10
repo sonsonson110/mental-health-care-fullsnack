@@ -12,12 +12,13 @@
 
     mat-toolbar {
       height: 56px;
+      gap: 0.625rem;
+
       .spacer {
         flex: 1 1 auto;
       }
 
       .toolbar-title {
-        margin-left: 0.625rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -71,15 +72,16 @@
 
           .content {
             padding: 0.75rem;
-            border-top-right-radius: 0.5rem /* 8px */;
-            border-bottom-right-radius: 0.5rem /* 8px */;
-            border-top-left-radius: 0.5rem /* 8px */;
+            border-top-right-radius: 0.5rem; /* 8px */
+            border-bottom-right-radius: 0.5rem; /* 8px */
+            border-top-left-radius: 0.5rem; /* 8px */
             background-color: mat.get-theme-color(
-              $fe-mental-health-chat-theme,
-              surface-container-low
+                $fe-mental-health-chat-theme,
+                surface-container-low
             );
           }
         }
+
         &.self {
           align-self: flex-end;
           margin-left: 4rem;
@@ -90,13 +92,13 @@
 
           .content {
             padding: 0.75rem;
-            border-top-left-radius: 0.5rem /* 8px */;
-            border-bottom-left-radius: 0.5rem /* 8px */;
-            border-top-right-radius: 0.5rem /* 8px */;
+            border-top-left-radius: 0.5rem; /* 8px */
+            border-bottom-left-radius: 0.5rem; /* 8px */
+            border-top-right-radius: 0.5rem; /* 8px */
             background-color: mat.get-theme-color(
-              $fe-mental-health-chat-theme,
-              primary,
-              90
+                $fe-mental-health-chat-theme,
+                primary,
+                90
             );
 
             &.sending {
@@ -116,6 +118,7 @@
       }
     }
   }
+
   .message-input-container {
     display: flex;
     flex-direction: column;

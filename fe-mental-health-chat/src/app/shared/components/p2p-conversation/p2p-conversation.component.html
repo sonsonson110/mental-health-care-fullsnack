@@ -7,35 +7,34 @@
         </button>
         <span class="title">History chats</span>
       </div>
-      @if (isSidenavLoading) {
+      @if (isSidenavLoading$ | async) {
         <mat-spinner class="spinner" diameter="30"></mat-spinner>
       } @else {
         <mat-nav-list class="nav-items-container">
-          @if (chatHistories$ | async; as chatHistories) {
-            @for (item of chatHistories; track item.id) {
-              <mat-list-item
-                (click)="onNavItemClick(item.id)"
-                [activated]="isMatchCurrentBrowserUrl(item.id)"
-                class="nav-item"
-              >
-                <span matListItemTitle>{{ item.receiverFullName }}</span>
-                <span
-                  matListItemLine
-                  [ngClass]="{
+          @for (item of chatHistories$ | async; track item.id) {
+            <mat-list-item
+              (click)="onNavItemClick(item.id)"
+              [activated]="isMatchCurrentBrowserUrl(item.id)"
+              class="nav-item"
+            >
+              <span matListItemTitle>{{ item.receiverFullName }}</span>
+              <span
+                matListItemLine
+                [ngClass]="{
                     bold: item.lastMessage.senderId !== sessionUserId && !item.lastMessage.isRead,
                   }"
-                  >{{
-                    item.lastMessage.senderId === sessionUserId
-                      ? 'You'
-                      : item.lastMessage.senderFullName
-                  }}: {{ item.lastMessage.content }}</span
-                >
-                <span matListItemLine class="mat-label-small">{{
+              >{{
+                  item.lastMessage.senderId === sessionUserId
+                    ? 'You'
+                    : item.lastMessage.senderFullName
+                }}: {{ item.lastMessage.content }}</span
+              >
+              <span matListItemLine class="mat-label-small">{{
                   item.lastMessage.createdAt | date: 'short'
                 }}</span>
-              </mat-list-item>
-            }
+            </mat-list-item>
           }
+
         </mat-nav-list>
       }
     </div>

@@ -6,14 +6,13 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { P2pConversationSidenavStateService } from './services/p2p-conversation-sidenav-state.service';
 import { P2pConversationSidenavItem } from '../../../core/models/p2p-conversation-sidenav-item.model';
 import { Observable } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AuthApiService } from '../../../core/api-services/auth-api.service';
-import { ConversationsApiService } from '../../../core/api-services/conversations-api.service';
-import { SignalrChatService } from '../../../core/api-services/signalr-chat.service';
+import { SignalRChatService } from '../../../core/api-services/signal-r-chat.service';
+import { P2pConversationStateService } from './services/p2p-conversation-state.service';
 
 @Component({
   selector: 'app-p2p-conversation-chatbox',
@@ -27,30 +26,29 @@ import { SignalrChatService } from '../../../core/api-services/signalr-chat.serv
     CommonModule,
     MatButtonModule,
   ],
-  providers: [P2pConversationSidenavStateService, SignalrChatService],
+  providers: [SignalRChatService, P2pConversationStateService],
   templateUrl: './p2p-conversation.component.html',
   styleUrl: './p2p-conversation.component.scss',
 })
 export class P2pConversationComponent implements OnInit, OnDestroy {
-  isSidenavLoading = false;
-  currentBrowserUrl: string | null = null;
-  isSidenavOpen!: boolean;
   sessionUserId: string | undefined;
-  conversationType!: string;
 
-  chatHistories$!: Observable<P2pConversationSidenavItem[]>;
+  isSidenavLoading$!: Observable<boolean>;
+  isSidenavOpen!: boolean;
+  chatHistories$: Observable<P2pConversationSidenavItem[]>;
+
+  conversationType!: string;
+  currentBrowserUrl: string | null = null;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     matIconRegistry: MatIconRegistry,
     domSanitizer: DomSanitizer,
-    private p2pConversationSidenavStateService: P2pConversationSidenavStateService,
-    private conversationsService: ConversationsApiService,
+    private p2pConversationStateService: P2pConversationStateService,
     location: Location,
     breakpointObserver: BreakpointObserver,
-    authService: AuthApiService,
-    private signalrChatService: SignalrChatService
+    authService: AuthApiService
   ) {
     matIconRegistry.addSvgIcon(
       'side_navigation',
@@ -59,7 +57,7 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
 
     breakpointObserver.observe('(min-width: 490px)').subscribe(result => {
       // should open sidenav when screen is 490px or larger and vice versa
-      this.p2pConversationSidenavStateService.emitStateEvent(result.matches);
+      this.p2pConversationStateService.setSidenavOpenState(result.matches);
     });
 
     this.currentBrowserUrl = location.path();
@@ -69,67 +67,27 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
     });
 
     this.sessionUserId = authService.getSessionUserId();
+
+    this.isSidenavLoading$ = this.p2pConversationStateService.sidenavLoadingState$;
+    this.chatHistories$ = this.p2pConversationStateService.p2pConversationSidenavItems$;
+    this.p2pConversationStateService.sidenavOpenState$.subscribe(
+      state => (this.isSidenavOpen = state)
+    );
   }
+
   ngOnDestroy(): void {
-    this.signalrChatService
-      .stopConnection()
-      .then(() => console.log("Websocket '/chat' stopped for therapist-chats"));
+    this.p2pConversationStateService
+      .stopSignalrConnection()
+      .then(() => console.log("Websocket '/chat' stopped for " + this.conversationType));
   }
 
   ngOnInit(): void {
-    this.chatHistories$ =
-      this.p2pConversationSidenavStateService.p2pConversationSidenavItems$;
-    this.isSidenavOpen = this.p2pConversationSidenavStateService.getState();
-
-    this.p2pConversationSidenavStateService.sidenavState$.subscribe(state => {
-      this.isSidenavOpen = state;
-    });
-
     this.route.data.subscribe(data => {
       this.conversationType = data['forModule'];
-      this.loadchatHistories();
+      this.p2pConversationStateService.initialP2pConversationSidenavItem(
+        this.conversationType
+      );
     });
-
-    this.signalrChatService.startConnection().then(() => {
-      console.log("Websocket '/chat' started for therapist-chats");
-
-      this.signalrChatService.receiveP2PMessage().subscribe(message => {
-        var currentSidenavItem =
-          this.p2pConversationSidenavStateService.getP2pConversationSidenavItemById(
-            message.conversationId!
-          );
-        currentSidenavItem.lastMessage = {
-          id: message.id,
-          senderId: message.senderId,
-          senderFullName: message.senderFullName,
-          content: message.content,
-          createdAt: message.createdAt,
-          isRead: message.isRead,
-        };
-        this.p2pConversationSidenavStateService.updateP2pConversationSidenavItem(
-          currentSidenavItem
-        );
-      });
-    });
-  }
-
-  private loadchatHistories() {
-    console.log('this.conversationType', this.conversationType);
-    if (this.conversationType === 'therapist-chats') {
-      this.conversationsService
-        .getTherapistConversations()
-        .subscribe((data: P2pConversationSidenavItem[]) => {
-          this.p2pConversationSidenavStateService.initialP2pConversationSidenavItem(data);
-          this.isSidenavLoading = false;
-        });
-    } else if (this.conversationType === 'client-chats') {
-      this.conversationsService
-        .getClientConversations()
-        .subscribe((data: P2pConversationSidenavItem[]) => {
-          this.p2pConversationSidenavStateService.initialP2pConversationSidenavItem(data);
-          this.isSidenavLoading = false;
-        });
-    }
   }
 
   onNavItemClick(id: string) {
@@ -141,7 +99,7 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
   }
 
   onSidenavToggleClick() {
-    this.p2pConversationSidenavStateService.toggleState();
+    this.p2pConversationStateService.toggleSidenavOpenState();
   }
 
   isMatchCurrentBrowserUrl(route: string): boolean {

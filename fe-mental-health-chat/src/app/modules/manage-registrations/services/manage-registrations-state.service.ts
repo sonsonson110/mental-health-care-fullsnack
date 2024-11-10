@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PrivateSessionRegistrationsApiService } from '../../../core/api-services/private-session-registrations-api.service';
-import { BehaviorSubject, finalize, Observable, tap } from 'rxjs';
+import { BehaviorSubject, finalize, tap } from 'rxjs';
 import { ClientRegistrationResponse } from '../../../core/models/modules/manage-registrations/client-registration-response.model';
 import { UpdateClientRegistrationRequest } from '../../../core/models/modules/manage-registrations/update-client-registration-request.model';
 import { ToastrService } from 'ngx-toastr';

@@ -2,24 +2,27 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environment/dev.environment';
 import * as signalR from '@microsoft/signalr';
 import { AuthApiService } from './auth-api.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { P2pMessageRequest } from '../models/p2p-message-request.model';
 import { P2pConversationMessageDisplay } from '../models/p2p-conversation-mesage-display.model';
 import { ToastrService } from 'ngx-toastr';
 import { ProblemDetail } from '../models/common/problem-detail.model';
 
 @Injectable()
-export class SignalrChatService {
+export class SignalRChatService {
   private readonly hubExceptionMethodName = 'ChatHubException';
   private readonly hubUrl = environment.apiBaseUrl + '/chat';
   private hubConnection!: signalR.HubConnection;
+
+  private connectionState = new BehaviorSubject(false);
+  readonly connectionState$ = this.connectionState.asObservable();
 
   constructor(
     private authService: AuthApiService,
     private toastr: ToastrService
   ) {}
 
-  async startConnection(): Promise<void> {
+  startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => this.authService.getToken()!,
@@ -34,7 +37,10 @@ export class SignalrChatService {
 
     this.hubConnection
       .start()
-      .then(() => this.toastr.clear())
+      .then(() => {
+        this.toastr.clear();
+        this.connectionState.next(true);
+      })
       .catch(() =>
         this.toastr.error(
           'Try to refresh the page or contact author',
@@ -44,12 +50,14 @@ export class SignalrChatService {
       );
 
     this.hubConnection.onreconnecting(() => {
+      this.connectionState.next(false);
       this.toastr.warning('Attempting to reconnect...', undefined, {
         disableTimeOut: true,
       });
     });
 
     this.hubConnection.onreconnected(connectionId => {
+      this.connectionState.next(true);
       this.toastr.clear();
       this.toastr.success(connectionId || '', 'Connection restored');
     });
@@ -58,6 +66,7 @@ export class SignalrChatService {
   async stopConnection() {
     if (this.hubConnection) {
       await this.hubConnection.stop();
+      this.connectionState.next(false);
     }
   }
 
@@ -83,6 +92,7 @@ export class SignalrChatService {
       this.hubConnection
         .invoke<P2pMessageRequest>('SendP2PMessage', message)
         .then(() => {
+          observer.next();
           observer.complete();
         })
         .catch(reason => this.toastr.error(reason, "Message wasn't sent"));
