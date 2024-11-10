@@ -19,6 +19,7 @@
             >
               <span matListItemTitle>{{ item.receiverFullName }}</span>
               <span
+                *ngIf="item.lastMessage"
                 matListItemLine
                 [ngClass]="{
                     bold: item.lastMessage.senderId !== sessionUserId && !item.lastMessage.isRead,
@@ -29,7 +30,7 @@
                     : item.lastMessage.senderFullName
                 }}: {{ item.lastMessage.content }}</span
               >
-              <span matListItemLine class="mat-label-small">{{
+              <span matListItemLine class="mat-label-small" *ngIf="item.lastMessage">{{
                   item.lastMessage.createdAt | date: 'short'
                 }}</span>
             </mat-list-item>

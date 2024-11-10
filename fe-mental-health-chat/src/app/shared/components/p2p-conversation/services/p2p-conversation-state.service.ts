@@ -89,14 +89,10 @@ export class P2pConversationStateService {
 
   //region signalr chat methods
 
-  initSignalrConnection(conversationId: string, sessionUserId: string) {
+  establishSignalrConnection() {
     this.signalRChatService.startConnection();
-
-    // start all observations
     this.signalRChatService.connectionState$.subscribe(state => {
       if (!state) return;
-
-      console.log("Websocket '/chat' started for " + conversationId);
 
       this.signalRChatService.receiveP2PMessage().subscribe(message => {
         const currentSidenavItem = this.getP2pConversationSidenavItemById(
@@ -111,7 +107,17 @@ export class P2pConversationStateService {
           isRead: message.isRead,
         };
         this.updateP2pConversationSidenavItem(currentSidenavItem);
+      });
+    });
+  }
 
+  initChatboxConnection(conversationId: string, sessionUserId: string) {
+    this.signalRChatService.connectionState$.subscribe(state => {
+      if (!state) return;
+
+      console.log("Websocket '/chat' started for " + conversationId);
+
+      this.signalRChatService.receiveP2PMessage().subscribe(message => {
         if (message.conversationId !== conversationId) return;
         if (message.senderId !== sessionUserId) {
           this.addMessage(message);

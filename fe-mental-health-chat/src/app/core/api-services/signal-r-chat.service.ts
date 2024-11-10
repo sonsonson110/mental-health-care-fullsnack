@@ -41,13 +41,14 @@ export class SignalRChatService {
         this.toastr.clear();
         this.connectionState.next(true);
       })
-      .catch(() =>
+      .catch(() => {
+        console.log('Websocket failed to start');
         this.toastr.error(
           'Try to refresh the page or contact author',
           'Websocket failed to start',
           { disableTimeOut: true }
-        )
-      );
+        );
+      });
 
     this.hubConnection.onreconnecting(() => {
       this.connectionState.next(false);

@@ -117,7 +117,7 @@ export class P2pConversationChatboxComponent implements OnInit {
             this.userTypingMessage.enable();
           });
 
-        this.p2pConversationStateService.initSignalrConnection(
+        this.p2pConversationStateService.initChatboxConnection(
           conversationId,
           this.sessionUserId!
         );

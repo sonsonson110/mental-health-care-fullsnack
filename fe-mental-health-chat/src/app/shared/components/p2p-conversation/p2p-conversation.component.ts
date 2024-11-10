@@ -88,6 +88,8 @@ export class P2pConversationComponent implements OnInit, OnDestroy {
         this.conversationType
       );
     });
+
+    this.p2pConversationStateService.establishSignalrConnection();
   }
 
   onNavItemClick(id: string) {
