@@ -12,17 +12,23 @@ namespace Application.Services;
 public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsService
 {
     private readonly IMentalHealthContext _context;
-    private readonly IEmailService _emailService;
+    private readonly IEmailBackgroundService _emailBackgroundService;
 
-    public PrivateSessionRegistrationsService(IMentalHealthContext context, IEmailService emailService)
+    public PrivateSessionRegistrationsService(IMentalHealthContext context, IEmailBackgroundService emailBackgroundService)
     {
         _context = context;
-        _emailService = emailService;
+        _emailBackgroundService = emailBackgroundService;
     }
 
     public async Task<Result<bool>> RegisterTherapistAsync(Guid userId, RegisterTherapistRequestDto request)
     {
         #region validate
+        
+        // check for self registration
+        if (request.TherapistId == userId)
+        {
+            return new Result<bool>(new BadRequestException("Cannot register yourself"));
+        }
 
         // check if therapist exists
         var therapistExisted = await _context.Users
@@ -70,16 +76,23 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
 
         #endregion
 
+        var newId = Guid.NewGuid();
         _context.PrivateSessionRegistrations.Add(new PrivateSessionRegistration
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             ClientId = userId,
             TherapistId = request.TherapistId,
             Status = PrivateSessionRegistrationStatus.PENDING,
             NoteFromClient = request.NoteFromClient,
         });
+        
+        //TODO: Add notification
+        
         await _context.SaveChangesAsync();
-        //TODO: send email to therapist
+        
+        // set background task to send email
+        await _emailBackgroundService.QueueEmailNotificationAsync(newId);
+        
         return true;
     }
 
@@ -187,8 +200,9 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         }
         await _context.SaveChangesAsync();
         
-        //TODO: send registration update email
-
+        // set background task to send email
+        await _emailBackgroundService.QueueRegistrationUpdateEmailAsync(registration.Id);
+        
         return true;
     }
 }

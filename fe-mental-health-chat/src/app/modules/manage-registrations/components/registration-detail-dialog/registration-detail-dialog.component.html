@@ -64,6 +64,10 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  @if (isSending) {
+    <mat-spinner diameter="20"></mat-spinner>
+  }
+  <span class="spacer"></span>
   <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-button (click)="onSummit()" [disabled]="shouldFormSubmitBeDisabled()" cdkFocusInitial>Save</button>
+  <button mat-button (click)="onSummit()" [disabled]="shouldFormSubmitBeDisabled() || isSending" cdkFocusInitial>Save</button>
 </mat-dialog-actions>

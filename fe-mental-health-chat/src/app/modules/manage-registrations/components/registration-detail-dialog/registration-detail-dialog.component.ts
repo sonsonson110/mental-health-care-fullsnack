@@ -11,6 +11,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { privateSessionRegistrationStatuses } from '../../../../core/constants/private-session-registration-status.constant';
 import { PrivateSessionRegistrationStatus } from '../../../../core/models/enums/private-session-registration-status.enum';
 import { ManageRegistrationsStateService } from '../../services/manage-registrations-state.service';
+import { finalize } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-registration-detail-dialog',
@@ -24,11 +26,14 @@ import { ManageRegistrationsStateService } from '../../services/manage-registrat
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './registration-detail-dialog.component.html',
   styleUrl: './registration-detail-dialog.component.scss',
 })
 export class RegistrationDetailDialogComponent {
+  isSending = false;
+
   data: ClientRegistrationResponse = inject(MAT_DIALOG_DATA);
   readonly statuses = privateSessionRegistrationStatuses;
 
@@ -87,6 +92,7 @@ export class RegistrationDetailDialogComponent {
   }
 
   onSummit(): void {
+    this.isSending = true;
     const newStatus = this.clientRegistrationFormGroup.value.status!;
 
     this.stateService
@@ -96,6 +102,7 @@ export class RegistrationDetailDialogComponent {
           this.clientRegistrationFormGroup.value.noteFromTherapist ?? null,
         status: newStatus,
       })
+      .pipe(finalize(() => (this.isSending = false)))
       .subscribe(() => {
         this.dialogRef.close();
       });

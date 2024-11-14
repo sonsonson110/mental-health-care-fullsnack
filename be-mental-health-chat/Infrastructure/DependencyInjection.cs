@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using Application.Interfaces;
 using Domain.Entities;
+using Infrastructure.BackgroundTasks;
+using Infrastructure.BackgroundTasks.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Data.Services;
 using Infrastructure.FileStorage;
@@ -8,6 +10,7 @@ using Infrastructure.Integrations;
 using Infrastructure.Integrations.Common;
 using Infrastructure.Security;
 using Infrastructure.Services;
+using Infrastructure.Services.Interfaces;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +27,8 @@ public static class DependencyInjection
     {
         services.AddDbContext<MentalHealthContext>(opt =>
         {
-            opt.UseNpgsql(configuration.GetConnectionString("MentalHealthContext"));
+            opt.UseNpgsql(configuration.GetConnectionString("MentalHealthContext"), 
+                conf => conf.MigrationsAssembly(nameof(Infrastructure)));
         });
         
         services.AddScoped<IMentalHealthContext>(provider => provider.GetRequiredService<MentalHealthContext>());
@@ -54,6 +58,17 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IGeminiService, GeminiService>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+
+        // Background tasks
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+        services.AddHostedService<QueuedHostedService>();
+        
+        // Email service
+        services.Configure<EmailSettings>(
+            configuration.GetSection("EmailSettings"));
+        services.AddTransient<IEmailSender, GmailSenderService>();
+        services.AddTransient<IEmailService, EmailService>();
+        services.AddScoped<IEmailBackgroundService, EmailBackgroundService>();
 
         // Register HttpClient
         services.AddHttpClient<IGeminiService, GeminiService>();
@@ -88,13 +103,6 @@ public static class DependencyInjection
         });
         services.AddAuthorization();
         
-        // Email service
-        services.Configure<EmailSettings>(
-            configuration.GetSection("EmailSettings"));
-            
-        services.AddScoped<IEmailSender, GmailSenderService>();
-        services.AddScoped<IEmailService, EmailService>();
-
         return services;
     }
 }

@@ -14,9 +14,9 @@ namespace Infrastructure.Services;
 public class JwtService: IJwtService
 {
     private readonly JwtSettings _jwtSettings;
-    private readonly MentalHealthContext _context;
+    private readonly IMentalHealthContext _context;
     
-    public JwtService(IOptions<JwtSettings> jwtSettings, MentalHealthContext context)
+    public JwtService(IOptions<JwtSettings> jwtSettings, IMentalHealthContext context)
     {
         _jwtSettings = jwtSettings.Value;
         _context = context;
