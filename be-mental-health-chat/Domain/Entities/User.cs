@@ -34,4 +34,6 @@ public class User : IdentityUser<Guid>, ITimestampMarkedEntityBase
     public List<TherapistIssueTag> TherapistIssueTags { get; } = [];
 
     #endregion
+
+    public string GetFullName() => FirstName + " " + LastName;
 }

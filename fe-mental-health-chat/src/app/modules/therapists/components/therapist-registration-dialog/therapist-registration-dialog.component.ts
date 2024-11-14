@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCard } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { PrivateSessionRegistrationsApiService } from '../../../../core/api-services/private-session-registrations-api.service';
+import { finalize } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-therapist-registration-dialog',
@@ -15,16 +16,18 @@ import { PrivateSessionRegistrationsApiService } from '../../../../core/api-serv
   imports: [
     MatDialogModule,
     MatButtonModule,
-    MatCard,
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
     CommonModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './therapist-registration-dialog.component.html',
   styleUrl: './therapist-registration-dialog.component.scss',
 })
 export class TherapistRegistrationDialogComponent {
+  isSending = false;
+
   data: DialogData = inject(MAT_DIALOG_DATA);
   messageFormControl = new FormControl('', [
     Validators.required,
@@ -43,12 +46,14 @@ export class TherapistRegistrationDialogComponent {
   }
 
   onRegisterClick() {
+    this.isSending = true;
     if (this.messageFormControl.valid) {
       this.privateSessionRegistrationsApiService
         .registerPrivateSession({
           therapistId: this.data.therapistId,
           noteFromClient: this.messageFormControl.value!,
         })
+        .pipe(finalize(() => (this.isSending = false)))
         .subscribe({
           next: () => {
             this.toastr.success('Private session registered successfully');

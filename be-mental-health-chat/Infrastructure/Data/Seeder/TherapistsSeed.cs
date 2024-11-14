@@ -8,7 +8,7 @@ internal static class TherapistsSeed
 {
     private static readonly List<(string First, string Last, string Email)> TherapistBaseInfo =
     [
-        ("Sarah", "Johnson", "sarah.johnson@example.com"),
+        ("Sarah", "Johnson", "pson141002@gmail.com"),
         ("Michael", "Chen", "michael.chen@example.com"),
         ("Emily", "Rodriguez", "emily.rodriguez@example.com"),
         ("David", "Williams", "david.williams@example.com"),
