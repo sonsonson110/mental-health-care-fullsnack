@@ -37,7 +37,7 @@ internal static class PrivateSessionRegistrationSeed
         }
 
         // Then add additional random registrations
-        var remainingCount = 5 - therapists.Count;
+        var remainingCount = 30 - therapists.Count;
         for (var i = 0; i < remainingCount; i++)
         {
             var user = users[i % users.Count];

@@ -14,7 +14,8 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
     private readonly IMentalHealthContext _context;
     private readonly IEmailBackgroundService _emailBackgroundService;
 
-    public PrivateSessionRegistrationsService(IMentalHealthContext context, IEmailBackgroundService emailBackgroundService)
+    public PrivateSessionRegistrationsService(IMentalHealthContext context,
+        IEmailBackgroundService emailBackgroundService)
     {
         _context = context;
         _emailBackgroundService = emailBackgroundService;
@@ -23,7 +24,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
     public async Task<Result<bool>> RegisterTherapistAsync(Guid userId, RegisterTherapistRequestDto request)
     {
         #region validate
-        
+
         // check for self registration
         if (request.TherapistId == userId)
         {
@@ -85,18 +86,19 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
             Status = PrivateSessionRegistrationStatus.PENDING,
             NoteFromClient = request.NoteFromClient,
         });
-        
+
         //TODO: Add notification
-        
+
         await _context.SaveChangesAsync();
-        
+
         // set background task to send email
         await _emailBackgroundService.QueueEmailNotificationAsync(newId);
-        
+
         return true;
     }
 
-    public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId)
+    public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId,
+        GetClientRegistrationsRequestDto request)
     {
         // validate if therapist exists
         var therapistExisted = await _context.Users
@@ -107,7 +109,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
             return new Result<List<GetClientRegistrationsResponseDto>>(new NotFoundException("Therapist not found"));
         }
 
-        var clientRegistrations = await _context.PrivateSessionRegistrations
+        var clientRegistrationsQuery = _context.PrivateSessionRegistrations
             .Where(r => r.TherapistId == therapistId)
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => new GetClientRegistrationsResponseDto
@@ -127,10 +129,15 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 EndDate = r.EndDate,
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt,
-            })
-            .ToListAsync();
+            });
 
-        return new Result<List<GetClientRegistrationsResponseDto>>(clientRegistrations);
+        // filter by status
+        if (request.Status.HasValue)
+        {
+            clientRegistrationsQuery = clientRegistrationsQuery.Where(r => r.Status == request.Status);
+        }
+
+        return new Result<List<GetClientRegistrationsResponseDto>>(await clientRegistrationsQuery.ToListAsync());
     }
 
     public async Task<Result<bool>> UpdateClientRegistrationsAsync(Guid registrationId, Guid therapistId,
@@ -198,11 +205,12 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 });
             }
         }
+
         await _context.SaveChangesAsync();
-        
+
         // set background task to send email
         await _emailBackgroundService.QueueRegistrationUpdateEmailAsync(registration.Id);
-        
+
         return true;
     }
 }

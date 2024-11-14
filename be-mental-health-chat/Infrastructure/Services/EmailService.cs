@@ -2,6 +2,7 @@
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Model;
 using Infrastructure.Integrations.Common;
 using Infrastructure.Services.Interfaces;
 

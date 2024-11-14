@@ -12,6 +12,8 @@ public class PrivateSessionSchedule : TimestampMarkedEntityBase
     public TimeOnly EndTime { get; set; }
 
     public Guid PrivateSessionRegistrationId { get; set; }
+    
+    public bool IsCancelled { get; set; }
 
     #region navigation properties
 

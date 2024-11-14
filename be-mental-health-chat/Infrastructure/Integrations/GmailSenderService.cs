@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using Domain.Model;
 using Infrastructure.Integrations.Common;
 using Infrastructure.Settings;
 using MailKit.Net.Smtp;

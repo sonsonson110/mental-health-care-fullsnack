@@ -1,4 +1,5 @@
 ﻿using Domain.Common;
+using Domain.Model;
 
 namespace Infrastructure.Integrations.Common;
 
