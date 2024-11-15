@@ -1,0 +1,171 @@
+<div class="root-container">
+  <mat-toolbar class="toolbar">
+    <span class="title">Therapist discovery</span>
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input mat-body-large"
+        placeholder="Search by name"
+        [formControl]="filterForm.controls.searchText"
+      />
+      <button mat-button (click)="search()">Search</button>
+    </div>
+    <button mat-icon-button (click)="toggleFilterPanel()">
+      <mat-icon class="filter-icon" [ngClass]="{ 'enabled': filterForm.controls.isFilterEnabled.value }">filter_list</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container>
+    @if (therapistsLoadingState$ | async) {
+      <mat-progress-bar mode="query"></mat-progress-bar>
+    }
+    <div class="content-container">
+      @if (therapistSummaries$ | async; as therapistSummaries) {
+        @for (therapist of therapistSummaries; track therapist.id) {
+          <mat-card class="card" appearance="outlined">
+            <mat-card-header>
+              <img
+                mat-card-avatar
+                [src]="therapist.avatarName | parseAvatarUrl: therapist.gender"
+              />
+              <mat-card-title>{{ therapist.fullName }}</mat-card-title>
+              <mat-card-subtitle class="subtitle"
+              >{{ therapist.gender | gender }} ▪ ⭐
+                {{ therapist.rating }}
+              </mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content>
+              <div class="description-item mat-label-large">
+                <mat-icon class="icon">school</mat-icon>
+                @if (therapist.educationCount) {
+                  <span class="description">{{ therapist.lastEducation }}</span>
+                  <span *ngIf="therapist.educationCount > 1" class="addition"
+                  >+{{ therapist.educationCount }}</span
+                  >
+                } @else {
+                  <span class="description">Not mentioned</span>
+                }
+              </div>
+              <div class="description-item mat-label-large">
+                <mat-icon class="icon">work</mat-icon>
+                @if (therapist.lastExperience) {
+                  <span class="description">{{ therapist.lastExperience }}</span>
+                  <span *ngIf="therapist.experienceCount > 1" class="addition"
+                  >+{{ therapist.experienceCount }}</span
+                  >
+                } @else {
+                  <span class="description">Not mentioned</span>
+                }
+              </div>
+              <div class="description-item mat-label-large">
+                <mat-icon class="icon">workspace_premium</mat-icon>
+                @if (therapist.certificationCount) {
+                  <span class="description"
+                  >{{ therapist.certificationCount }}
+                    {{
+                      therapist.certificationCount > 1 ? 'certifications' : 'certification'
+                    }}</span
+                  >
+                } @else {
+                  <span class="description">Not mentioned</span>
+                }
+              </div>
+              <div class="description-item mat-label-large">
+                <mat-icon class="icon">accessibility_new</mat-icon>
+                @if (therapist.certificationCount) {
+                  <span class="description"
+                  >{{ therapist.clientCount }}
+                    {{ therapist.clientCount > 1 ? 'client' : 'clients' }} helped</span
+                  >
+                } @else {
+                  <span class="description">Be the first client!</span>
+                }
+              </div>
+              <p class="bio">{{ therapist.description || 'Description of therapist is not mentioned' }}</p>
+              <mat-chip-set>
+                @for (tag of therapist.issueTags; track $index) {
+                  <mat-chip>{{ tag }}</mat-chip>
+                }
+              </mat-chip-set>
+            </mat-card-content>
+            <span class="spacer"></span>
+            <mat-card-actions>
+              <button mat-button (click)="onUserDetailsClick(therapist.id)">MORE...</button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      }
+    </div>
+    <mat-sidenav [mode]="filterPanelMode" position="end" [opened]="isFilterPanelOpen$ | async">
+      <form [formGroup]="filterForm">
+        <div class="filter-container">
+          <div class="header">
+            <p class="mat-title-medium">Advanced filters</p>
+            <button mat-button (click)="resetFilters()">Reset</button>
+          </div>
+          <mat-slide-toggle formControlName="isFilterEnabled">Enable</mat-slide-toggle>
+          <app-issue-tag-input class="tag"
+                               [allIssueTags]="allIssueTags"
+                               [(selectedIssueTags)]="filterForm.controls.issueTags.value!"
+                               [disabled]="!filterForm.controls.isFilterEnabled.value"
+                               appearance="outline"
+          ></app-issue-tag-input>
+
+          <span class="spacer"></span>
+
+          <span class="mat-title-small">Rating ⭐</span>
+          <mat-slider
+            min="0"
+            max="5"
+            step="0.5"
+            showTickMarks
+            discrete
+            [disabled]="!filterForm.controls.isFilterEnabled.value"
+          >
+            <input formControlName="minRating" matSliderStartThumb />
+            <input formControlName="endRating" matSliderEndThumb />
+          </mat-slider>
+
+          <div class="gender">
+            <span class="mat-title-small">Gender</span>
+            <mat-selection-list formControlName="selectedGenders">
+              @for (gender of genders; track gender.key) {
+                <mat-list-option [value]="gender.key" [disabled]="!filterForm.controls.isFilterEnabled.value">{{
+                    gender.value
+                  }}
+                </mat-list-option>
+              }
+            </mat-selection-list>
+          </div>
+
+          <div class="experience">
+            <span class="mat-title-small">Experience level</span>
+            <mat-selection-list
+              formControlName="experienceLevel"
+              [multiple]="false"
+            >
+              @for (option of experienceLevelOptions; track option.key) {
+                <mat-list-option [value]="option.key" [disabled]="!filterForm.controls.isFilterEnabled.value">{{
+                    option.value
+                  }}
+                </mat-list-option>
+              }
+            </mat-selection-list>
+          </div>
+
+          <div class="availability">
+            <span class="mat-title-small">Availability</span>
+            <mat-selection-list formControlName="selectedDates">
+              @for (option of availabilityDateOptions; track option.key) {
+                <mat-list-option [value]="option.key" [disabled]="!filterForm.controls.isFilterEnabled.value">{{
+                    option.value
+                  }}
+                </mat-list-option>
+              }
+            </mat-selection-list>
+          </div>
+        </div>
+      </form>
+    </mat-sidenav>
+  </mat-sidenav-container>
+</div>

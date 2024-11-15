@@ -18,6 +18,7 @@ import { TherapistDetailComponent } from './modules/therapists/components/therap
 import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 import { ManageRegistrationsComponent } from './modules/manage-registrations/manage-registrations.component';
 import { therapistOnlyGuard } from './core/guards/therapist-only.guard';
+import { TherapistSummariesComponent } from './modules/therapists/components/therapist-summaries/therapist-summaries.component';
 
 export const routes: Routes = [
   {
@@ -50,8 +51,16 @@ export const routes: Routes = [
       {
         path: 'therapists',
         component: TherapistsComponent,
+        children: [
+          { path: '', component: TherapistSummariesComponent, pathMatch: 'full' },
+          {
+            path: ':id',
+            component: TherapistDetailComponent,
+            pathMatch: 'full',
+          },
+        ],
       },
-      { path: 'therapists/:id', component: TherapistDetailComponent, pathMatch: 'full' },
+
       {
         path: 'client-chats',
         component: P2pConversationComponent,
@@ -79,7 +88,7 @@ export const routes: Routes = [
         path: 'manage-registrations',
         component: ManageRegistrationsComponent,
         canActivate: [therapistOnlyGuard],
-      }
+      },
     ],
   },
 
