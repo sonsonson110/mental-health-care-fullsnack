@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../environment/dev.environment';
+import { environment } from '../../../environment/dev.environment';
 import { TherapistSummaryResponse } from '../models/modules/therapists/therapist-summary-response.model';
 import { TherapistSummariesRequest } from '../models/modules/therapists/therapist-summaries-request.model';
 import { TherapistDetailResponse } from '../models/modules/therapists/therapist-detail-response.model';
+import { CurrentClientResponse } from '../models/modules/manage-schedules/current-client-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +57,9 @@ export class TherapistsApiService {
 
   getTherapistDetail(therapistId: string) {
     return this.http.get<TherapistDetailResponse>(this.baseEndpoint + '/' + therapistId);
+  }
+
+  getCurrentClients() {
+    return this.http.get<CurrentClientResponse[]>(this.baseEndpoint + '/clients');
   }
 }

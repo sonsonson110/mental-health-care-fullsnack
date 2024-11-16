@@ -21,31 +21,48 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         _mapper = mapper;
     }
 
-    public async Task<Result<List<GetTherapistScheduleResponseDto>>> GetTherapistSchedulesAsync(Guid therapistId)
+    public async Task<Result<List<GetTherapistScheduleResponseDto>>> GetTherapistSchedulesAsync(Guid therapistId,
+        GetTherapistSchedulesRequestDto request)
     {
-        var schedules = await _context.PrivateSessionSchedules
-            .Where(schedule => schedule.PrivateSessionRegistration.TherapistId == therapistId)
-            .Select(schedule => new GetTherapistScheduleResponseDto
+        var schedulesQuery = _context.PrivateSessionSchedules
+            .Where(schedule => schedule.PrivateSessionRegistration.TherapistId == therapistId);
+
+        if (request.StartDate.HasValue)
+        {
+            schedulesQuery = schedulesQuery.Where(schedule => schedule.Date >= request.StartDate);
+        }
+
+        if (request.EndDate.HasValue)
+        {
+            schedulesQuery = schedulesQuery.Where(schedule => schedule.Date <= request.EndDate);
+        }
+
+        if (request.PrivateRegistrationIds.Count > 0)
+        {
+            schedulesQuery = schedulesQuery.Where(schedule =>
+                request.PrivateRegistrationIds.Contains(schedule.PrivateSessionRegistrationId));
+        }
+
+        var schedules = await schedulesQuery.Select(schedule => new GetTherapistScheduleResponseDto
+        {
+            Id = schedule.Id,
+            PrivateSessionRegistrationId = schedule.PrivateSessionRegistrationId,
+            Date = schedule.Date,
+            StartTime = schedule.StartTime,
+            EndTime = schedule.EndTime,
+            NoteFromTherapist = schedule.NoteFromTherapist,
+            IsCancelled = schedule.IsCancelled,
+            CreatedAt = schedule.CreatedAt,
+            UpdatedAt = schedule.UpdatedAt,
+            Client = new ClientDto
             {
-                Id = schedule.Id,
-                PrivateSessionRegistrationId = schedule.PrivateSessionRegistrationId,
-                Date = schedule.Date,
-                StartTime = schedule.StartTime,
-                EndTime = schedule.EndTime,
-                NoteFromTherapist = schedule.NoteFromTherapist,
-                IsCancelled = schedule.IsCancelled,
-                CreatedAt = schedule.CreatedAt,
-                UpdatedAt = schedule.UpdatedAt,
-                Client = new ClientDto
-                {
-                    Id = schedule.PrivateSessionRegistration.ClientId,
-                    FullName = schedule.PrivateSessionRegistration.Client.FirstName + " "
-                        + schedule.PrivateSessionRegistration.Client.LastName,
-                    Email = schedule.PrivateSessionRegistration.Client.Email!,
-                    AvatarName = schedule.PrivateSessionRegistration.Client.AvatarName
-                }
-            })
-            .ToListAsync();
+                Id = schedule.PrivateSessionRegistration.ClientId,
+                FullName = schedule.PrivateSessionRegistration.Client.FirstName + " "
+                    + schedule.PrivateSessionRegistration.Client.LastName,
+                Email = schedule.PrivateSessionRegistration.Client.Email!,
+                AvatarName = schedule.PrivateSessionRegistration.Client.AvatarName
+            }
+        }).ToListAsync();
 
         return new Result<List<GetTherapistScheduleResponseDto>>(schedules);
     }
@@ -59,7 +76,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return new Result<EntityBase>(new BadRequestException("Invalid time range"));
         }
-        
+
         // check if time rage from the past
         if (request.Date.ToDateTime(request.StartTime) < DateTime.Now)
         {
@@ -98,17 +115,18 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         var newId = Guid.NewGuid();
         var entityToCreate = _mapper.Map<PrivateSessionSchedule>(request);
         entityToCreate.Id = newId;
-        
+
         _context.PrivateSessionSchedules.Add(entityToCreate);
         await _context.SaveChangesAsync();
-        
+
         // TODO: Create a notification for the client
         // TODO: Schedule a reminder email for the client
 
         return new Result<EntityBase>(new EntityBase { Id = newId });
     }
 
-    public async  Task<Result<bool>> UpdateScheduleAsync(Guid therapistId, Guid scheduleId, CreateUpdateScheduleRequestDto request)
+    public async Task<Result<bool>> UpdateScheduleAsync(Guid therapistId, Guid scheduleId,
+        CreateUpdateScheduleRequestDto request)
     {
         #region validation
 
@@ -122,18 +140,18 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return new Result<bool>(new BadRequestException("Invalid time range"));
         }
-        
+
         // check if time rage from the past
         if (request.Date.ToDateTime(request.StartTime) < DateTime.Now)
         {
             return new Result<bool>(new BadRequestException("Cannot update schedule in the past"));
         }
-                
+
         // old schedule exists
         var oldSchedule = await _context.PrivateSessionSchedules
             .Where(schedule => schedule.Id == request.Id)
             .FirstOrDefaultAsync();
-        
+
         if (oldSchedule == null)
         {
             return new Result<bool>(new NotFoundException("Schedule not found"));
@@ -168,12 +186,12 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         }
 
         #endregion
-        
+
         _mapper.Map(request, oldSchedule);
-        
+
         _context.PrivateSessionSchedules.Update(oldSchedule);
         await _context.SaveChangesAsync();
-        
+
         // TODO: Create a changes notification for the client
         // TODO: Schedule a changes notification for the client
 

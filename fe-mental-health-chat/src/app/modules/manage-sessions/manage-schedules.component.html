@@ -1,0 +1,55 @@
+<div class="root-container">
+  <mat-toolbar class="toolbar" style="min-height: 56px !important; height: 56px !important;">
+    <button mat-icon-button (click)="toggleSidenav()">
+      <mat-icon svgIcon="side_navigation"></mat-icon>
+    </button>
+    <span>{{ timeRangeDisplay }}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="onRefreshClick()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container>
+    <div class="progress-container">
+      <mat-progress-bar mode="query" [ngStyle]="{
+        'opacity': (loading$ | async) ? 1 : 0
+      }"></mat-progress-bar>
+    </div>
+    <mat-sidenav [mode]="sidenavMode" position="start" [opened]="isSidenavOpen">
+      <div class="sidenav-container">
+        <div class="actions">
+          <button mat-stroked-button class="mat-elevation-z2">
+            <mat-icon>add</mat-icon>
+            Add schedule
+          </button>
+          <button mat-button (click)="onTodayClick()">Today</button>
+        </div>
+        <mat-calendar #calendar [selected]="inlineCalendarDate$ | async"
+                      (selectedChange)="onInlineDateSelected($event)"></mat-calendar>
+        <span mat-subheader class="mat-title-small">Current client registrations</span>
+        <mat-selection-list [formControl]="selectedRegistrationControl">
+          @for (client of currentClient$ | async; track client.privateSessionRegistrationId) {
+            <mat-list-option [value]="client.privateSessionRegistrationId" selected="true">{{ client.fullName }}
+            </mat-list-option>
+          }
+        </mat-selection-list>
+      </div>
+    </mat-sidenav>
+
+    <mat-sidenav-container>
+      @if (events$ | async; as events) {
+        <div class="content-container">
+          <mwl-calendar-week-view
+            precision="minutes"
+            [viewDate]="viewDate"
+            [events]="events"
+            (hourSegmentClicked)="onWeekCalendarClick($event.date)"
+            [weekStartsOn]="1"
+            [dayStartHour]="5"
+            [daysInWeek]="daysInWeek"
+          ></mwl-calendar-week-view>
+        </div>
+      }
+    </mat-sidenav-container>
+  </mat-sidenav-container>
+</div>

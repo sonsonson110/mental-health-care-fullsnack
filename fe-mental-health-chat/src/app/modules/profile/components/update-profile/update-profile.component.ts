@@ -34,7 +34,7 @@ import { finalize, switchMap } from 'rxjs';
 import { ProblemDetail } from '../../../../core/models/common/problem-detail.model';
 import { ErrorDisplayComponent } from '../../../../shared/components/error-display/error-display.component';
 import { ToastrService } from 'ngx-toastr';
-import { environment } from '../../../../environment/dev.environment';
+import { environment } from '../../../../../environment/dev.environment';
 
 @Component({
   selector: 'app-update-profile',
@@ -47,7 +47,6 @@ import { environment } from '../../../../environment/dev.environment';
     CommonModule,
     MatDatepickerModule,
     MatSelectModule,
-    IssueTagInputComponent,
     MatIconModule,
     MatListModule,
     MatCheckboxModule,

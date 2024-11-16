@@ -74,9 +74,9 @@ public static class DependencyInjection
         services.AddHttpClient<IGeminiService, GeminiService>();
         
         // Jwt authentication
+        services.AddMemoryCache();
         services.Configure<JwtSettings>(
             configuration.GetSection("Jwt"));
-        
         services.AddScoped<CustomJwtBearerEvents>();
         
         services.AddAuthentication(options =>

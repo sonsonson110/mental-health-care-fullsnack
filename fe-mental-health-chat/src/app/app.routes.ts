@@ -19,6 +19,7 @@ import { NotFoundComponent } from './shared/components/not-found/not-found.compo
 import { ManageRegistrationsComponent } from './modules/manage-registrations/manage-registrations.component';
 import { therapistOnlyGuard } from './core/guards/therapist-only.guard';
 import { TherapistSummariesComponent } from './modules/therapists/components/therapist-summaries/therapist-summaries.component';
+import { ManageSchedulesComponent } from './modules/manage-sessions/manage-schedules.component';
 
 export const routes: Routes = [
   {
@@ -89,6 +90,11 @@ export const routes: Routes = [
         component: ManageRegistrationsComponent,
         canActivate: [therapistOnlyGuard],
       },
+      {
+        path: 'manage-schedules',
+        component: ManageSchedulesComponent,
+        canActivate: [therapistOnlyGuard],
+      }
     ],
   },
 

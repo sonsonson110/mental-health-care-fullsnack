@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environment/dev.environment';
+import { environment } from '../../../environment/dev.environment';
 import * as signalR from '@microsoft/signalr';
 import { AuthApiService } from './auth-api.service';
 import { BehaviorSubject, Observable } from 'rxjs';

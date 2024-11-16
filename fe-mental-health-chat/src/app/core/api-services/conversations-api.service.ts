@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../environment/dev.environment';
+import { environment } from '../../../environment/dev.environment';
 import { ChatbotHistorySideNavItem } from '../models/modules/ai-chats/chatbot-history-side-nav-item.model';
 import { ChatbotConversationDetailResponse } from '../models/modules/ai-chats/chatbot-conversation-detail-response';
 import { CreateChatbotConversationRequest } from '../models/modules/ai-chats/create-chatbot-conversation-request.model';

@@ -33,9 +33,9 @@ public class PrivateSessionRegistrationsController : MentalHeathControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetClientRegistrations([FromQuery] GetClientRegistrationsRequestDto request)
+    public async Task<IActionResult> GetClientRegistrations()
     {
-        var result = await _privateSessionRegistrationsService.GetClientRegistrationsAsync(GetUserId(), request);
+        var result = await _privateSessionRegistrationsService.GetClientRegistrationsAsync(GetUserId());
         return result.ReturnFromGet();
     }
 

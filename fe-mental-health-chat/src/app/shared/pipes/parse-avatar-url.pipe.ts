@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Gender } from '../../core/models/enums/gender.enum';
-import { environment } from '../../environment/dev.environment';
+import { environment } from '../../../environment/dev.environment';
 
 @Pipe({
   name: 'parseAvatarUrl',

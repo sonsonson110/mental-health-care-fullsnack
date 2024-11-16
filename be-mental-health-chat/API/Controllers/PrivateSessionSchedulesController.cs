@@ -22,9 +22,9 @@ public class PrivateSessionSchedulesController : MentalHeathControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetTherapistSchedulesAsync()
+    public async Task<IActionResult> GetTherapistSchedulesAsync([FromQuery] GetTherapistSchedulesRequestDto request)
     {
-        var result = await _privateSessionSchedulesService.GetTherapistSchedulesAsync(GetUserId());
+        var result = await _privateSessionSchedulesService.GetTherapistSchedulesAsync(GetUserId(), request);
         return result.ReturnFromGet();
     }
 

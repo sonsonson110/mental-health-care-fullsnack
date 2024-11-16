@@ -8,10 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSignalR(options =>
-{
-    options.DisableImplicitFromServicesParameters = true;
-});
+builder.Services.AddSignalR(options => { options.DisableImplicitFromServicesParameters = true; });
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -44,7 +41,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            []
         }
     };
 
@@ -59,12 +56,12 @@ var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get
 builder.Services.AddCors(option =>
 {
     option.AddPolicy("AllowSpecificOrigins", p => p
-        .WithOrigins(allowedOrigins ?? throw new InvalidOperationException("Allowed origins not set"))
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials()
-        .WithExposedHeaders("Content-Disposition")
-        .WithExposedHeaders("WWW-Authenticate") // For client to handle 401 responses gracefully
+            .WithOrigins(allowedOrigins ?? throw new InvalidOperationException("Allowed origins not set"))
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .WithExposedHeaders("Content-Disposition")
+            .WithExposedHeaders("WWW-Authenticate") // For client to handle 401 responses gracefully
     );
 });
 

@@ -128,7 +128,7 @@ public class TherapistsService : ITherapistsService
         return result;
     }
 
-    public async Task<Result<GetTherapistDetailResponseDto>> GetTherapistDetailAsync(Guid userId, Guid therapistId)
+    public async Task<Result<GetTherapistDetailResponseDto>> GetTherapistDetailAsync(Guid therapistId)
     {
         var therapist = await _context.Users
             .Where(e => e.Id == therapistId && e.IsTherapist)
@@ -210,5 +210,23 @@ public class TherapistsService : ITherapistsService
         return therapist == null
             ? new Result<GetTherapistDetailResponseDto>(new NotFoundException("Therapist not found"))
             : new Result<GetTherapistDetailResponseDto>(therapist);
+    }
+
+    public async Task<Result<List<GetCurrentClientResponseDto>>> GetCurrentClientsAsync(Guid therapistId)
+    {
+        var clients = await _context.PrivateSessionRegistrations
+            .Where(r => r.TherapistId == therapistId)
+            .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+            .OrderByDescending(r => r.UpdatedAt)
+            .Select(r => new GetCurrentClientResponseDto
+            {
+                PrivateSessionRegistrationId = r.Id,
+                ClientId = r.ClientId,
+                FullName = r.Client.FirstName + " " + r.Client.LastName,
+                Email = r.Client.Email,
+                AvatarName = r.Client.AvatarName,
+            }).ToListAsync();
+        
+        return new Result<List<GetCurrentClientResponseDto>>(clients);
     }
 }

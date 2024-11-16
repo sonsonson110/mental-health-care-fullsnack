@@ -97,8 +97,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         return true;
     }
 
-    public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId,
-        GetClientRegistrationsRequestDto request)
+    public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId)
     {
         // validate if therapist exists
         var therapistExisted = await _context.Users
@@ -130,12 +129,6 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt,
             });
-
-        // filter by status
-        if (request.Status.HasValue)
-        {
-            clientRegistrationsQuery = clientRegistrationsQuery.Where(r => r.Status == request.Status);
-        }
 
         return new Result<List<GetClientRegistrationsResponseDto>>(await clientRegistrationsQuery.ToListAsync());
     }
@@ -187,6 +180,12 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         registration.Id = request.Id;
         registration.Status = request.Status;
         registration.NoteFromTherapist = request.NoteFromTherapist;
+        
+        if (request.Status is PrivateSessionRegistrationStatus.FINISHED or PrivateSessionRegistrationStatus.CANCELED)
+        {
+            registration.EndDate = DateTime.Now;
+        }
+        
         _context.PrivateSessionRegistrations.Update(registration);
 
         // create conversation if registration is approved and conversation does not exist
@@ -205,7 +204,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 });
             }
         }
-
+        
         await _context.SaveChangesAsync();
 
         // set background task to send email

@@ -50,8 +50,8 @@ export const therapistNavItems: NavItem[] = [
     route: 'manage-registrations',
   },
   {
-    displayName: 'Manage sessions',
+    displayName: 'Manage schedules',
     iconName: 'edit_calendar',
-    route: 'manage-sessions',
+    route: 'manage-schedules',
   },
 ];

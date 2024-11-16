@@ -21,11 +21,6 @@
         surface-container-low
     );
 
-    .logo {
-      width: 3rem;
-      height: 3rem;
-    }
-
     .title {
       font-weight: 600;
       display: none;
@@ -147,7 +142,7 @@
   }
 
   .filter-container {
-    padding: 1rem;
+    padding: 1rem 0.5rem;
     display: flex;
     flex-direction: column;
 
