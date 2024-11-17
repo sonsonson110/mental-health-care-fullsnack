@@ -1,0 +1,80 @@
+<span mat-dialog-title>{{ capitalizedMode }} private session schedule</span>
+<mat-dialog-content>
+  <form [formGroup]="scheduleFormGroup">
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Client</mat-label>
+      <mat-select formControlName="privateSessionRegistrationId">
+        @for (client of currentClients$ | async; track client.privateSessionRegistrationId) {
+          <mat-option [value]="client.privateSessionRegistrationId">
+            <div class="client-option-container">
+              <img [ngSrc]="client.avatarName | parseAvatarUrl: client.gender" width="30" height="30" alt="avatar" />
+              <span>{{ client.fullName }}</span>
+              -
+              <span>{{ client.email }}</span>
+            </div>
+          </mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="scheduleFormGroup.get('privateSessionRegistrationId')?.hasError('required')">
+        Client is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Choose a date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-error *ngIf="scheduleFormGroup.get('date')?.hasError('required')">
+        Target date is required
+      </mat-error>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field [appearance]="formFieldAppearance">
+        <mat-label>From</mat-label>
+        <mat-select formControlName="startTime">
+          @for (time of timeOptions.slice(0, -1); track $index) {
+            <mat-option [value]="time">{{ time }}</mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="scheduleFormGroup.get('startTime')?.hasError('required')">
+          Start time is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field [appearance]="formFieldAppearance">
+        <mat-label>To</mat-label>
+        <mat-select formControlName="endTime">
+          @for (time of timeOptions.slice(1); track $index) {
+            <mat-option [value]="time">{{ time }}</mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="scheduleFormGroup.get('endTime')?.hasError('required')">
+          End time is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Note</mat-label>
+      <textarea matInput formControlName="noteFromTherapist"></textarea>
+      <mat-hint align="end">{{ scheduleFormGroup.controls.noteFromTherapist.value?.length ?? 0 }}/255</mat-hint>
+      <mat-error *ngIf="scheduleFormGroup.get('noteFromTherapist')?.hasError('maxLength')">
+        Note exceeds 255 characters
+      </mat-error>
+    </mat-form-field>
+    <mat-error *ngIf="scheduleFormGroup.hasError('invalidTimeRange')">
+      End time must be after start time
+    </mat-error>
+
+    @if (mode === 'update') {
+      <mat-checkbox formControlName="isCancelled">Cancel schedule</mat-checkbox>
+    }
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="onSubmit()" [disabled]="scheduleFormGroup.invalid">{{capitalizedMode}}</button>
+</mat-dialog-actions>

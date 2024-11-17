@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.TherapistsService;
+﻿using Domain.Enums;
+
+namespace Application.DTOs.TherapistsService;
 
 public class GetCurrentClientResponseDto
 {
@@ -7,4 +9,5 @@ public class GetCurrentClientResponseDto
     public required string FullName { get; set; }
     public required string Email { get; set; }
     public string? AvatarName { get; set; }
+    public Gender Gender { get; set; }
 }

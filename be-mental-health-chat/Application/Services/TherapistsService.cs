@@ -225,6 +225,7 @@ public class TherapistsService : ITherapistsService
                 FullName = r.Client.FirstName + " " + r.Client.LastName,
                 Email = r.Client.Email,
                 AvatarName = r.Client.AvatarName,
+                Gender = r.Client.Gender,
             }).ToListAsync();
         
         return new Result<List<GetCurrentClientResponseDto>>(clients);

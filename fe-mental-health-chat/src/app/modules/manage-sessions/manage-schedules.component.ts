@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  ViewContainerRef,
 } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,12 +20,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatCalendar, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatListModule } from '@angular/material/list';
 import { CalendarEvent, CalendarModule } from 'angular-calendar';
-import { MatDialogModule } from '@angular/material/dialog';
-import { addDays, format, isSameMonth, isSameYear, startOfWeek } from 'date-fns';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { addDays, format, isSameMonth, isSameYear, parse, startOfWeek } from 'date-fns';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { ManageSessionsStateService } from './services/manage-sessions-state.service';
 import { CurrentClientResponse } from '../../core/models/modules/manage-schedules/current-client-response.model';
+import { CreateUpdateScheduleDialogComponent } from './components/create-update-schedule-dialog/create-update-schedule-dialog.component';
+import { CreateUpdateScheduleRequest } from '../../core/models/modules/manage-schedules/create-update-schedule-request.model';
 
 @Component({
   selector: 'app-manage-sessions',
@@ -46,7 +49,7 @@ import { CurrentClientResponse } from '../../core/models/modules/manage-schedule
     ReactiveFormsModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ManageSessionsStateService],
+  providers: [ManageSessionsStateService, MatDialogModule],
   templateUrl: './manage-schedules.component.html',
   styleUrl: './manage-schedules.component.scss',
 })
@@ -59,7 +62,7 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
   sidenavMode: 'side' | 'over' = 'side';
 
   loading$: Observable<boolean>;
-  inlineCalendarDate$: Observable<Date>;
+  inlineCalendarDate = new Date();
   currentClient$: Observable<CurrentClientResponse[]>;
   events$: Observable<CalendarEvent[]>;
 
@@ -72,7 +75,9 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
     domSanitizer: DomSanitizer,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
-    private stateService: ManageSessionsStateService
+    private stateService: ManageSessionsStateService,
+    private dialog: MatDialog,
+    private viewContainerRef: ViewContainerRef
   ) {
     matIconRegistry.addSvgIcon(
       'side_navigation',
@@ -81,7 +86,9 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
 
     this.initializeCalendarState();
 
-    this.inlineCalendarDate$ = this.stateService.inlineCalendarDate$;
+    this.stateService.inlineCalendarDate$.subscribe(
+      date => (this.inlineCalendarDate = date)
+    );
     this.events$ = this.stateService.events$;
     this.loading$ = this.stateService.loading$;
     this.currentClient$ = this.stateService.currentClient$;
@@ -176,17 +183,58 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
     this.calendar._goToDateInView(today, 'month');
   }
 
+  onCreateScheduleClick() {
+    this.openEditScheduleDialog({
+      date: format(this.inlineCalendarDate, 'yyyy-MM-dd'),
+      startTime: format(this.inlineCalendarDate, 'hh:mm a'),
+    });
+  }
+
   onInlineDateSelected(date: Date | null) {
     if (!date) return;
     this.stateService.setInlineCalendarDate(date, this.daysInWeek);
   }
 
-  onWeekCalendarClick(any: Date) {
-    console.log(any);
+  onEventClick(event: CalendarEvent) {
+    const startTime = parse(event.meta.startTime, 'HH:mm:ss', new Date());
+    const endTime = parse(event.meta.endTime, 'HH:mm:ss', new Date());
+
+    this.openEditScheduleDialog({
+      id: event.meta.id,
+      privateSessionRegistrationId: event.meta?.privateSessionRegistrationId,
+      date: event.meta.date,
+      startTime: format(startTime, 'hh:mm a'),
+      endTime: format(endTime, 'hh:mm a'),
+      noteFromTherapist: event.meta?.noteFromTherapist,
+      isCancelled: event.meta?.isCancelled,
+    });
+  }
+
+  onWeekCalendarClick(date: Date) {
+    this.openEditScheduleDialog({
+      date: format(date, 'yyyy-MM-dd'),
+      startTime: format(date, 'hh:mm a'),
+    });
   }
 
   onRefreshClick() {
     this.stateService.initData();
+  }
+
+  private openEditScheduleDialog(request?: CreateUpdateScheduleRequest) {
+    this.dialog.open(CreateUpdateScheduleDialogComponent, {
+      viewContainerRef: this.viewContainerRef,
+      maxWidth: '992px',
+      data: {
+        id: request?.id,
+        privateSessionRegistrationId: request?.privateSessionRegistrationId,
+        date: request?.date,            // yyyy-MM-dd
+        startTime: request?.startTime,  // hh:mm a
+        endTime: request?.endTime,      // hh:mm a
+        noteFromTherapist: request?.noteFromTherapist,
+        isCancelled: request?.isCancelled
+      },
+    });
   }
 
   // const

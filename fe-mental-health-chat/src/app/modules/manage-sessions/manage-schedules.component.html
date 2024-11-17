@@ -18,13 +18,13 @@
     <mat-sidenav [mode]="sidenavMode" position="start" [opened]="isSidenavOpen">
       <div class="sidenav-container">
         <div class="actions">
-          <button mat-stroked-button class="mat-elevation-z2">
+          <button mat-stroked-button class="mat-elevation-z2" (click)="onCreateScheduleClick()">
             <mat-icon>add</mat-icon>
             Add schedule
           </button>
           <button mat-button (click)="onTodayClick()">Today</button>
         </div>
-        <mat-calendar #calendar [selected]="inlineCalendarDate$ | async"
+        <mat-calendar #calendar [selected]="inlineCalendarDate"
                       (selectedChange)="onInlineDateSelected($event)"></mat-calendar>
         <span mat-subheader class="mat-title-small">Current client registrations</span>
         <mat-selection-list [formControl]="selectedRegistrationControl">
@@ -44,8 +44,10 @@
             [viewDate]="viewDate"
             [events]="events"
             (hourSegmentClicked)="onWeekCalendarClick($event.date)"
+            (eventClicked)="onEventClick($event.event)"
             [weekStartsOn]="1"
             [dayStartHour]="5"
+            [dayEndHour]="22"
             [daysInWeek]="daysInWeek"
           ></mwl-calendar-week-view>
         </div>

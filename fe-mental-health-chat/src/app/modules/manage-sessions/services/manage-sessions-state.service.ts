@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, forkJoin } from 'rxjs';
+import { BehaviorSubject, finalize, forkJoin, tap } from 'rxjs';
 import { CalendarEvent } from 'angular-calendar';
 import {
   addDays,
@@ -14,6 +14,7 @@ import { CurrentClientResponse } from '../../../core/models/modules/manage-sched
 import { TherapistsApiService } from '../../../core/api-services/therapists-api.service';
 import { PrivateSessionSchedulesApiService } from '../../../core/api-services/private-session-schedules-api.service';
 import { mapPrivateSessionScheduleToCalendarEvent } from '../../../core/mappers';
+import { CreateUpdateScheduleRequest } from '../../../core/models/modules/manage-schedules/create-update-schedule-request.model';
 
 @Injectable()
 export class ManageSessionsStateService {
@@ -27,7 +28,6 @@ export class ManageSessionsStateService {
   readonly currentClient$ = this.currentClientSubject.asObservable();
 
   private selectedRegistrationsSubject = new BehaviorSubject<string[]>([]);
-  readonly selectedRegistrations$ = this.selectedRegistrationsSubject.asObservable();
 
   private eventsSubject = new BehaviorSubject<CalendarEvent[]>([]);
   readonly events$ = this.eventsSubject.asObservable();
@@ -44,7 +44,10 @@ export class ManageSessionsStateService {
       clients: this.therapistsApiService.getCurrentClients(),
       // Get schedules for the current week when initializing
       schedules: this.privateSessionSchedulesApiService.getTherapistSchedules({
-        startDate: format(startOfWeek(this.inlineCalendarDateSubject.value, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
+        startDate: format(
+          startOfWeek(this.inlineCalendarDateSubject.value, { weekStartsOn: 1 }),
+          'yyyy-MM-dd'
+        ),
         endDate: format(addWeeks(this.inlineCalendarDateSubject.value, 1), 'yyyy-MM-dd'),
       }),
     })
@@ -111,5 +114,14 @@ export class ManageSessionsStateService {
 
   setSelectedRegistrations(registrations: string[]): void {
     this.selectedRegistrationsSubject.next(registrations);
+  }
+
+  submitSchedule(request: CreateUpdateScheduleRequest, mode: 'create' | 'update') {
+    const req =
+      mode === 'create'
+        ? this.privateSessionSchedulesApiService.createSchedule(request)
+        : this.privateSessionSchedulesApiService.updateSchedule(request.id!, request);
+
+    return req.pipe(tap(() => this.initData()));
   }
 }

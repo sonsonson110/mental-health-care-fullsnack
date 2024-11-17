@@ -1,0 +1,26 @@
+mat-form-field {
+  width: 100%;
+}
+
+.client-option-container {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+form {
+  padding-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.5rem;
+}
