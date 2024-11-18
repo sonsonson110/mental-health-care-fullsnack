@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '../../../environment/dev.environment';
+import { environment } from '../../../environments/environment.dev';
 import { TherapistSummaryResponse } from '../models/modules/therapists/therapist-summary-response.model';
 import { TherapistSummariesRequest } from '../models/modules/therapists/therapist-summaries-request.model';
 import { TherapistDetailResponse } from '../models/modules/therapists/therapist-detail-response.model';

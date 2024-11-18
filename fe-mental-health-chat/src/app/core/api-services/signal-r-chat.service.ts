@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environment/dev.environment';
+import { environment } from '../../../environments/environment.dev';
 import * as signalR from '@microsoft/signalr';
 import { AuthApiService } from './auth-api.service';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -37,21 +37,22 @@ export class SignalRChatService {
 
     this.hubConnection
       .start()
-      .then(() => {
-        this.toastr.clear();
-        this.connectionState.next(true);
-      })
+      .then(() => this.connectionState.next(true))
       .catch(() => {
-        console.log('Websocket failed to start');
-        this.toastr.error(
-          'Try to refresh the page or contact author',
-          'Websocket failed to start',
-          { disableTimeOut: true }
-        );
+        // error is considered only if connection state is true
+        // connection state can only be set to false from here or stopConnection method
+        if (this.connectionState.value) {
+          this.connectionState.next(false);
+          console.log('Websocket failed to start');
+          this.toastr.error(
+            'Try to refresh the page or contact author',
+            'Websocket failed to start',
+            { disableTimeOut: true }
+          );
+        }
       });
 
     this.hubConnection.onreconnecting(() => {
-      this.connectionState.next(false);
       this.toastr.warning('Attempting to reconnect...', undefined, {
         disableTimeOut: true,
       });
@@ -66,8 +67,8 @@ export class SignalRChatService {
 
   async stopConnection() {
     if (this.hubConnection) {
-      await this.hubConnection.stop();
       this.connectionState.next(false);
+      await this.hubConnection.stop();
     }
   }
 

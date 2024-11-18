@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environment/dev.environment';
+import { environment } from '../../../environments/environment.dev';
 import { CreateUserRequest } from '../models/modules/register/create-user-request.model';
 import { UserDetailResponse } from '../models/modules/profile/user-detail-response.model';
 import { UpdateUserRequest } from '../models/modules/profile/update-user-request.model';

@@ -15,6 +15,7 @@ import { TherapistsApiService } from '../../../core/api-services/therapists-api.
 import { PrivateSessionSchedulesApiService } from '../../../core/api-services/private-session-schedules-api.service';
 import { mapPrivateSessionScheduleToCalendarEvent } from '../../../core/mappers';
 import { CreateUpdateScheduleRequest } from '../../../core/models/modules/manage-schedules/create-update-schedule-request.model';
+import { PrivateSessionScheduleResponse } from '../../../core/models/modules/manage-schedules/private-session-schedule-response.model';
 
 @Injectable()
 export class ManageSessionsStateService {
@@ -43,29 +44,32 @@ export class ManageSessionsStateService {
     forkJoin({
       clients: this.therapistsApiService.getCurrentClients(),
       // Get schedules for the current week when initializing
-      schedules: this.privateSessionSchedulesApiService.getTherapistSchedules({
-        startDate: format(
-          startOfWeek(this.inlineCalendarDateSubject.value, { weekStartsOn: 1 }),
-          'yyyy-MM-dd'
-        ),
-        endDate: format(addWeeks(this.inlineCalendarDateSubject.value, 1), 'yyyy-MM-dd'),
-      }),
+      schedules: this.fetchSchedulesForCurrentPeriod(),
     })
       .pipe(finalize(() => this.loadingSubject.next(false)))
       .subscribe({
         next: ({ clients, schedules }) => {
           this.currentClientSubject.next(clients);
-          const events = schedules.map(mapPrivateSessionScheduleToCalendarEvent);
-          this.eventsSubject.next(events);
-        },
-        error: error => {
-          // Handle error here if needed
-          console.error('Error loading data:', error);
+          this.updateEvents(schedules);
         },
       });
   }
 
-  loadEvents(startDate: string, endDate: string) {
+  private updateEvents(schedules: PrivateSessionScheduleResponse[]) {
+    const events = schedules.map(mapPrivateSessionScheduleToCalendarEvent);
+    this.eventsSubject.next(events);
+  }
+
+  private fetchSchedulesForCurrentPeriod() {
+    const currentDate = this.inlineCalendarDateSubject.value;
+    return this.privateSessionSchedulesApiService.getTherapistSchedules({
+      startDate: format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
+      endDate: format(addWeeks(currentDate, 1), 'yyyy-MM-dd'),
+      privateRegistrationIds: this.selectedRegistrationsSubject.value,
+    });
+  }
+
+  private loadEvents(startDate: string, endDate: string) {
     this.loadingSubject.next(true);
 
     this.privateSessionSchedulesApiService
@@ -75,10 +79,7 @@ export class ManageSessionsStateService {
         privateRegistrationIds: this.selectedRegistrationsSubject.value,
       })
       .pipe(finalize(() => this.loadingSubject.next(false)))
-      .subscribe(schedules => {
-        const events = schedules.map(mapPrivateSessionScheduleToCalendarEvent);
-        this.eventsSubject.next(events);
-      });
+      .subscribe(schedules => this.updateEvents(schedules));
   }
 
   setInlineCalendarDate(date: Date, daysInWeek = 7): void {
@@ -114,6 +115,13 @@ export class ManageSessionsStateService {
 
   setSelectedRegistrations(registrations: string[]): void {
     this.selectedRegistrationsSubject.next(registrations);
+    this.loadEvents(
+      format(
+        startOfWeek(this.inlineCalendarDateSubject.value, { weekStartsOn: 1 }),
+        'yyyy-MM-dd'
+      ),
+      format(addWeeks(this.inlineCalendarDateSubject.value, 1), 'yyyy-MM-dd')
+    );
   }
 
   submitSchedule(request: CreateUpdateScheduleRequest, mode: 'create' | 'update') {
@@ -122,6 +130,16 @@ export class ManageSessionsStateService {
         ? this.privateSessionSchedulesApiService.createSchedule(request)
         : this.privateSessionSchedulesApiService.updateSchedule(request.id!, request);
 
-    return req.pipe(tap(() => this.initData()));
+    return req.pipe(
+      tap(() =>
+        this.loadEvents(
+          format(
+            startOfWeek(this.inlineCalendarDateSubject.value, { weekStartsOn: 1 }),
+            'yyyy-MM-dd'
+          ),
+          format(addWeeks(this.inlineCalendarDateSubject.value, 1), 'yyyy-MM-dd')
+        )
+      )
+    );
   }
 }

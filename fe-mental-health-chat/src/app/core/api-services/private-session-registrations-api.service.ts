@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environment/dev.environment';
+import { environment } from '../../../environments/environment.dev';
 import { HttpClient } from '@angular/common/http';
 import { RegisterTherapist } from '../models/modules/therapists/register-therapist-request.model';
 import { ClientRegistrationResponse } from '../models/modules/manage-registrations/client-registration-response.model';
