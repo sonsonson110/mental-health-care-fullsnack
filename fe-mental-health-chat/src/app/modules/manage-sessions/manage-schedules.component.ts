@@ -103,9 +103,10 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
       this.updateViewDate(date);
     });
 
-    this.selectedRegistrationControl.valueChanges.subscribe(
-      value => value && this.stateService.setSelectedRegistrations(value)
-    );
+    this.selectedRegistrationControl.valueChanges.subscribe(value => {
+      if (!value || value.length === 0) return;
+      this.stateService.setSelectedRegistrations(value);
+    });
   }
 
   ngOnDestroy() {
@@ -228,11 +229,11 @@ export class ManageSchedulesComponent implements OnInit, OnDestroy {
       data: {
         id: request?.id,
         privateSessionRegistrationId: request?.privateSessionRegistrationId,
-        date: request?.date,            // yyyy-MM-dd
-        startTime: request?.startTime,  // hh:mm a
-        endTime: request?.endTime,      // hh:mm a
+        date: request?.date, // yyyy-MM-dd
+        startTime: request?.startTime, // hh:mm a
+        endTime: request?.endTime, // hh:mm a
         noteFromTherapist: request?.noteFromTherapist,
-        isCancelled: request?.isCancelled
+        isCancelled: request?.isCancelled,
       },
     });
   }
