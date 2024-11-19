@@ -23,7 +23,7 @@ export class PrivateSessionRegistrationsApiService {
     return this.http.get<ClientRegistrationResponse[]>(`${this.baseUrl}/client-registrations`);
   }
 
-  updateClientRegistration(id: string, body: UpdateClientRegistrationRequest) {
-    return this.http.put(`${this.baseUrl}/${id}`, body);
+  updateClientRegistration(body: UpdateClientRegistrationRequest) {
+    return this.http.put(`this.baseUrl`, body);
   }
 }

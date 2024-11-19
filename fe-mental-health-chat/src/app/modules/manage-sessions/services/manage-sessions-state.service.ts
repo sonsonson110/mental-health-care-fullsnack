@@ -128,7 +128,7 @@ export class ManageSessionsStateService {
     const req =
       mode === 'create'
         ? this.privateSessionSchedulesApiService.createSchedule(request)
-        : this.privateSessionSchedulesApiService.updateSchedule(request.id!, request);
+        : this.privateSessionSchedulesApiService.updateSchedule(request);
 
     return req.pipe(
       tap(() =>

@@ -7,7 +7,7 @@ public class PublicSession: TimestampMarkedEntityBase
 {
     public required string Title { get; set; }
     public required string Description { get; set; }
-    public string? ThumbnailUrl { get; set; }
+    public string? ThumbnailName { get; set; }
     public DateOnly Date { get; set; }
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }

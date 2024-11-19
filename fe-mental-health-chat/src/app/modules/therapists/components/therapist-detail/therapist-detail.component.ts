@@ -40,6 +40,7 @@ import { ToastrService } from 'ngx-toastr';
     MatListModule,
     CalendarModule,
     MatDialogModule,
+    MatTooltipModule
   ],
   templateUrl: './therapist-detail.component.html',
   styleUrl: './therapist-detail.component.scss',
@@ -66,6 +67,20 @@ export class TherapistDetailComponent implements OnInit {
         this.loadTherapistDetail(routeId);
       }
     });
+  }
+
+  combinedEducationMajorDegree(major: string | null, degree: string| null): string {
+    let result = '';
+    if (major) {
+      result += major;
+    }
+    if (degree) {
+      if (result) {
+        result += ', ';
+      }
+      result += degree;
+    }
+    return result
   }
 
   loadTherapistDetail(id: string) {

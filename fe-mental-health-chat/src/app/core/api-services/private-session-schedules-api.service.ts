@@ -36,7 +36,7 @@ export class PrivateSessionSchedulesApiService {
     return this.http.post<{ id: string }>(this.baseEndpoint, request);
   }
 
-  updateSchedule(id: string, request: CreateUpdateScheduleRequest) {
-    return this.http.put(this.baseEndpoint + '/' + id, request);
+  updateSchedule(request: CreateUpdateScheduleRequest) {
+    return this.http.put(this.baseEndpoint, request);
   }
 }

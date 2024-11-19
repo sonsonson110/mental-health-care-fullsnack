@@ -80,8 +80,9 @@
                   <mat-list>
                     @for (experience of therapistDetail!.experiences; track $index) {
                       <mat-list-item>
-                        <span matListItemTitle>{{ experience.organization }}</span>
-                        <span matListItemLine>{{ experience.position }}</span>
+                        <span matListItemTitle
+                              [matTooltip]="experience.organization">{{ experience.organization }}</span>
+                        <span matListItemLine [matTooltip]="experience.position">{{ experience.position }}</span>
                         <span matListItemLine>{{ experience.startDate | date: 'MM/dd/yyyy' }}
                           - {{ experience.endDate ? (experience.endDate | date: 'MM/dd/yyyy') : 'present' }}</span>
                       </mat-list-item>
@@ -104,8 +105,10 @@
                   <mat-list>
                     @for (education of therapistDetail!.educations; track $index) {
                       <mat-list-item>
-                        <span matListItemTitle>{{ education.institution }}</span>
-                        <span matListItemLine *ngIf="education.major">{{ education.major }}<span
+                        <span matListItemTitle [matTooltip]="education.institution">{{ education.institution }}</span>
+                        <span matListItemLine
+                              [matTooltip]="combinedEducationMajorDegree(education.major, education.degree)"
+                              *ngIf="education.major">{{ education.major }}<span
                           *ngIf="education.degree">, {{ education.degree }}</span></span>
                         <span matListItemLine>{{ education.startDate | date: 'MM/dd/yyyy' }}
                           - {{ education.endDate ? (education.endDate | date: 'MM/dd/yyyy') : 'present' }}</span>
@@ -130,8 +133,8 @@
                     @for (certification of therapistDetail!.certifications; track $index) {
                       <p>
                         <mat-list-item lines="4">
-                          <span matListItemTitle>{{ certification.name }}</span>
-                          <span matListItemLine
+                          <span matListItemTitle [matTooltip]="certification.name">{{ certification.name }}</span>
+                          <span matListItemLine [matTooltip]="certification.issuingOrganization"
                                 *ngIf="certification.issuingOrganization">{{ certification.issuingOrganization }}</span>
                           <span matListItemLine
                                 class="mat-body-small">{{ certification.dateIssued | date: 'MM/dd/yyyy' }}

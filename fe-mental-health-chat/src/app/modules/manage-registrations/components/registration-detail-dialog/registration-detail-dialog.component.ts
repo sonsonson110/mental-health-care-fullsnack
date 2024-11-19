@@ -96,7 +96,7 @@ export class RegistrationDetailDialogComponent {
     const newStatus = this.clientRegistrationFormGroup.value.status!;
 
     this.stateService
-      .updateRegistrationStatusById(this.data.id, {
+      .updateRegistrationStatusById({
         id: this.data.id,
         noteFromTherapist:
           this.clientRegistrationFormGroup.value.noteFromTherapist ?? null,

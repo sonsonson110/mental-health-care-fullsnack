@@ -13,7 +13,7 @@ export const baseNavItems: NavItem[] = [
   },
   {
     displayName: 'Posts',
-    iconName: 'article',
+    iconName: 'dynamic_feed',
     route: 'posts',
   },
   {
@@ -54,4 +54,9 @@ export const therapistNavItems: NavItem[] = [
     iconName: 'edit_calendar',
     route: 'manage-schedules',
   },
+  {
+    displayName: 'My public sessions',
+    iconName: 'campaign',
+    route: 'my-public-sessions',
+  }
 ];

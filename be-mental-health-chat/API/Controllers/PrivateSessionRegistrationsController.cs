@@ -40,16 +40,15 @@ public class PrivateSessionRegistrationsController : MentalHeathControllerBase
     }
 
     [Authorize(Roles = "Therapist")]
-    [HttpPut("{id:guid}")]
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateClientRegistrations([FromRoute] Guid id,
-        [FromBody] UpdateClientRegistrationRequestDto request)
+    public async Task<IActionResult> UpdateClientRegistrations([FromBody] UpdateClientRegistrationRequestDto request)
     {
-        var result = await _privateSessionRegistrationsService.UpdateClientRegistrationsAsync(id, GetUserId(), request);
+        var result = await _privateSessionRegistrationsService.UpdateClientRegistrationsAsync(GetUserId(), request);
         return result.ReturnFromPut();
     }
 }

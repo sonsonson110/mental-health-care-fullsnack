@@ -71,45 +71,18 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
     {
         #region validation
 
-        // check if time range is valid
-        if (request.StartTime >= request.EndTime)
-        {
-            return new Result<EntityBase>(new BadRequestException("Invalid time range"));
-        }
-
-        // check if time rage from the past
+        // check if time rage from the past (must start after now)
         if (request.Date.ToDateTime(request.StartTime) < DateTime.Now)
         {
             return new Result<EntityBase>(new BadRequestException("Cannot create schedule in the past"));
         }
 
-        // check if registration valid
-        var isRegistrationValid = await _context.PrivateSessionRegistrations
-            .Where(registration => registration.Id == request.PrivateSessionRegistrationId)
-            .Where(registration => registration.TherapistId == therapistId)
-            .Where(registration => registration.Status == PrivateSessionRegistrationStatus.APPROVED)
-            .AnyAsync();
-
-        if (!isRegistrationValid)
+        var validationResult = await ValidateCreateUpdateScheduleAsync(therapistId, request);
+        if (validationResult.HasError)
         {
-            return new Result<EntityBase>(new BadRequestException("Invalid registration"));
+            return new Result<EntityBase>(new BadRequestException(validationResult.ErrorMessage!));
         }
-
-        // check if schedule time is occupied, start time and end time are inclusive
-        var isScheduleTimeOccupied = await _context.PrivateSessionSchedules
-            .Where(schedule => schedule.Date == request.Date)
-            .AnyAsync(s =>
-                // Case 1: New start time falls within existing schedule
-                (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
-                // Case 2: New end time falls within existing schedule
-                (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
-                // Case 3: New schedule completely encompasses existing schedule
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime));
-        if (isScheduleTimeOccupied)
-        {
-            return new Result<EntityBase>(new BadRequestException("Schedule time is occupied"));
-        }
-
+        
         #endregion
 
         var newId = Guid.NewGuid();
@@ -125,7 +98,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         return new Result<EntityBase>(new EntityBase { Id = newId });
     }
 
-    public async Task<Result<bool>> UpdateScheduleAsync(Guid therapistId, Guid scheduleId,
+    public async Task<Result<bool>> UpdateScheduleAsync(Guid therapistId,
         CreateUpdateScheduleRequestDto request)
     {
         #region validation
@@ -135,14 +108,8 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             return new Result<bool>(new BadRequestException("Id is required"));
         }
 
-        // check if time range is valid
-        if (request.StartTime >= request.EndTime)
-        {
-            return new Result<bool>(new BadRequestException("Invalid time range"));
-        }
-
-        // check if time rage from the past
-        if (request.Date.ToDateTime(request.StartTime) < DateTime.Now)
+        // check if time rage from the past (ongoing session is not counted)
+        if (request.Date.ToDateTime(request.EndTime) < DateTime.Now)
         {
             return new Result<bool>(new BadRequestException("Cannot update schedule in the past"));
         }
@@ -156,33 +123,11 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return new Result<bool>(new NotFoundException("Schedule not found"));
         }
-
-        // check if registration valid
-        var isRegistrationValid = await _context.PrivateSessionRegistrations
-            .Where(registration => registration.Id == request.PrivateSessionRegistrationId)
-            .Where(registration => registration.TherapistId == therapistId)
-            .Where(registration => registration.Status == PrivateSessionRegistrationStatus.APPROVED)
-            .AnyAsync();
-
-        if (!isRegistrationValid)
+        
+        var validationResult = await ValidateCreateUpdateScheduleAsync(therapistId, request);
+        if (validationResult.HasError)
         {
-            return new Result<bool>(new BadRequestException("Invalid registration"));
-        }
-
-        // check if schedule time is occupied, start time and end time are inclusive
-        var isScheduleTimeOccupied = await _context.PrivateSessionSchedules
-            .Where(schedule => schedule.Date == request.Date)
-            .Where(schedule => schedule.Id != scheduleId)
-            .AnyAsync(s =>
-                // Case 1: New start time falls within existing schedule
-                (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
-                // Case 2: New end time falls within existing schedule
-                (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
-                // Case 3: New schedule completely encompasses existing schedule
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime));
-        if (isScheduleTimeOccupied)
-        {
-            return new Result<bool>(new BadRequestException("Schedule time is occupied"));
+            return new Result<bool>(new BadRequestException(validationResult.ErrorMessage!));
         }
 
         #endregion
@@ -196,5 +141,62 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         // TODO: Schedule a changes notification for the client
 
         return true;
+    }
+
+    private async Task<(bool HasError, string? ErrorMessage)> ValidateCreateUpdateScheduleAsync(Guid therapistId,
+        CreateUpdateScheduleRequestDto request)
+    {
+        // check if time range is valid
+        if (request.StartTime >= request.EndTime)
+        {
+            return (true, "Invalid time range");
+        }
+        
+        // check if registration valid
+        var isRegistrationValid = await _context.PrivateSessionRegistrations
+            .Where(registration => registration.Id == request.PrivateSessionRegistrationId)
+            .Where(registration => registration.TherapistId == therapistId)
+            .Where(registration => registration.Status == PrivateSessionRegistrationStatus.APPROVED)
+            .AnyAsync();
+        if (!isRegistrationValid)
+        {
+            return (true, "Invalid registration");
+        }
+        
+        // check if schedule time is occupied other schedules, start time and end time are inclusive
+        var hasPrivateSessionScheduleOccupied = await _context.PrivateSessionSchedules
+            .Where(schedule => schedule.Date == request.Date)
+            .Where(schedule => request.Id == null || schedule.Id != request.Id) // skip self check if updating
+            .AnyAsync(s =>
+                // Case 1: New start time falls within existing schedule
+                (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
+                // Case 2: New end time falls within existing schedule
+                (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
+                // Case 3: New schedule completely encompasses existing schedule
+                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime));
+        if (hasPrivateSessionScheduleOccupied)
+        {
+            return (true, "Private session schedule time is occupied");
+        }
+        
+        // check if schedule time is occupied with therapist public session
+        var hasPublicSessionOccupied = await _context.PublicSessions
+            .Where(s => s.TherapistId == therapistId
+                        && s.Date == request.Date
+                        && !s.IsCancelled)
+            .Where(s =>
+                // Case 1: New session starts during an existing session
+                (s.StartTime <= request.StartTime && s.EndTime > request.StartTime) ||
+                // Case 2: New session ends during an existing session
+                (s.StartTime < request.EndTime && s.EndTime >= request.EndTime) ||
+                // Case 3: New session completely contains an existing session
+                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime))
+            .AnyAsync();
+
+        if (hasPublicSessionOccupied)
+            return (true,
+                $"A public session already exists on {request.Date} between {request.StartTime} and {request.EndTime}"); 
+
+        return (false, null);
     }
 }

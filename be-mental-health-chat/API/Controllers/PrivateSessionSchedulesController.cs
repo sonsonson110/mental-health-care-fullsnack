@@ -40,16 +40,15 @@ public class PrivateSessionSchedulesController : MentalHeathControllerBase
         return result.ReturnFromPost();
     }
 
-    [HttpPut("{scheduleId:guid}")]
+    [HttpPut]
     [Authorize(Roles = "Therapist")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> UpdateSchedule([FromRoute] Guid scheduleId,
-        [FromBody] CreateUpdateScheduleRequestDto request)
+    public async Task<IActionResult> UpdateSchedule([FromBody] CreateUpdateScheduleRequestDto request)
     {
-        var result = await _privateSessionSchedulesService.UpdateScheduleAsync(GetUserId(), scheduleId, request);
+        var result = await _privateSessionSchedulesService.UpdateScheduleAsync(GetUserId(), request);
         return result.ReturnFromPut();
     }
 }

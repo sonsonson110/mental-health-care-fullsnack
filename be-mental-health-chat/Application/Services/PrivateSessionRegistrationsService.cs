@@ -133,13 +133,13 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         return new Result<List<GetClientRegistrationsResponseDto>>(await clientRegistrationsQuery.ToListAsync());
     }
 
-    public async Task<Result<bool>> UpdateClientRegistrationsAsync(Guid registrationId, Guid therapistId,
+    public async Task<Result<bool>> UpdateClientRegistrationsAsync(Guid therapistId,
         UpdateClientRegistrationRequestDto request)
     {
         var registration = await _context.PrivateSessionRegistrations
             .Include(r => r.Client)
             .Include(r => r.Therapist)
-            .FirstOrDefaultAsync(r => r.Id == registrationId && r.TherapistId == therapistId);
+            .FirstOrDefaultAsync(r => r.Id == request.Id && r.TherapistId == therapistId);
 
         #region validate
 

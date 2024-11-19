@@ -36,19 +36,18 @@ export class ManageRegistrationsStateService {
     );
   }
 
-  updateRegistrationStatusById(id: string, body: UpdateClientRegistrationRequest) {
+  updateRegistrationStatusById(body: UpdateClientRegistrationRequest) {
     return this.privateSessionRegistrationApiService
-      .updateClientRegistration(id, body)
+      .updateClientRegistration(body)
       .pipe(
         tap(() => {
           const updatedRegistrations = this.privateSessionRegistrations.value.map(
             registration =>
-              registration.id === id
+              registration.id === body.id
                 ? {
                     ...registration,
                     status: body.status,
-                    noteFromTherapist: body.noteFromTherapist,
-                    id: id,
+                    noteFromTherapist: body.noteFromTherapist
                   }
                 : registration
           );
