@@ -2,6 +2,7 @@
 
 public enum PublicSessionFollowType
 {
-    INTERESTED = 0,
-    ATTENDING = 1
+    NONE = 0,
+    INTERESTED = 1,
+    ATTENDING = 2
 }

@@ -2,6 +2,7 @@
 using API.Extensions;
 using Application.DTOs.PublicSessionsService;
 using Application.Services.Interfaces;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ public class PublicSessionsController : MentalHeathControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTherapistPublicSessions([FromQuery] GetPublicSessionSummariesRequestDto request)
     {
-        var therapistPublicSessions = await _publicSessionsService.GetPublicSessionSummariesAsync(request);
+        var therapistPublicSessions = await _publicSessionsService.GetPublicSessionSummariesAsync(GetUserId(), request);
         return Ok(therapistPublicSessions);
     }
 
@@ -58,5 +59,14 @@ public class PublicSessionsController : MentalHeathControllerBase
         var result = await _publicSessionsService.GetPublicSessionFollowersAsync(sessionId);
         return result.ReturnFromGet();
     }
-    
+
+    [HttpPatch("{sessionId:guid}/follow")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> FollowPublicSession([FromRoute] Guid sessionId,
+        [FromBody] FollowPublicSessionRequestDto request)
+    {
+        var result = await _publicSessionsService.FollowPublicSessionAsync(GetUserId(), sessionId, request);
+        return result.ReturnFromPut();
+    }
 }

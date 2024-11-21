@@ -1,0 +1,95 @@
+<mat-card class="card" appearance="outlined">
+  <mat-card-header>
+    <img
+      mat-card-avatar
+      [ngSrc]="publicSessionSummary.therapist.avatarName | parseAvatarUrl: publicSessionSummary.therapist.gender"
+      width="30" height="30" alt="avatar"
+    />
+    <mat-card-title>{{ publicSessionSummary.therapist.fullName }}</mat-card-title>
+    <mat-card-subtitle class="subtitle mat-label-medium">
+      {{ publicSessionSummary.updatedAt | date: 'medium' }}
+    </mat-card-subtitle>
+    @if (publicSessionSummary.isCancelled) {
+      <mat-chip-set>
+        <mat-chip highlighted>Cancelled</mat-chip>
+      </mat-chip-set>
+    }
+    <span class="spacer"></span>
+    @if (canEditSession() || canReportSession()) {
+      <button mat-icon-button [matMenuTriggerFor]="more_menu">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+      <mat-menu #more_menu>
+        @if (canEditSession()) {
+          <button mat-menu-item (click)="onEditClick()">Edit</button>
+        }
+        @if (canReportSession()) {
+          <button mat-menu-item>Report</button>
+        }
+      </mat-menu>
+    }
+  </mat-card-header>
+
+  @if (publicSessionSummary.thumbnailName) {
+    <img mat-card-image
+         class="thumbnail"
+         [src]="publicSessionSummary.thumbnailName | parseImageUrl"
+         alt="thumbnail" />
+  }
+
+  <mat-card-content>
+    <p class="mat-title-large">{{ publicSessionSummary.title }}</p>
+    <p class="mat-body-large">{{ publicSessionSummary.description }}</p>
+
+    <div class="session-details">
+      <div class="detail-item">
+        <mat-icon>calendar_today</mat-icon>
+        <span class="mat-body-large">{{ publicSessionSummary.date | date:'fullDate' }}</span>
+      </div>
+
+      <div class="detail-item">
+        <mat-icon>schedule</mat-icon>
+        <span class="mat-body-large">{{ publicSessionSummary.startTime }} - {{ publicSessionSummary.endTime }}</span>
+      </div>
+
+      <div class="detail-item">
+        <mat-icon>location_on</mat-icon>
+        <span class="mat-body-large">{{ publicSessionSummary.location }}</span>
+      </div>
+
+      <div class="detail-item">
+        <mat-icon>category</mat-icon>
+        <span class="mat-body-large">{{ publicSessionSummary.type | publicSessionType }}</span>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-button (click)="onFollowersClick()">{{ publicSessionSummary.followerCount }} followed</button>
+    @if (canFollowSession()) {
+      <button mat-button [matMenuTriggerFor]="follow_type_menu" [disabled]="publicSessionSummary.isCancelled">
+        <div class="follow-btn">
+          @switch (publicSessionSummary.followingType) {
+            @case (PublicSessionFollowType.NONE) {
+              <mat-icon>add</mat-icon>
+              Follow Session
+            }
+            @case (PublicSessionFollowType.ATTENDING) {
+              <mat-icon>check</mat-icon>
+              Attending
+            }
+            @case (PublicSessionFollowType.INTERESTED) {
+              <mat-icon>star</mat-icon>
+              Interested
+            }
+          }
+        </div>
+      </button>
+      <mat-menu #follow_type_menu>
+        @for (type of publicSessionFollowTypes; track type.key) {
+          <button mat-menu-item (click)="onFollowSelect(type.key)">{{ type.value }}</button>
+        }
+      </mat-menu>
+    }
+  </mat-card-actions>
+</mat-card>

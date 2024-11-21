@@ -1,0 +1,16 @@
+<mat-progress-bar mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
+<div class="root-container">
+  <div class="content-container">
+    <button mat-flat-button style="align-self: flex-start" (click)="openPublicSessionDialog()">
+      <mat-icon>add</mat-icon>
+      Add new public session
+    </button>
+    @for (summary of publicSessionSummaries$ | async; track summary.id) {
+      <app-public-session-summary
+        [publicSessionSummary]="summary"
+        (editClickEvent)="onEditClick(summary)"
+        (followersClickEvent)="openFollowersDialog(summary.id!)">
+      </app-public-session-summary>
+    }
+  </div>
+</div>

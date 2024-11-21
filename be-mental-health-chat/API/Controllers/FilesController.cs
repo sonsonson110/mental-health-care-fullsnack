@@ -16,14 +16,14 @@ public class FilesController: MentalHeathControllerBase
     }
     
     [HttpPost]
-    [Route("avatar")]
+    [Route("images")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+    public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
     {
-        var result = await _fileStorageService.UploadAvatar(file);
+        var result = await _fileStorageService.UploadImage(file);
         var host = $"{Request.Scheme}://{Request.Host}";
-        var fileUrl = $"{host}/images/avatar/{result.FileName}";
+        var fileUrl = $"{host}/images/{result.FileName}";
         return Created(fileUrl, result);
     }
 }

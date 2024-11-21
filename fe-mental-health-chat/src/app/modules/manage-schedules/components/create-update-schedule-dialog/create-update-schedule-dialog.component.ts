@@ -4,25 +4,26 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { addDays, format, isAfter, parse, setHours, setMinutes } from 'date-fns';
+import { format } from 'date-fns';
 import { MatSelectModule } from '@angular/material/select';
 import { ManageSessionsStateService } from '../../services/manage-sessions-state.service';
 import { CurrentClientResponse } from '../../../../core/models/modules/manage-schedules/current-client-response.model';
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ParseAvatarUrlPipe } from '../../../../shared/pipes/parse-avatar-url.pipe';
 import { CreateUpdateScheduleRequest } from '../../../../core/models/modules/manage-schedules/create-update-schedule-request.model';
 import { ToastrService } from 'ngx-toastr';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { validateTimeRange } from '../../../../shared/validators/time-range.validator';
+import { convert12to24 } from '../../../../shared/utils/date-parse';
+import { generateTimeOptions } from '../../../../shared/utils/generate-time-options';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-create-update-schedule-dialog',
@@ -38,7 +39,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatDatepickerModule,
     ParseAvatarUrlPipe,
     NgOptimizedImage,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatProgressSpinner,
   ],
   templateUrl: './create-update-schedule-dialog.component.html',
   styleUrl: './create-update-schedule-dialog.component.scss',
@@ -54,7 +56,9 @@ export class CreateUpdateScheduleDialogComponent {
   currentClients$: Observable<CurrentClientResponse[]>;
 
   // Create array of time options from 5 AM to 12 AM
-  readonly timeOptions: string[] = this.generateTimeOptions();
+  readonly timeOptions: string[] = generateTimeOptions();
+
+  isSubmitting = false;
 
   scheduleFormGroup = new FormGroup(
     {
@@ -74,7 +78,7 @@ export class CreateUpdateScheduleDialogComponent {
       ),
       isCancelled: new FormControl(this.data?.isCancelled),
     },
-    { validators: this.validateTimeRange() }
+    { validators: validateTimeRange() }
   );
 
   constructor(
@@ -84,30 +88,13 @@ export class CreateUpdateScheduleDialogComponent {
     this.currentClients$ = stateService.currentClient$;
   }
 
-  private validateTimeRange(): ValidatorFn {
-    return (formGroup: AbstractControl): ValidationErrors | null => {
-      const startTime = formGroup.get('startTime')?.value;
-      const endTime = formGroup.get('endTime')?.value;
-      const baseDate = formGroup.get('date')?.value || new Date();
-
-      if (startTime && endTime) {
-        const startDateTime = parse(startTime, 'hh:mm a', baseDate);
-        const endDateTime = parse(endTime, 'hh:mm a', baseDate);
-
-        if (!isAfter(endDateTime, startDateTime)) {
-          return { invalidTimeRange: true };
-        }
-      }
-
-      return null;
-    };
-  }
-
   onSubmit() {
     if (this.scheduleFormGroup.valid) {
+      this.isSubmitting = true;
+
       const date = format(this.scheduleFormGroup.value.date!, 'yyyy-MM-dd');
-      const startTime = this.convert12to24(this.scheduleFormGroup.value.startTime!);
-      const endTime = this.convert12to24(this.scheduleFormGroup.value.endTime!);
+      const startTime = convert12to24(this.scheduleFormGroup.value.startTime!);
+      const endTime = convert12to24(this.scheduleFormGroup.value.endTime!);
 
       this.stateService
         .submitSchedule(
@@ -125,24 +112,11 @@ export class CreateUpdateScheduleDialogComponent {
           },
           this.mode
         )
+        .pipe(finalize(() => (this.isSubmitting = false)))
         .subscribe(() => {
           this.toastr.success(`Schedule has been successfully ${this.mode}.`);
           this.dialogRef.close();
         });
     }
-  }
-
-  private convert12to24(time: string): string {
-    return format(parse(time, 'hh:mm a', new Date()), 'HH:mm:ss');
-  }
-
-  private generateTimeOptions(): string[] {
-    const times: string[] = [];
-    for (let hour = 5; hour <= 22; hour++) {
-      // Add hour mark
-      times.push(format(setHours(setMinutes(new Date(), 0), hour), 'hh:mm a'));
-      times.push(format(setHours(setMinutes(new Date(), 30), hour), 'hh:mm a'));
-    }
-    return times;
   }
 }

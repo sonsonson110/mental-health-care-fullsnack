@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.FileService;
 
-public class UploadAvatarResponseDto
+public class UploadImageResponseDto
 {
     public string FileName { get; set; }
 }

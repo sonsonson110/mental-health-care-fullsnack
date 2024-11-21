@@ -234,7 +234,7 @@ export class RegisterComponent implements OnInit {
     };
 
     const createUser$ = this.selectedFile
-      ? this.filesService.uploadAvatar(this.selectedFile).pipe(
+      ? this.filesService.uploadImage(this.selectedFile).pipe(
           switchMap(resp => {
             createUserRequest.avatarName = resp.fileName;
             return this.usersService.register(createUserRequest);

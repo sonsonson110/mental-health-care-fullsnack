@@ -4,6 +4,7 @@ using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
 using LanguageExt.Common;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,7 @@ public class PublicSessionsService : IPublicSessionsService
         _mapper = mapper;
     }
 
-    public async Task<List<GetPublicSessionSummaryResponseDto>> GetPublicSessionSummariesAsync(
+    public async Task<List<GetPublicSessionSummaryResponseDto>> GetPublicSessionSummariesAsync(Guid userId,
         GetPublicSessionSummariesRequestDto request)
     {
         var publicSessions = await _context.PublicSessions
@@ -40,6 +41,11 @@ public class PublicSessionsService : IPublicSessionsService
                 IsCancelled = p.IsCancelled,
                 ThumbnailName = p.ThumbnailName,
                 FollowerCount = p.Followers.Count,
+                FollowingType = p.Followers
+                    .Where(f => f.UserId == userId)
+                    .Select(f => f.Type)
+                    .FirstOrDefault(),
+                UpdatedAt = p.UpdatedAt,
                 Therapist = new TherapistDto
                 {
                     Id = p.TherapistId,
@@ -76,34 +82,36 @@ public class PublicSessionsService : IPublicSessionsService
         {
             return new Result<bool>(new BadRequestException("Id cannot be empty"));
         }
-        
+
         var oldPublicSession = _context.PublicSessions.FirstOrDefault(p => p.Id == request.Id);
         if (oldPublicSession == null)
         {
             return new Result<bool>(new NotFoundException("Public session not found"));
         }
-        
+
         var validationResult = await ValidateCreateUpdatePublicSession(therapistId, request);
         if (validationResult.HasError)
         {
             return new Result<bool>(new BadRequestException(validationResult.ErrorMessage!));
         }
-        
+
         _mapper.Map(request, oldPublicSession);
         _context.PublicSessions.Update(oldPublicSession);
-        
+
         // TODO: Create a changes notification for the client
         // TODO: Schedule a changes notification for the client
-        
+
         return await _context.SaveChangesAsync() > 0;
     }
 
-    public async Task<Result<List<GetPublicSessionFollowerResponseDto>>> GetPublicSessionFollowersAsync(Guid publicSessionId)
+    public async Task<Result<List<GetPublicSessionFollowerResponseDto>>> GetPublicSessionFollowersAsync(
+        Guid publicSessionId)
     {
         var publicSessionExists = _context.PublicSessions.Any(p => p.Id == publicSessionId);
         if (!publicSessionExists)
         {
-            return new Result<List<GetPublicSessionFollowerResponseDto>>(new NotFoundException("Public session not found"));
+            return new Result<List<GetPublicSessionFollowerResponseDto>>(
+                new NotFoundException("Public session not found"));
         }
 
         var followers = await _context.PublicSessionFollowers
@@ -111,15 +119,60 @@ public class PublicSessionsService : IPublicSessionsService
             .Where(e => e.PublicSessionId == publicSessionId)
             .Select(e => new GetPublicSessionFollowerResponseDto
             {
-                Id = e.PublicSessionId,
+                Id = e.Id,
                 UserId = e.UserId,
                 AvatarName = e.User.AvatarName,
                 FullName = e.User.FirstName + " " + e.User.LastName,
                 Gender = e.User.Gender,
                 Type = e.Type,
             }).ToListAsync();
-        
+
         return new Result<List<GetPublicSessionFollowerResponseDto>>(followers);
+    }
+
+    public async Task<Result<bool>> FollowPublicSessionAsync(Guid userId, Guid publicSessionId,
+        FollowPublicSessionRequestDto request)
+    {
+        var publicSessionExists = await _context.PublicSessions.AnyAsync(p =>
+            p.Id == publicSessionId && p.IsCancelled == false);
+
+        if (!publicSessionExists)
+        {
+            return new Result<bool>(new NotFoundException("Public session not found"));
+        }
+        
+        var currentFollowingStatus = await _context.PublicSessionFollowers
+            .Where(p => p.PublicSessionId == publicSessionId && p.UserId == userId)
+            .Select(p => p.Type)
+            .FirstOrDefaultAsync();
+
+        if (currentFollowingStatus != PublicSessionFollowType.NONE)
+        {
+            var query = _context.PublicSessionFollowers
+                .Where(f => f.UserId == userId && f.PublicSessionId == publicSessionId);
+            if (request.NewType != PublicSessionFollowType.NONE)
+            {
+                await query.ExecuteUpdateAsync(setter =>
+                    setter.SetProperty(f => f.Type, request.NewType));
+            }
+            else
+            {
+                await query.ExecuteDeleteAsync();
+            }
+        }
+        else
+        {
+            _context.PublicSessionFollowers.Add(new PublicSessionFollower
+            {
+                Id = Guid.NewGuid(),
+                PublicSessionId = publicSessionId,
+                UserId = userId,
+                Type = request.NewType,
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        return new Result<bool>(true);
     }
 
     private async Task<(bool HasError, string? ErrorMessage)> ValidateCreateUpdatePublicSession(Guid therapistId,

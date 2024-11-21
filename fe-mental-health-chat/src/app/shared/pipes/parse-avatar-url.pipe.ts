@@ -12,7 +12,7 @@ export class ParseAvatarUrlPipe implements PipeTransform {
     const defaultMaleAvatar = '/assets/default-avatar/boy.png';
 
     if (avatarName) {
-      return `${environment.avatarUrl}/${avatarName}`;
+      return `${environment.imageUrl}/${avatarName}`;
     }
 
     return gender === Gender.FEMALE ? defaultFemaleAvatar : defaultMaleAvatar;

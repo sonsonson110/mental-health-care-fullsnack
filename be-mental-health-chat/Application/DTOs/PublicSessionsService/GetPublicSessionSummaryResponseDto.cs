@@ -16,6 +16,8 @@ public class GetPublicSessionSummaryResponseDto
     public TimeOnly EndTime { get; set; }
     public bool IsCancelled { get; set; }
     public int FollowerCount { get; set; }
+    public PublicSessionFollowType? FollowingType { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class TherapistDto

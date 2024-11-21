@@ -19,7 +19,9 @@ import { NotFoundComponent } from './shared/components/not-found/not-found.compo
 import { ManageRegistrationsComponent } from './modules/manage-registrations/manage-registrations.component';
 import { therapistOnlyGuard } from './core/guards/therapist-only.guard';
 import { TherapistSummariesComponent } from './modules/therapists/components/therapist-summaries/therapist-summaries.component';
-import { ManageSchedulesComponent } from './modules/manage-sessions/manage-schedules.component';
+import { ManageSchedulesComponent } from './modules/manage-schedules/manage-schedules.component';
+import { MyPublicSessionsComponent } from './modules/my-public-sessions/my-public-sessions.component';
+import { PublicSessionsComponent } from './modules/public-sessions/public-sessions.component';
 
 export const routes: Routes = [
   {
@@ -57,21 +59,6 @@ export const routes: Routes = [
           {
             path: ':id',
             component: TherapistDetailComponent,
-            pathMatch: 'full',
-          },
-        ],
-      },
-
-      {
-        path: 'client-chats',
-        component: P2pConversationComponent,
-        data: { forModule: 'client-chats' },
-        children: [
-          { path: '', component: P2pConversationChatboxComponent, pathMatch: 'full' },
-          {
-            path: ':id',
-            component: P2pConversationChatboxComponent,
-            data: { forModule: 'client-chats' },
           },
         ],
       },
@@ -86,6 +73,23 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'public-sessions',
+        component: PublicSessionsComponent,
+      },
+      {
+        path: 'client-chats',
+        component: P2pConversationComponent,
+        data: { forModule: 'client-chats' },
+        children: [
+          { path: '', component: P2pConversationChatboxComponent, pathMatch: 'full' },
+          {
+            path: ':id',
+            component: P2pConversationChatboxComponent,
+            data: { forModule: 'client-chats' },
+          },
+        ],
+      },
+      {
         path: 'manage-registrations',
         component: ManageRegistrationsComponent,
         canActivate: [therapistOnlyGuard],
@@ -94,7 +98,12 @@ export const routes: Routes = [
         path: 'manage-schedules',
         component: ManageSchedulesComponent,
         canActivate: [therapistOnlyGuard],
-      }
+      },
+      {
+        path: 'my-public-sessions',
+        component: MyPublicSessionsComponent,
+        canActivate: [therapistOnlyGuard],
+      },
     ],
   },
 

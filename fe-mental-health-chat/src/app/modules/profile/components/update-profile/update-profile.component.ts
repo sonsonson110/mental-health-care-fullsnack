@@ -128,7 +128,7 @@ export class UpdateProfileComponent implements OnInit {
     this.usersService.getUserDetail().subscribe(userDetail => {
       this.userDetail = userDetail;
       this.previewUrl = this.userDetail.avatarName
-        ? `${environment.avatarUrl}/${this.userDetail.avatarName}`
+        ? `${environment.imageUrl}/${this.userDetail.avatarName}`
         : this.getDefaultAvatar();
       this.initializeUserDetailData();
       this.isLoading = false;
@@ -262,7 +262,7 @@ export class UpdateProfileComponent implements OnInit {
     };
 
     const updateUser$ = this.selectedFile
-      ? this.filesService.uploadAvatar(this.selectedFile).pipe(
+      ? this.filesService.uploadImage(this.selectedFile).pipe(
           switchMap(resp => {
             updateUserRequest.avatarName = resp.fileName;
             return this.usersService.updateUser(updateUserRequest);

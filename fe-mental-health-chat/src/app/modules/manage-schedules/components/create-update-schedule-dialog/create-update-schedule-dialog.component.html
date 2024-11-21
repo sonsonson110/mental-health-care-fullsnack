@@ -75,6 +75,10 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  @if (isSubmitting) {
+    <mat-spinner diameter="20"></mat-spinner>
+  }
+  <span class="spacer"></span>
   <button mat-button mat-dialog-close>Cancel</button>
   <button mat-button (click)="onSubmit()" [disabled]="scheduleFormGroup.invalid">{{capitalizedMode}}</button>
 </mat-dialog-actions>

@@ -17,7 +17,7 @@ public class FileStorageService : IFileStorageService
         _environment = environment;
     }
 
-    public async Task<UploadAvatarResponseDto> UploadAvatar(IFormFile file)
+    public async Task<UploadImageResponseDto> UploadImage(IFormFile file)
     {
         if (file == null || file.Length == 0)
         {
@@ -31,7 +31,7 @@ public class FileStorageService : IFileStorageService
             throw new ArgumentException("Invalid file type. Only image files (jpg, jpeg, png, gif) are allowed.");
         }
 
-        var uploadsFolder = Path.Combine(_environment.WebRootPath, "images", "avatar");
+        var uploadsFolder = Path.Combine(_environment.WebRootPath, "images");
         if (!Directory.Exists(uploadsFolder))
         {
             Directory.CreateDirectory(uploadsFolder);
@@ -45,7 +45,7 @@ public class FileStorageService : IFileStorageService
             await file.CopyToAsync(fileStream);
         }
 
-        return new UploadAvatarResponseDto { FileName = newFileName };
+        return new UploadImageResponseDto { FileName = newFileName };
     }
 
     public void DeleteAvatar(string fileName)

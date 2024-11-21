@@ -1,0 +1,135 @@
+<span mat-dialog-title>{{ capitalizedMode }} public session</span>
+<mat-dialog-content>
+  <form [formGroup]="sessionFormGroup">
+    <!-- Image Upload Section -->
+    <div class="image-upload-section">
+      @if (previewUrl) {
+        <div class="image-preview">
+          <img [src]="previewUrl" alt="Session thumbnail">
+          <button mat-icon-button class="remove-image" (click)="removeImage()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="image-placeholder">
+          <mat-icon>image</mat-icon>
+          <span>No image selected</span>
+        </div>
+      }
+
+      <div class="upload-button-container">
+        <button mat-stroked-button type="button" (click)="fileInput.click()">
+          <mat-icon>upload</mat-icon>
+          Select Image
+        </button>
+        <input
+          #fileInput
+          type="file"
+          hidden
+          accept="image/*"
+          (change)="onFileSelected($event)"
+        >
+        <mat-hint>Maximum file size: 2MB</mat-hint>
+      </div>
+    </div>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title">
+      <mat-error *ngIf="sessionFormGroup.get('title')?.hasError('required')">
+        Title is required
+      </mat-error>
+      <mat-error *ngIf="sessionFormGroup.get('title')?.hasError('maxLength')">
+        Title exceeds 100 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+      <mat-hint align="end">{{ sessionFormGroup.controls.description.value?.length ?? 0 }}/500</mat-hint>
+      <mat-error *ngIf="sessionFormGroup.get('description')?.hasError('required')">
+        Description is required
+      </mat-error>
+      <mat-error *ngIf="sessionFormGroup.get('description')?.hasError('maxLength')">
+        Description exceeds 500 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Session Type</mat-label>
+      <mat-select formControlName="type">
+        @for (type of publicSessionTypes; track type.key) {
+          <mat-option [value]="type.key">{{ type.value }}</mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="sessionFormGroup.get('type')?.hasError('required')">
+        Session type is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Location</mat-label>
+      <input matInput formControlName="location">
+      <mat-error *ngIf="sessionFormGroup.get('location')?.hasError('required')">
+        Location is required
+      </mat-error>
+      <mat-error *ngIf="sessionFormGroup.get('location')?.hasError('maxLength')">
+        Location exceeds 200 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Choose a date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-error *ngIf="sessionFormGroup.get('date')?.hasError('required')">
+        Date is required
+      </mat-error>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field [appearance]="formFieldAppearance">
+        <mat-label>From</mat-label>
+        <mat-select formControlName="startTime">
+          @for (time of timeOptions.slice(0, -1); track $index) {
+            <mat-option [value]="time">{{ time }}</mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="sessionFormGroup.get('startTime')?.hasError('required')">
+          Start time is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field [appearance]="formFieldAppearance">
+        <mat-label>To</mat-label>
+        <mat-select formControlName="endTime">
+          @for (time of timeOptions.slice(1); track $index) {
+            <mat-option [value]="time">{{ time }}</mat-option>
+          }
+        </mat-select>
+        <mat-error *ngIf="sessionFormGroup.get('endTime')?.hasError('required')">
+          End time is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    @if (mode === 'update') {
+      <mat-checkbox formControlName="isCancelled">Cancel session</mat-checkbox>
+    }
+
+    <mat-error *ngIf="sessionFormGroup.hasError('invalidTimeRange')">
+      End time must be after start time
+    </mat-error>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (isSubmitting) {
+    <mat-spinner diameter="20"></mat-spinner>
+  }
+  <span class="spacer"></span>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="onSubmit()" [disabled]="sessionFormGroup.invalid">{{ capitalizedMode }}</button>
+</mat-dialog-actions>

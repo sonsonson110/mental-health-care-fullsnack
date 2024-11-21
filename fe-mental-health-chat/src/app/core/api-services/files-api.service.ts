@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.dev';
-import { UploadAvatarResponse } from '../models/modules/register/upload-avatar-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,9 +9,9 @@ export class FilesApiService {
   private readonly baseUrl = environment.apiBaseUrl + '/files';
   constructor(private http: HttpClient) {}
 
-  uploadAvatar(file: File) {
+  uploadImage(file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<UploadAvatarResponse>(`${this.baseUrl}/avatar`, formData);
+    return this.http.post<{fileName: string}>(this.baseUrl + '/images', formData);
   }
 }
