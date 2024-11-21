@@ -8,6 +8,7 @@ internal static class UsersSeed
 {
     internal static async Task<List<User>> Seed(MentalHealthContext context, UserManager<User> userManager)
     {
+        const string seedPassword = "Password@123";
         var user = new User
         {
             Id = Guid.Parse("a620b691-f136-4afc-811c-cd655e70cbdf"),
@@ -22,21 +23,14 @@ internal static class UsersSeed
             UserName = "john.doe",
             IsTherapist = false
         };
-        var userResult = await userManager.CreateAsync(user, "Password@123");
-        if (userResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(user, "User");
-        }
-        else
-        {
-            throw new Exception($"Failed to create user: {userResult.Errors.First().Description}");
-        }
-        
+        await userManager.CreateAsync(user, seedPassword);
+        await userManager.AddToRoleAsync(user, "User");
+
         var user2 = new User
         {
             Id = Guid.NewGuid(),
-            FirstName = "John",
-            LastName = "Doey",
+            FirstName = "Johnny",
+            LastName = "Dang",
             Gender = Gender.MALE,
             DateOfBirth = new DateOnly(1985, 5, 15),
             Email = "johnny.dang@example.com",
@@ -46,17 +40,10 @@ internal static class UsersSeed
             UserName = "johnny.dang",
             IsTherapist = false
         };
-        var user2Result = await userManager.CreateAsync(user2, "Password@123");
-        if (user2Result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(user2, "User");
-        }
-        else
-        {
-            throw new Exception($"Failed to create user: {user2Result.Errors.First().Description}");
-        }
-        
-        var emailTestUser = new User
+        await userManager.CreateAsync(user2, seedPassword);
+        await userManager.AddToRoleAsync(user2, "User");
+
+        var user3 = new User
         {
             Id = Guid.Parse("f759c089-6f46-4550-bfc7-ad96ae101df6"),
             FirstName = "Nguyen",
@@ -67,19 +54,12 @@ internal static class UsersSeed
             PhoneNumber = "00000000000",
             IsOnline = false,
             TimeZoneId = "SE Asia Standard Time",
-            UserName = "son.np2002",
+            UserName = "pson141002",
             IsTherapist = false
         };
-        var emailTestUserResult = await userManager.CreateAsync(emailTestUser, "Password123@");
-        if (emailTestUserResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(emailTestUser, "User");
-        }
-        else
-        {
-            throw new Exception($"Failed to create user: {emailTestUserResult.Errors.First().Description}");
-        }
+        await userManager.CreateAsync(user3, seedPassword);
+        await userManager.AddToRoleAsync(user3, "User");
 
-        return [user, user2, emailTestUser];
+        return [user, user2, user3];
     }
 }

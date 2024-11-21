@@ -11,6 +11,7 @@ internal static class PrivateSessionRegistrationSeed
         var privateSessionRegistrations = new List<PrivateSessionRegistration>();
         var privateSessionStatuses = Enum.GetValues(typeof(PrivateSessionRegistrationStatus))
             .Cast<PrivateSessionRegistrationStatus>()
+            .TakeLast(3)
             .ToList();
 
         // First, ensure each therapist has one registration with a different status

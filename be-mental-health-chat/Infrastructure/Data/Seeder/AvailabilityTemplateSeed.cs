@@ -3,7 +3,7 @@ using Domain.Enums;
 
 namespace Infrastructure.Data.Seeder;
 
-public static class AvailabilityTemplateSeed
+internal static class AvailabilityTemplateSeed
 {
     private static readonly Dictionary<int, DateOfWeek[]> TherapistWorkingDays = new()
     {
@@ -14,7 +14,7 @@ public static class AvailabilityTemplateSeed
         { 4, new[] { DateOfWeek.TUESDAY, DateOfWeek.THURSDAY, DateOfWeek.SATURDAY } }
     };
 
-    public static List<AvailabilityTemplate> Seed(MentalHealthContext context, List<User> therapists)
+    internal static List<AvailabilityTemplate> Seed(MentalHealthContext context, List<User> therapists)
     {
         var availabilityTemplates = new List<AvailabilityTemplate>();
         
