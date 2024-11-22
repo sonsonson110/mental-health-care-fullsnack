@@ -21,4 +21,8 @@
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Properties\PublishProfiles\mental-health-chat - Zip Deploy.pubxml" />
+    </ItemGroup>
+
 </Project>

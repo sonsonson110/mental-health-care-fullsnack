@@ -8,7 +8,6 @@ internal static class PublicSessionSeed
     internal static List<PublicSession> Seed(MentalHealthContext context, List<User> therapists, List<User> users)
     {
         var publicSessions = new List<PublicSession>();
-        var followers = new List<PublicSessionFollower>();
 
         var sessionTitles = new[] { "Mindfulness Workshop", "Stress Management", "Coping with Anxiety", "Building Resilience", "Overcoming Burnout" };
         var locations = new[] { "Online", "Community Hall", "Therapy Center", "Virtual Meetup", "Wellness Clinic" };
@@ -43,22 +42,6 @@ internal static class PublicSessionSeed
                     TherapistId = therapist.Id,
                     Followers = []
                 };
-
-                // Add followers
-                for (int k = 0; k < 3; k++) // 3 followers per session
-                {
-                    var followerUser = users[k];
-                    var follower = new PublicSessionFollower
-                    {
-                        Id = Guid.NewGuid(),
-                        PublicSessionId = publicSession.Id,
-                        UserId = followerUser.Id,
-                        Type = (PublicSessionFollowType)random.Next(0, 2)
-                    };
-
-                    publicSession.Followers.Add(follower);
-                    followers.Add(follower);
-                }
 
                 publicSessions.Add(publicSession);
             }
