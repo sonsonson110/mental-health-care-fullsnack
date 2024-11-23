@@ -19,8 +19,11 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 1rem;
     gap: 1rem;
+
+    @media screen and (min-width: $breakpoint-sm) {
+      padding: 1rem;
+    }
 
     .info {
       mat-card-header {

@@ -15,7 +15,7 @@ import { TherapistsApiService } from '../../../core/api-services/therapists-api.
 import { PrivateSessionSchedulesApiService } from '../../../core/api-services/private-session-schedules-api.service';
 import { mapPrivateSessionScheduleToCalendarEvent } from '../../../core/mappers';
 import { CreateUpdateScheduleRequest } from '../../../core/models/modules/manage-schedules/create-update-schedule-request.model';
-import { PrivateSessionScheduleResponse } from '../../../core/models/modules/manage-schedules/private-session-schedule-response.model';
+import { PrivateSessionScheduleResponse } from '../../../core/models/modules/manage-schedules/therapist-schedule-response.model';
 
 @Injectable()
 export class ManageSessionsStateService {

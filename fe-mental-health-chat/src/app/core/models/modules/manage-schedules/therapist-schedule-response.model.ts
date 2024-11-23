@@ -1,7 +1,7 @@
 export interface PrivateSessionScheduleResponse {
   id: string;
   privateSessionRegistrationId: string;
-  client: ScheduledClient;
+  client?: ScheduledClient;
   date: string;  // YYYY-MM-DD format
   startTime: string;  // HH:mm:ss format
   endTime: string;  // HH:mm:ss format

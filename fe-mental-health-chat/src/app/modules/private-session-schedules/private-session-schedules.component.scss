@@ -1,0 +1,41 @@
+@use '@angular/material' as mat;
+@import '../../../styles.scss';
+@import '../../shared/style/variables.scss';
+
+.root-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  overflow-y: hidden;
+
+  .toolbar {
+    width: 100%;
+    display: flex;
+    background-color: mat.get-theme-color(
+        $fe-mental-health-chat-theme,
+        surface-container-low
+    );
+  }
+
+  .progress-container {
+    height: 4px;
+  }
+
+  .content-container {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: scroll;
+
+    .therapist-info {
+      padding-top: 0.5rem;
+      padding-left: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+  }
+}

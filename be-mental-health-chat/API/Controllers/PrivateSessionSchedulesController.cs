@@ -17,7 +17,7 @@ public class PrivateSessionSchedulesController : MentalHeathControllerBase
         _privateSessionSchedulesService = privateSessionSchedulesService;
     }
 
-    [HttpGet]
+    [HttpGet("therapist")]
     [Authorize(Roles = "Therapist")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -26,6 +26,14 @@ public class PrivateSessionSchedulesController : MentalHeathControllerBase
     {
         var result = await _privateSessionSchedulesService.GetTherapistSchedulesAsync(GetUserId(), request);
         return result.ReturnFromGet();
+    }
+
+    [HttpGet("client")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetClientSchedulesAsync([FromQuery] GetClientSchedulesRequestDto request)
+    {
+        var result = await _privateSessionSchedulesService.GetClientSchedulesAsync(GetUserId(), request);
+        return Ok(result);
     }
 
     [HttpPost]

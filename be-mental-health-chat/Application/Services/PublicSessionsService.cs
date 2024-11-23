@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.PublicSessionsService;
+using Application.DTOs.Shared;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;

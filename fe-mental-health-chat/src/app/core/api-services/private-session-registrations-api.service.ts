@@ -6,6 +6,7 @@ import { ClientRegistrationResponse } from '../models/modules/manage-registratio
 import {
   UpdateClientRegistrationRequest
 } from '../models/modules/manage-registrations/update-client-registration-request.model';
+import { TherapistRegistrationResponse } from '../models/therapist-registration-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,10 @@ export class PrivateSessionRegistrationsApiService {
   }
 
   updateClientRegistration(body: UpdateClientRegistrationRequest) {
-    return this.http.put(`this.baseUrl`, body);
+    return this.http.put(this.baseUrl, body);
+  }
+
+  getClientCurrentTherapist() {
+    return this.http.get<TherapistRegistrationResponse>(`${this.baseUrl}/therapist-registrations/current`);
   }
 }

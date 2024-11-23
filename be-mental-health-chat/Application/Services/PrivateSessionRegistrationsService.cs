@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.PrivateSessionRegistrationsService;
+using Application.DTOs.Shared;
 using Application.DTOs.TherapistsService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
@@ -97,7 +98,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         return true;
     }
 
-    public async Task<Result<List<GetClientRegistrationsResponseDto>>> GetClientRegistrationsAsync(Guid therapistId)
+    public async Task<Result<List<GetClientRegistrationResponseDto>>> GetClientRegistrationsAsync(Guid therapistId)
     {
         // validate if therapist exists
         var therapistExisted = await _context.Users
@@ -105,13 +106,13 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
 
         if (!therapistExisted)
         {
-            return new Result<List<GetClientRegistrationsResponseDto>>(new NotFoundException("Therapist not found"));
+            return new Result<List<GetClientRegistrationResponseDto>>(new NotFoundException("Therapist not found"));
         }
 
         var clientRegistrationsQuery = _context.PrivateSessionRegistrations
             .Where(r => r.TherapistId == therapistId)
             .OrderByDescending(r => r.CreatedAt)
-            .Select(r => new GetClientRegistrationsResponseDto
+            .Select(r => new GetClientRegistrationResponseDto
             {
                 Id = r.Id,
                 Status = r.Status,
@@ -130,7 +131,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 UpdatedAt = r.UpdatedAt,
             });
 
-        return new Result<List<GetClientRegistrationsResponseDto>>(await clientRegistrationsQuery.ToListAsync());
+        return new Result<List<GetClientRegistrationResponseDto>>(await clientRegistrationsQuery.ToListAsync());
     }
 
     public async Task<Result<bool>> UpdateClientRegistrationsAsync(Guid therapistId,
@@ -180,12 +181,12 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         registration.Id = request.Id;
         registration.Status = request.Status;
         registration.NoteFromTherapist = request.NoteFromTherapist;
-        
+
         if (request.Status is PrivateSessionRegistrationStatus.FINISHED or PrivateSessionRegistrationStatus.CANCELED)
         {
             registration.EndDate = DateTime.Now;
         }
-        
+
         _context.PrivateSessionRegistrations.Update(registration);
 
         // create conversation if registration is approved and conversation does not exist
@@ -204,12 +205,71 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 });
             }
         }
-        
+
         await _context.SaveChangesAsync();
 
         // set background task to send email
         await _emailBackgroundService.QueueRegistrationUpdateEmailAsync(registration.Id);
 
         return true;
+    }
+
+    public async Task<Result<GetTherapistRegistrationResponseDto>> GetCurrentTherapistRegistrationAsync(Guid userId)
+    {
+        var currentTherapistRegistration = await _context.PrivateSessionRegistrations
+            .Where(e => e.ClientId == userId)
+            .Where(e => e.Status == PrivateSessionRegistrationStatus.APPROVED ||
+                        e.Status == PrivateSessionRegistrationStatus.PENDING)
+            .OrderByDescending(e => e.UpdatedAt)
+            .Select(e => new GetTherapistRegistrationResponseDto
+            {
+                Id = e.Id,
+                Status = e.Status,
+                NoteFromClient = e.NoteFromClient,
+                NoteFromTherapist = e.NoteFromTherapist,
+                EndDate = e.EndDate,
+                CreatedAt = e.CreatedAt,
+                Therapist = new TherapistDto
+                {
+                    Id = e.Therapist.Id,
+                    AvatarName = e.Therapist.AvatarName,
+                    FullName = e.Therapist.FirstName + " " + e.Therapist.LastName,
+                    Gender = e.Therapist.Gender,
+                }
+            })
+            .FirstOrDefaultAsync();
+
+        if (currentTherapistRegistration == null)
+        {
+            return new Result<GetTherapistRegistrationResponseDto>(
+                new NotFoundException("There is no current therapist registration"));
+        }
+        
+        return new Result<GetTherapistRegistrationResponseDto>(currentTherapistRegistration);
+    }
+
+    public async Task<List<GetTherapistRegistrationResponseDto>> GetTherapistRegistrationsAsync(Guid userId)
+    {
+        var therapistRegistrations = await _context.PrivateSessionRegistrations
+            .Where(r => r.ClientId == userId)
+            .OrderByDescending(e => e.UpdatedAt)
+            .Select(e => new GetTherapistRegistrationResponseDto
+            {
+                Id = e.Id,
+                Status = e.Status,
+                NoteFromClient = e.NoteFromClient,
+                NoteFromTherapist = e.NoteFromTherapist,
+                EndDate = e.EndDate,
+                CreatedAt = e.CreatedAt,
+                Therapist = new TherapistDto
+                {
+                    Id = e.Therapist.Id,
+                    AvatarName = e.Therapist.AvatarName,
+                    FullName = e.Therapist.FirstName + " " + e.Therapist.LastName,
+                    Gender = e.Therapist.Gender,
+                }
+            })
+            .ToListAsync();
+        return therapistRegistrations;
     }
 }

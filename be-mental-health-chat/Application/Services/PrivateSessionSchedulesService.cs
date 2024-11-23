@@ -82,7 +82,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return new Result<EntityBase>(new BadRequestException(validationResult.ErrorMessage!));
         }
-        
+
         #endregion
 
         var newId = Guid.NewGuid();
@@ -123,7 +123,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return new Result<bool>(new NotFoundException("Schedule not found"));
         }
-        
+
         var validationResult = await ValidateCreateUpdateScheduleAsync(therapistId, request);
         if (validationResult.HasError)
         {
@@ -143,6 +143,38 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         return true;
     }
 
+    public async Task<List<GetClientScheduleResponseDto>> GetClientSchedulesAsync(Guid userId,
+        GetClientSchedulesRequestDto request)
+    {
+        var schedulesQuery = _context.PrivateSessionSchedules
+            .Where(e => e.PrivateSessionRegistration.ClientId == userId);
+
+        if (request.StartDate.HasValue)
+        {
+            schedulesQuery = schedulesQuery.Where(schedule => schedule.Date >= request.StartDate);
+        }
+
+        if (request.EndDate.HasValue)
+        {
+            schedulesQuery = schedulesQuery.Where(schedule => schedule.Date <= request.EndDate);
+        }
+
+        var schedules = await schedulesQuery.OrderBy(schedule => schedule.Date)
+            .Select(e => new GetClientScheduleResponseDto
+            {
+                Id = e.Id,
+                Date = e.Date,
+                StartTime = e.StartTime,
+                EndTime = e.EndTime,
+                NoteFromTherapist = e.NoteFromTherapist,
+                IsCancelled = e.IsCancelled,
+                CreatedAt = e.CreatedAt,
+                UpdatedAt = e.UpdatedAt,
+            })
+            .ToListAsync();
+        return schedules;
+    }
+
     private async Task<(bool HasError, string? ErrorMessage)> ValidateCreateUpdateScheduleAsync(Guid therapistId,
         CreateUpdateScheduleRequestDto request)
     {
@@ -151,7 +183,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return (true, "Invalid time range");
         }
-        
+
         // check if registration valid
         var isRegistrationValid = await _context.PrivateSessionRegistrations
             .Where(registration => registration.Id == request.PrivateSessionRegistrationId)
@@ -162,7 +194,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return (true, "Invalid registration");
         }
-        
+
         // check if schedule time is occupied other schedules, start time and end time are inclusive
         var hasPrivateSessionScheduleOccupied = await _context.PrivateSessionSchedules
             .Where(schedule => schedule.Date == request.Date)
@@ -178,7 +210,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         {
             return (true, "Private session schedule time is occupied");
         }
-        
+
         // check if schedule time is occupied with therapist public session
         var hasPublicSessionOccupied = await _context.PublicSessions
             .Where(s => s.TherapistId == therapistId
@@ -195,7 +227,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
 
         if (hasPublicSessionOccupied)
             return (true,
-                $"A public session already exists on {request.Date} between {request.StartTime} and {request.EndTime}"); 
+                $"A public session already exists on {request.Date} between {request.StartTime} and {request.EndTime}");
 
         return (false, null);
     }

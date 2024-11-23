@@ -3,11 +3,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment.dev';
 import {
   PrivateSessionScheduleResponse,
-} from '../models/modules/manage-schedules/private-session-schedule-response.model';
+} from '../models/modules/manage-schedules/therapist-schedule-response.model';
 import {
   PrivateSessionScheduleRequest,
-} from '../models/modules/manage-schedules/private-session-schedule-request.model';
+} from '../models/modules/manage-schedules/therapist-schedule-request.model';
 import { CreateUpdateScheduleRequest } from '../models/modules/manage-schedules/create-update-schedule-request.model';
+import { ClientSchedulesRequest } from '../models/modules/private-session-schedules/client-schedules-request.model';
+import { ClientScheduleResponse } from '../models/modules/private-session-schedules/client-schedule-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +31,17 @@ export class PrivateSessionSchedulesApiService {
       });
     }
 
-    return this.http.get<PrivateSessionScheduleResponse[]>(this.baseEndpoint, { params });
+    return this.http.get<PrivateSessionScheduleResponse[]>(this.baseEndpoint + '/therapist', { params });
+  }
+
+  getClientSchedules(request?: ClientSchedulesRequest) {
+    let params = new HttpParams();
+
+    if (request) {
+      params = params.set('startDate', request.startDate);
+      params = params.set('endDate', request.endDate ?? '');
+    }
+    return this.http.get<PrivateSessionScheduleResponse[]>(this.baseEndpoint + '/client', { params });
   }
 
   createSchedule(request: CreateUpdateScheduleRequest) {

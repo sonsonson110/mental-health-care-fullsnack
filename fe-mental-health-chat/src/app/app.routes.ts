@@ -22,6 +22,9 @@ import { TherapistSummariesComponent } from './modules/therapists/components/the
 import { ManageSchedulesComponent } from './modules/manage-schedules/manage-schedules.component';
 import { MyPublicSessionsComponent } from './modules/my-public-sessions/my-public-sessions.component';
 import { PublicSessionsComponent } from './modules/public-sessions/public-sessions.component';
+import {
+  PrivateSessionSchedulesComponent
+} from './modules/private-session-schedules/private-session-schedules.component';
 
 export const routes: Routes = [
   {
@@ -75,6 +78,10 @@ export const routes: Routes = [
       {
         path: 'public-sessions',
         component: PublicSessionsComponent,
+      },
+      {
+        path: 'private-session-schedules',
+        component: PrivateSessionSchedulesComponent
       },
       {
         path: 'client-chats',

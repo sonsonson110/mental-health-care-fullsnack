@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Application.DTOs.Shared;
+using Domain.Enums;
 
 namespace Application.DTOs.PublicSessionsService;
 
@@ -18,12 +19,4 @@ public class GetPublicSessionSummaryResponseDto
     public int FollowerCount { get; set; }
     public PublicSessionFollowType? FollowingType { get; set; }
     public DateTime UpdatedAt { get; set; }
-}
-
-public class TherapistDto
-{
-    public Guid Id { get; set; }
-    public string? AvatarName { get; set; }
-    public required string FullName { get; set; }
-    public Gender Gender { get; set; }
 }

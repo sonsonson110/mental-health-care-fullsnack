@@ -18,6 +18,7 @@ public class PublicSessionsController : MentalHeathControllerBase
         _publicSessionsService = publicSessionsService;
     }
 
+    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTherapistPublicSessions([FromQuery] GetPublicSessionSummariesRequestDto request)
     {

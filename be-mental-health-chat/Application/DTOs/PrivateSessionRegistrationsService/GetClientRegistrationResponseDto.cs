@@ -2,7 +2,7 @@
 
 namespace Application.DTOs.PrivateSessionRegistrationsService;
 
-public class GetClientRegistrationsResponseDto
+public class GetClientRegistrationResponseDto
 {
     public Guid Id { get; set; }
     public PrivateSessionRegistrationStatus Status { get; set; }

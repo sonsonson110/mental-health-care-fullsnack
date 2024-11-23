@@ -1,0 +1,44 @@
+<div class="root-container">
+  <mat-toolbar class="toolbar" style="min-height: 56px !important; height: 56px !important;">
+    <button mat-icon-button (click)="onPreviousWeekClick()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span>{{ timeRangeDisplay }}</span>
+    <button mat-icon-button (click)="onNextWeekClick()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    <button mat-icon-button (click)="onRefreshClick()" style="margin-left: auto">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="progress-container">
+    <mat-progress-bar mode="query" [ngStyle]="{
+        'opacity': (loading$ | async) ? 1 : 0
+      }"></mat-progress-bar>
+  </div>
+
+  <div class="content-container">
+
+    <div class="therapist-info">
+      Therapist:
+      @if (currentRegistration$ | async; as currentRegistration) {
+        <img [ngSrc]="currentRegistration.therapist.avatarName! | parseAvatarUrl: currentRegistration.therapist.gender"
+             width="30" height="30" alt="avatar">
+        <span>{{ currentRegistration.therapist.fullName }}</span>
+        <span *ngIf="currentRegistration.status === PrivateSessionRegistrationStatus.PENDING">(Pending)</span>
+      } @else {
+        <span>No active therapy</span>
+      }
+    </div>
+    <mwl-calendar-week-view
+      precision="minutes"
+      [viewDate]="viewDate"
+      [events]="events"
+      [weekStartsOn]="1"
+      [dayStartHour]="5"
+      [dayEndHour]="22"
+      [daysInWeek]="daysInWeek"
+    ></mwl-calendar-week-view>
+  </div>
+</div>

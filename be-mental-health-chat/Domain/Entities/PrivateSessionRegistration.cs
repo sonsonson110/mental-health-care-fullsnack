@@ -8,7 +8,7 @@ public class PrivateSessionRegistration: TimestampMarkedEntityBase
 {
     public PrivateSessionRegistrationStatus Status { get; set; }
     public string? NoteFromTherapist { get; set; }
-    public string NoteFromClient { get; set; } = String.Empty;
+    public required string NoteFromClient { get; set; }
     public DateTime? EndDate { get; set; }
     
     public Guid TherapistId { get; set; }

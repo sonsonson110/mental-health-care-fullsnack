@@ -1,7 +1,6 @@
 ﻿using API.Controllers.Common;
 using API.Extensions;
 using Application.DTOs.PrivateSessionRegistrationsService;
-using Application.DTOs.TherapistsService;
 using Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -50,5 +49,22 @@ public class PrivateSessionRegistrationsController : MentalHeathControllerBase
     {
         var result = await _privateSessionRegistrationsService.UpdateClientRegistrationsAsync(GetUserId(), request);
         return result.ReturnFromPut();
+    }
+
+    [HttpGet("therapist-registrations/current")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCurrentTherapistRegistration()
+    {
+        var result = await _privateSessionRegistrationsService.GetCurrentTherapistRegistrationAsync(GetUserId());
+        return result.ReturnFromGet();
+    }
+
+    [HttpGet("therapist-registrations")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTherapistRegistrations()
+    {
+        var result = await _privateSessionRegistrationsService.GetTherapistRegistrationsAsync(GetUserId());
+        return Ok(result);
     }
 }

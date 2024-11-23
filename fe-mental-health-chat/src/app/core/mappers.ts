@@ -1,6 +1,6 @@
 import {
   PrivateSessionScheduleResponse,
-} from './models/modules/manage-schedules/private-session-schedule-response.model';
+} from './models/modules/manage-schedules/therapist-schedule-response.model';
 import { CalendarEvent } from 'angular-calendar';
 import { PublicSessionSummaryResponse } from './models/public-session-summary-response.model';
 import {
@@ -41,7 +41,7 @@ export function mapPrivateSessionScheduleToCalendarEvent(
     id: schedule.id,
     start: startDateTime,
     end: endDateTime,
-    title: `Session with ${schedule.client.fullName}`,
+    title: `Session with ${schedule.client?.fullName}`,
     color: getEventStyle(schedule),
     meta: schedule,
     draggable: false,
