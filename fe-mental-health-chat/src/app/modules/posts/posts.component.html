@@ -1,0 +1,48 @@
+<div class="root-container">
+  <mat-progress-bar mode="query" [ngStyle]="{
+        'opacity': (loading$ | async) ? 1 : 0
+      }"></mat-progress-bar>
+
+  <div class="content-container">
+    <div class="row">
+      <mat-chip-set>
+        <mat-chip-option
+          [selected]="type.type==='public'"
+          [selectable]="type.type!=='public'"
+          (click)="onTypeChange('public')">
+          Public posts
+        </mat-chip-option>
+        <mat-chip-option
+          [selected]="type.type==='personal'"
+          [selectable]="type.type!=='personal'"
+          (click)="onTypeChange('personal')">
+          Your posts
+        </mat-chip-option>
+        <mat-chip-option
+          [selected]="type.subType==='public'"
+          *ngIf="type.type === 'personal'"
+          [selectable]="type.subType!=='public'"
+          (click)="onSubTypeChange('public')">
+          Public
+        </mat-chip-option>
+        <mat-chip-option
+          [selected]="type.subType==='private'"
+          [selectable]="type.subType!=='private'"
+          *ngIf="type.type === 'personal'"
+          (click)="onSubTypeChange('private')">
+          Private
+        </mat-chip-option>
+      </mat-chip-set>
+
+      <button mat-flat-button style="min-width: 122px;" (click)="openEditPostDialog()">Create post</button>
+    </div>
+
+    <div class="posts">
+      @for (post of posts$ | async; track post.id) {
+        <app-post [post]="post"
+                  (editClickEvent)="openEditPostDialog(post)"
+                  (likeClickEvent)="onLikeClick(post.id)"></app-post>
+      }
+    </div>
+  </div>
+</div>

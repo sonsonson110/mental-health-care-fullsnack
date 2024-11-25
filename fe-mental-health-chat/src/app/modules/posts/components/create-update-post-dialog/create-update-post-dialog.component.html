@@ -1,0 +1,37 @@
+<span mat-dialog-title>{{ capitalizedMode }} Post</span>
+<mat-dialog-content>
+  <form [formGroup]="postFormGroup">
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title">
+      <mat-error *ngIf="postFormGroup.get('title')?.hasError('required')">
+        Title is required
+      </mat-error>
+      <mat-error *ngIf="postFormGroup.get('title')?.hasError('maxLength')">
+        Title exceeds 100 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field [appearance]="formFieldAppearance">
+      <mat-label>Content</mat-label>
+      <textarea matInput formControlName="content" rows="5"></textarea>
+      <mat-hint align="end">{{ postFormGroup.controls.content.value?.length ?? 0 }}/1000</mat-hint>
+      <mat-error *ngIf="postFormGroup.get('content')?.hasError('required')">
+        Content is required
+      </mat-error>
+      <mat-error *ngIf="postFormGroup.get('content')?.hasError('maxLength')">
+        Content exceeds 1000 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isPrivate">Private post</mat-checkbox>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  @if (isSubmitting) {
+    <mat-spinner diameter="20"></mat-spinner>
+  }
+  <span class="spacer"></span>
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-button (click)="onSubmit()" [disabled]="postFormGroup.invalid">{{ capitalizedMode }}</button>
+</mat-dialog-actions>

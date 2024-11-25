@@ -78,9 +78,13 @@
     .content-container {
       flex-grow: 1;
       display: grid;
-      padding: 1rem;
+      box-sizing: border-box;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1rem;
+
+      @media screen and (min-width: $breakpoint-sm) {
+        padding: 1rem;
+      }
 
       .card {
         .subtitle {

@@ -25,6 +25,7 @@ import { PublicSessionsComponent } from './modules/public-sessions/public-sessio
 import {
   PrivateSessionSchedulesComponent
 } from './modules/private-session-schedules/private-session-schedules.component';
+import { PostsComponent } from './modules/posts/posts.component';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,10 @@ export const routes: Routes = [
             data: { forModule: 'therapist-chats' },
           },
         ],
+      },
+      {
+        path: 'posts',
+        component: PostsComponent,
       },
       {
         path: 'therapists',

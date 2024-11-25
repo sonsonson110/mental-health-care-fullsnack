@@ -1,0 +1,53 @@
+@use '@angular/material' as mat;
+@import '../../../../shared/style/variables.scss';
+@import '../../../../../styles.scss';
+
+.card {
+  max-width: $breakpoint-md;
+
+  .spacer {
+    flex: 1 1 auto;
+  }
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    .subtitle {
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    mat-chip-set {
+      margin-left: 16px;
+    }
+  }
+
+  mat-card-content {
+    margin-bottom: 16px;
+
+    .mat-title-large {
+      margin-bottom: 8px;
+    }
+
+    .mat-body-large {
+      white-space: pre-wrap;
+    }
+  }
+
+  mat-card-actions {
+    padding: 8px;
+
+    button {
+      color: mat.get-theme-color(
+          $fe-mental-health-chat-theme,
+          on-surface-variant
+      );
+
+      &.liked {
+        color: mat.get-theme-color(
+            $fe-mental-health-chat-theme,
+            primary
+        );
+      }
+    }
+  }
+}
