@@ -72,7 +72,7 @@ public class ConversationsService : IConversationsService
     public async Task<Result<CreateChatbotConversationResponseDto>> CreateChatbotConversationAsync(Guid userId,
         CreateChatbotConversationRequestDto request)
     {
-        var receivedTime = DateTime.Now;
+        var receivedTime = DateTime.UtcNow;
         request.Content = request.Content.Trim();
 
         // use template prompt for very first user question for chatbot
@@ -99,7 +99,7 @@ public class ConversationsService : IConversationsService
         var userPromptResponse = await userPromptResponseTask;
         var titleResponse = await generateTitleResponseTask;
 
-        var completionTime = DateTime.Now;
+        var completionTime = DateTime.UtcNow;
         // create new conversation
         var conversation = new Conversation
         {

@@ -72,7 +72,8 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         #region validation
 
         // check if time rage from the past (must start after now)
-        if (request.Date.ToDateTime(request.StartTime) < DateTime.Now)
+        // hard-coded +7 GMT
+        if (request.Date.ToDateTime(request.StartTime) < DateTime.UtcNow.AddHours(7))
         {
             return new Result<EntityBase>(new BadRequestException("Cannot create schedule in the past"));
         }
@@ -108,8 +109,8 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             return new Result<bool>(new BadRequestException("Id is required"));
         }
 
-        // check if time rage from the past (ongoing session is not counted)
-        if (request.Date.ToDateTime(request.EndTime) < DateTime.Now)
+        // check if time range from the past (ongoing session is not counted)
+        if (request.Date.ToDateTime(request.EndTime) < DateTime.UtcNow.AddHours(7)) // hard-coded +7 GMT
         {
             return new Result<bool>(new BadRequestException("Cannot update schedule in the past"));
         }

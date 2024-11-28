@@ -183,7 +183,7 @@ public class PublicSessionsService : IPublicSessionsService
         // check if create time from the past, must start after present
         const int minimumDays = 3;
         var startDateTime = request.Date.ToDateTime(request.StartTime);
-        var minimumAllowedDate = DateTime.Now.AddDays(minimumDays);
+        var minimumAllowedDate = DateTime.UtcNow.AddDays(minimumDays).AddHours(7); // hard-coded +7 GMT
         if (startDateTime < minimumAllowedDate)
         {
             return (true, $"Start date must be at least {minimumDays} days in the future.");

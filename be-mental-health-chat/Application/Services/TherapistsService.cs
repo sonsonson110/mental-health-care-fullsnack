@@ -60,8 +60,8 @@ public class TherapistsService : ITherapistsService
         if (request.MinExperienceYear.HasValue)
         {
             query = query.Where(t => t.Experiences.Sum(e =>
-                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year +
-                ((e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Month - e.StartDate.Month) / 12m
+                (e.EndDate ?? DateOnly.FromDateTime(DateTime.UtcNow)).Year - e.StartDate.Year +
+                ((e.EndDate ?? DateOnly.FromDateTime(DateTime.UtcNow)).Month - e.StartDate.Month) / 12m
             ) >= request.MinExperienceYear.Value);
         }
 
@@ -69,8 +69,8 @@ public class TherapistsService : ITherapistsService
         if (request.MaxExperienceYear.HasValue)
         {
             query = query.Where(t => t.Experiences.Sum(e =>
-                (e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Year - e.StartDate.Year +
-                ((e.EndDate ?? DateOnly.FromDateTime(DateTime.Now)).Month - e.StartDate.Month) / 12m
+                (e.EndDate ?? DateOnly.FromDateTime(DateTime.UtcNow)).Year - e.StartDate.Year +
+                ((e.EndDate ?? DateOnly.FromDateTime(DateTime.UtcNow)).Month - e.StartDate.Month) / 12m
             ) < request.MaxExperienceYear.Value);
         }
 

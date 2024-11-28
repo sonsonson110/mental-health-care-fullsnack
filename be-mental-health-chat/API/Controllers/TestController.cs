@@ -12,6 +12,6 @@ public class TestController
     [HttpGet("health")]
     public IActionResult Get()
     {
-        return new OkObjectResult(DateTime.Now);
+        return new OkObjectResult(DateTime.UtcNow);
     }
 }

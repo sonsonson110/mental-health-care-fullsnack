@@ -37,7 +37,7 @@ public class JwtService : IJwtService
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.FirstName + " " + user.LastName),
             new(ClaimTypes.Gender, user.Gender.ToString()),
-            new("iat", DateTime.Now.Ticks.ToString())
+            new("iat", DateTime.UtcNow.Ticks.ToString())
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -48,9 +48,9 @@ public class JwtService : IJwtService
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(lifetimeMinutes),
+            expires: DateTime.UtcNow.AddMinutes(lifetimeMinutes),
             // for testing
-            // expires: DateTime.Now.AddSeconds(5),
+            // expires: DateTime.UtcNow.AddSeconds(5),
             signingCredentials: CreateSigningCredentials());
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwt);

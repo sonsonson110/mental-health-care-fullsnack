@@ -41,6 +41,12 @@ public class AvailabilityOverridesService : IAvailabilityOverridesService
     public async Task<Result<GetAvailabilityOverrideResponseDto>> CreateAvailabilityOverrideAsync(Guid therapistId,
         CreateUpdateAvailabilityOverrideRequestDto request)
     {
+        if (request.Date.ToDateTime(request.StartTime) < DateTime.UtcNow.AddHours(7)) // hard-coded +7 GMT
+        {
+            return new Result<GetAvailabilityOverrideResponseDto>(
+                new BadRequestException("The date must be in the future"));
+        }
+        
         var validateResult = await ValidateCreateUpdateAvailabilityOverride(therapistId, request);
         if (validateResult.HasError)
         {
@@ -63,6 +69,12 @@ public class AvailabilityOverridesService : IAvailabilityOverridesService
     public async Task<Result<GetAvailabilityOverrideResponseDto>> UpdateAvailabilityOverrideAsync(Guid therapistId,
         CreateUpdateAvailabilityOverrideRequestDto request)
     {
+        if (request.Date.ToDateTime(request.EndTime) < DateTime.UtcNow.AddHours(7)) // hard-coded +7 GMT
+        {
+            return new Result<GetAvailabilityOverrideResponseDto>(
+                new BadRequestException("The date must be in the future"));
+        }
+        
         var validateResult = await ValidateCreateUpdateAvailabilityOverride(therapistId, request);
         if (validateResult.HasError)
         {
@@ -98,13 +110,6 @@ public class AvailabilityOverridesService : IAvailabilityOverridesService
     private async Task<(bool HasError, string? ErrorMessage)> ValidateCreateUpdateAvailabilityOverride(Guid therapistId,
         CreateUpdateAvailabilityOverrideRequestDto request)
     {
-        if (request.Date < DateOnly.FromDateTime(DateTime.Today) ||
-            (DateOnly.FromDateTime(DateTime.Today) == request.Date &&
-             request.StartTime < TimeOnly.FromDateTime(DateTime.Now)))
-        {
-            return (true, "The date must be in the future");
-        }
-
         var isOverlapping = await _context.AvailabilityOverrides
             .Where(o => o.TherapistId == therapistId)
             .Where(o => request.Id == null || request.Id != o.Id)

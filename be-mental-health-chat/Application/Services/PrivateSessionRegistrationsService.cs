@@ -184,7 +184,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
 
         if (request.Status is PrivateSessionRegistrationStatus.FINISHED or PrivateSessionRegistrationStatus.CANCELED)
         {
-            registration.EndDate = DateTime.Now;
+            registration.EndDate = DateTime.UtcNow;
         }
 
         _context.PrivateSessionRegistrations.Update(registration);
