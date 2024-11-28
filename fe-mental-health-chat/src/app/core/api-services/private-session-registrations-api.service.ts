@@ -6,7 +6,7 @@ import { ClientRegistrationResponse } from '../models/modules/manage-registratio
 import {
   UpdateClientRegistrationRequest
 } from '../models/modules/manage-registrations/update-client-registration-request.model';
-import { TherapistRegistrationResponse } from '../models/therapist-registration-response.model';
+import { TherapistRegistrationResponse } from '../models/common/therapist-registration-response.model';
 
 @Injectable({
   providedIn: 'root',

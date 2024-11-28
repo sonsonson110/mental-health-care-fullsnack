@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -44,7 +44,19 @@ export class CreateUpdatePostDialogComponent {
     isPrivate: new FormControl(this.data?.isPrivate ?? false),
   });
 
-  constructor(private stateService: PostsStateService, private toastr: ToastrService) {}
+  constructor(
+    private stateService: PostsStateService,
+    private toastr: ToastrService
+  ) {}
+
+  onDelete(): void {
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      this.stateService.deletePost(this.data!.id!).subscribe(() => {
+        this.dialogRef.close(true);
+        this.toastr.success(`Post deleted successfully`);
+      });
+    }
+  }
 
   onSubmit(): void {
     if (this.postFormGroup.invalid) {
@@ -68,7 +80,9 @@ export class CreateUpdatePostDialogComponent {
 
     ob$.pipe(finalize(() => (this.isSubmitting = false))).subscribe(() => {
       this.dialogRef.close(true);
-      this.toastr.success(`Post ${this.mode === 'create' ? 'created' : 'updated'} successfully`);
+      this.toastr.success(
+        `Post ${this.mode === 'create' ? 'created' : 'updated'} successfully`
+      );
     });
   }
 }

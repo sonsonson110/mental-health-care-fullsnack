@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { PublicSessionSummaryResponse } from '../../../core/models/public-session-summary-response.model';
+import { PublicSessionSummaryResponse } from '../../../core/models/common/public-session-summary-response.model';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule, NgOptimizedImage } from '@angular/common';

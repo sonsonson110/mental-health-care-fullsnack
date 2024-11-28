@@ -24,7 +24,7 @@ public class MessagesService : IMessagesService
     public async Task<Result<CreateChatbotMessageResponseDto>> CreateChatbotMessageAsync(
         CreateChatbotMessageRequestDto request, Guid userId)
     {
-        var userMessageReceivedTime = DateTime.UtcNow;
+        var userMessageReceivedTime = DateTime.Now;
         request.Content = request.Content.Trim();
 
         // check if conversation exists
@@ -77,7 +77,7 @@ public class MessagesService : IMessagesService
             SenderId = null,
             ConversationId = request.ConversationId,
             Content = geminiResponse.Candidates.First().Content.Parts.First().Text,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.Now,
             IsRead = false,
         };
         _context.Messages.AddRange(userMessage, geminiMessage);

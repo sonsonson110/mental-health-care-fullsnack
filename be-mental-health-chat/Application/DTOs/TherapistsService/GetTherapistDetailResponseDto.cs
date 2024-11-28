@@ -19,6 +19,6 @@ public class GetTherapistDetailResponseDto
     public List<TherapistExperienceDto> Experiences { get; set; } = [];
     public List<TherapistCertificationDto> Certifications { get; set; } = [];
     public List<ReviewDto> TherapistReviews { get; set; } = [];
-    public List<TherapistAvailabilityTemplateDto> AvailabilityTemplates { get; set; } = [];
+    public List<AvailableTemplateItem> AvailabilityTemplates { get; set; } = [];
     public List<IssueTag> IssueTags { get; init; } = [];
 }

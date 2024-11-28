@@ -20,8 +20,8 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthApiService } from '../../../../../core/api-services/auth-api.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { P2pConversationMessageDisplay } from '../../../../../core/models/p2p-conversation-mesage-display.model';
-import { P2pMessageRequest } from '../../../../../core/models/p2p-message-request.model';
+import { P2pConversationMessageDisplay } from '../../../../../core/models/common/p2p-conversation-mesage-display.model';
+import { P2pMessageRequest } from '../../../../../core/models/common/p2p-message-request.model';
 import { P2pConversationStateService } from '../../services/p2p-conversation-state.service';
 import { Observable } from 'rxjs';
 

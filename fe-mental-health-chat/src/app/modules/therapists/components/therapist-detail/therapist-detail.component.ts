@@ -13,17 +13,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatListModule } from '@angular/material/list';
 import { CalendarEvent, CalendarModule } from 'angular-calendar';
-import {
-  addDays,
-  setHours,
-  setMinutes,
-  startOfWeek,
-} from 'date-fns';
+import { startOfWeek } from 'date-fns';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import {
-  TherapistRegistrationDialogComponent
-} from '../therapist-registration-dialog/therapist-registration-dialog.component';
-import { ToastrService } from 'ngx-toastr';
+import { TherapistRegistrationDialogComponent } from '../therapist-registration-dialog/therapist-registration-dialog.component';
+import { mapAvailableTemplateItemsToCalendarEvents } from '../../../../core/mappers';
 
 @Component({
   selector: 'app-therapist-detail',
@@ -40,7 +33,7 @@ import { ToastrService } from 'ngx-toastr';
     MatListModule,
     CalendarModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './therapist-detail.component.html',
   styleUrl: './therapist-detail.component.scss',
@@ -57,7 +50,6 @@ export class TherapistDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
-    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +61,7 @@ export class TherapistDetailComponent implements OnInit {
     });
   }
 
-  combinedEducationMajorDegree(major: string | null, degree: string| null): string {
+  combinedEducationMajorDegree(major: string | null, degree: string | null): string {
     let result = '';
     if (major) {
       result += major;
@@ -80,7 +72,7 @@ export class TherapistDetailComponent implements OnInit {
       }
       result += degree;
     }
-    return result
+    return result;
   }
 
   loadTherapistDetail(id: string) {
@@ -102,33 +94,9 @@ export class TherapistDetailComponent implements OnInit {
 
   loadAvailabilityTemplate() {
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 = Monday
-
-    this.events =
-      this.therapistDetail?.availabilityTemplates.map(template => {
-        // Parse start time
-        const [startHour, startMinute] = template.startTime.split(':').map(Number);
-
-        // Parse end time
-        const [endHour, endMinute] = template.endTime.split(':').map(Number);
-
-        // Calculate the day by adding days to week start
-        // Since our template uses 1 for Monday, we need to adjust by -1
-        // to match date-fns where Monday is 0
-        const dayDate = addDays(weekStart, template.dateOfWeek - 1);
-
-        // Set the hours and minutes for start and end
-        const start = setMinutes(setHours(dayDate, startHour), startMinute);
-        const end = setMinutes(setHours(dayDate, endHour), endMinute);
-
-        return {
-          start: start,
-          end: end,
-          color: {
-            primary: '#54b054',
-            secondary: '#54b054',
-          },
-        } as CalendarEvent;
-      }) ?? [];
+    this.events = this.therapistDetail?.availabilityTemplates.map(template =>
+      mapAvailableTemplateItemsToCalendarEvents(template, weekStart)
+    ) ?? [];
   }
 
   openRegistrationDialog(): void {
@@ -143,6 +111,6 @@ export class TherapistDetailComponent implements OnInit {
       if (result) {
         console.log(result);
       }
-    })
+    });
   }
 }

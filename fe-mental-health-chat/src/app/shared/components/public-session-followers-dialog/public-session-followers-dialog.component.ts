@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { PublicSessionsApiService } from '../../../core/api-services/public-sessions-api.service';
-import { PublicSessionFollowerResponse } from '../../../core/models/public-session-follower-response.model';
+import { PublicSessionFollowerResponse } from '../../../core/models/common/public-session-follower-response.model';
 import { finalize } from 'rxjs';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';

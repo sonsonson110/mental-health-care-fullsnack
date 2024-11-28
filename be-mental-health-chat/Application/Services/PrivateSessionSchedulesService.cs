@@ -199,13 +199,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         var hasPrivateSessionScheduleOccupied = await _context.PrivateSessionSchedules
             .Where(schedule => schedule.Date == request.Date)
             .Where(schedule => request.Id == null || schedule.Id != request.Id) // skip self check if updating
-            .AnyAsync(s =>
-                // Case 1: New start time falls within existing schedule
-                (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
-                // Case 2: New end time falls within existing schedule
-                (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
-                // Case 3: New schedule completely encompasses existing schedule
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime));
+            .AnyAsync(s => s.StartTime < request.EndTime && s.EndTime > request.StartTime);
         if (hasPrivateSessionScheduleOccupied)
         {
             return (true, "Private session schedule time is occupied");
@@ -216,18 +210,23 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             .Where(s => s.TherapistId == therapistId
                         && s.Date == request.Date
                         && !s.IsCancelled)
-            .Where(s =>
-                // Case 1: New session starts during an existing session
-                (s.StartTime <= request.StartTime && s.EndTime > request.StartTime) ||
-                // Case 2: New session ends during an existing session
-                (s.StartTime < request.EndTime && s.EndTime >= request.EndTime) ||
-                // Case 3: New session completely contains an existing session
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime))
+            .Where(s => s.StartTime < request.EndTime && s.EndTime > request.StartTime)
             .AnyAsync();
 
         if (hasPublicSessionOccupied)
             return (true,
                 $"A public session already exists on {request.Date} between {request.StartTime} and {request.EndTime}");
+        
+        // Check conflict with unavailable override 
+        var hasOverrideConflict = await _context.AvailabilityOverrides
+            .Where(e => e.TherapistId == therapistId && !e.IsAvailable)
+            .Where(e => e.Date == request.Date)
+            .Where(e => e.StartTime < request.EndTime && e.EndTime > request.StartTime)
+            .AnyAsync();
+        if (hasOverrideConflict)
+        {
+            return (true, "An override conflict with submitted date");
+        }
 
         return (false, null);
     }

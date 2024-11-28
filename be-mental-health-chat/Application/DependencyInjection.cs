@@ -20,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<IPrivateSessionSchedulesService, PrivateSessionSchedulesService>();
         services.AddScoped<IPublicSessionsService, PublicSessionsService>();
         services.AddScoped<IPostsService, PostsService>();
+        services.AddScoped<IAvailabilityTemplateService, AvailabilityTemplateService>();
+        services.AddScoped<IAvailabilityOverridesService, AvailabilityOverridesService>();
         
         // Scan all assemblies for profiles
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

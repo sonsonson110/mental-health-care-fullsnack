@@ -1,6 +1,6 @@
-import { PublicSessionType } from './enums/public-session-type.enum';
-import { Gender } from './enums/gender.enum';
-import { PublicSessionFollowType } from './enums/public-session-follow-type.enum';
+import { PublicSessionType } from '../enums/public-session-type.enum';
+import { Gender } from '../enums/gender.enum';
+import { PublicSessionFollowType } from '../enums/public-session-follow-type.enum';
 
 export interface PublicSessionSummaryResponse {
   id?: string;  // optional Guid

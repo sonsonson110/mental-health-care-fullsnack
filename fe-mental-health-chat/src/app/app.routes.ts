@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { WelcomeComponent } from './shared/components/welcome/welcome.component';
 import { LoginComponent } from './modules/login/login.component';
 import { RegisterComponent } from './modules/register/register.component';
 import { AiChatsComponent } from './modules/ai-chats/ai-chats.component';
@@ -22,10 +21,9 @@ import { TherapistSummariesComponent } from './modules/therapists/components/the
 import { ManageSchedulesComponent } from './modules/manage-schedules/manage-schedules.component';
 import { MyPublicSessionsComponent } from './modules/my-public-sessions/my-public-sessions.component';
 import { PublicSessionsComponent } from './modules/public-sessions/public-sessions.component';
-import {
-  PrivateSessionSchedulesComponent
-} from './modules/private-session-schedules/private-session-schedules.component';
+import { PrivateSessionSchedulesComponent } from './modules/private-session-schedules/private-session-schedules.component';
 import { PostsComponent } from './modules/posts/posts.component';
+import { ManageWorkingTimeComponent } from './modules/manage-working-time/manage-working-time.component';
 
 export const routes: Routes = [
   {
@@ -33,7 +31,6 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', component: WelcomeComponent, pathMatch: 'full' },
       {
         path: 'ai-chats',
         component: AiChatsComponent,
@@ -86,7 +83,7 @@ export const routes: Routes = [
       },
       {
         path: 'private-session-schedules',
-        component: PrivateSessionSchedulesComponent
+        component: PrivateSessionSchedulesComponent,
       },
       {
         path: 'client-chats',
@@ -116,6 +113,12 @@ export const routes: Routes = [
         component: MyPublicSessionsComponent,
         canActivate: [therapistOnlyGuard],
       },
+      {
+        path: 'manage-working-time',
+        component: ManageWorkingTimeComponent,
+        canActivate: [therapistOnlyGuard],
+      },
+      { path: '', redirectTo: 'posts', pathMatch: 'full' },
     ],
   },
 

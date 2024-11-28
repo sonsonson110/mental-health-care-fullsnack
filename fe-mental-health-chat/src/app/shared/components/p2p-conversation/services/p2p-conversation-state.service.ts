@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, finalize, Observable, tap } from 'rxjs';
-import { P2pConversationSidenavItem } from '../../../../core/models/p2p-conversation-sidenav-item.model';
+import { P2pConversationSidenavItem } from '../../../../core/models/common/p2p-conversation-sidenav-item.model';
 import { ConversationsApiService } from '../../../../core/api-services/conversations-api.service';
 import { SignalRChatService } from '../../../../core/api-services/signal-r-chat.service';
-import { P2pConversationMessageDisplay } from '../../../../core/models/p2p-conversation-mesage-display.model';
-import { P2pMessageDto } from '../../../../core/models/p2p-conversation-detail-response.model';
+import { P2pConversationMessageDisplay } from '../../../../core/models/common/p2p-conversation-mesage-display.model';
+import { P2pMessageDto } from '../../../../core/models/common/p2p-conversation-detail-response.model';
 import { ToastrService } from 'ngx-toastr';
-import { P2pMessageRequest } from '../../../../core/models/p2p-message-request.model';
+import { P2pMessageRequest } from '../../../../core/models/common/p2p-message-request.model';
 
 @Injectable()
 export class P2pConversationStateService {

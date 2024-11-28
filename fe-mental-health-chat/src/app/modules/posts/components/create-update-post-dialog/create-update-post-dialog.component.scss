@@ -1,3 +1,6 @@
+@use '@angular/material' as mat;
+@import '../../../../../styles.scss';
+
 mat-dialog-content {
   form {
     margin-top: 1rem;
@@ -14,5 +17,19 @@ mat-dialog-content {
 mat-dialog-actions {
   .spacer {
     flex: 1 1 auto;
+  }
+
+  .warn-button {
+    color: mat.get-theme-color(
+        $fe-mental-health-chat-theme,
+        error
+    );
+
+    &:hover {
+      background-color: mat.get-theme-color(
+          $fe-mental-health-chat-theme,
+          error-container
+      );
+    }
   }
 }

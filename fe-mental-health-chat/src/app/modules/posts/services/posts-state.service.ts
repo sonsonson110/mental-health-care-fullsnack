@@ -74,10 +74,14 @@ export class PostsStateService {
   }
 
   likePost(postId: string) {
-    return this.postsApiService
+    this.postsApiService
       .likePost(postId)
       .pipe(tap(() => this.loadPosts()))
       .subscribe();
+  }
+
+  deletePost(postId: string) {
+    return this.postsApiService.deletePost(postId).pipe(tap(() => this.loadPosts()));
   }
 }
 

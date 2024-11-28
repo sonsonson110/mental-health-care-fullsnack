@@ -9,7 +9,7 @@ import { mapPrivateSessionScheduleToCalendarEvent } from '../../../core/mappers'
 import {
   PrivateSessionScheduleResponse,
 } from '../../../core/models/modules/manage-schedules/therapist-schedule-response.model';
-import { TherapistRegistrationResponse } from '../../../core/models/therapist-registration-response.model';
+import { TherapistRegistrationResponse } from '../../../core/models/common/therapist-registration-response.model';
 import { addDays, format } from 'date-fns';
 
 @Injectable()

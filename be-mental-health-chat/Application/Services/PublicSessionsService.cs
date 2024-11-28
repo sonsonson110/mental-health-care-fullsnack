@@ -28,6 +28,7 @@ public class PublicSessionsService : IPublicSessionsService
         var publicSessions = await _context.PublicSessions
             .Where(p => request.TherapistId == null || p.TherapistId == request.TherapistId)
             .Where(p => request.IsCancelled == null || p.IsCancelled == request.IsCancelled)
+            .Where(p => p.Date >= DateOnly.FromDateTime(DateTime.Today))
             .OrderByDescending(p => p.Date).ThenByDescending(p => p.StartTime)
             .Select(p => new GetPublicSessionSummaryResponseDto
             {
@@ -194,13 +195,7 @@ public class PublicSessionsService : IPublicSessionsService
                         && s.Date == request.Date
                         && !s.IsCancelled
                         && (request.Id == null || s.Id != request.Id)) // skip self check when updating
-            .Where(s =>
-                // Case 1: New session starts during an existing session
-                (s.StartTime <= request.StartTime && s.EndTime > request.StartTime) ||
-                // Case 2: New session ends during an existing session
-                (s.StartTime < request.EndTime && s.EndTime >= request.EndTime) ||
-                // Case 3: New session completely contains an existing session
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime))
+            .Where(s => s.StartTime < request.EndTime && s.EndTime > request.StartTime)
             .AnyAsync();
 
         if (hasPublicSessionConflict)
@@ -212,18 +207,23 @@ public class PublicSessionsService : IPublicSessionsService
             .Where(schedule => schedule.Date == request.Date)
             .Where(schedule => schedule.PrivateSessionRegistration.TherapistId == therapistId)
             .Where(schedule => schedule.IsCancelled == false)
-            .AnyAsync(s =>
-                // Case 1: New start time falls within existing schedule
-                (request.StartTime >= s.StartTime && request.StartTime < s.EndTime) ||
-                // Case 2: New end time falls within existing schedule
-                (request.EndTime > s.StartTime && request.EndTime <= s.EndTime) ||
-                // Case 3: New schedule completely encompasses existing schedule
-                (request.StartTime <= s.StartTime && request.EndTime >= s.EndTime));
+            .AnyAsync(s => s.StartTime < request.EndTime && s.EndTime > request.StartTime);
 
         if (hasPrivateSessionScheduleOccupied)
             return (true,
                 $"A private session schedule already exists on {request.Date} between {request.StartTime} and {request.EndTime}");
 
+        // Check conflict with unavailable override 
+        var hasOverrideConflict = await _context.AvailabilityOverrides
+            .Where(e => e.TherapistId == therapistId && !e.IsAvailable)
+            .Where(e => e.Date == request.Date)
+            .Where(e => e.StartTime < request.EndTime && e.EndTime > request.StartTime)
+            .AnyAsync();
+        if (hasOverrideConflict)
+        {
+            return (true, "An override conflict with submitted date");
+        }
+        
         return (false, null);
     }
 }

@@ -1,0 +1,37 @@
+@use '@angular/material' as mat;
+@import '../../../../../styles.scss';
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-spinner {
+  margin-right: 8px;
+}
+
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.warn-button {
+  color: mat.get-theme-color($fe-mental-health-chat-theme, error, 50);
+
+  &:hover {
+    background-color: mat.get-theme-color(
+        $fe-mental-health-chat-theme,
+        error,
+        80
+    );
+  }
+}

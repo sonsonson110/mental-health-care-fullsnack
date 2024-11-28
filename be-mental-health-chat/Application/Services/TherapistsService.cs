@@ -194,7 +194,7 @@ public class TherapistsService : ITherapistsService
                     .ToList(),
                 IssueTags = e.IssueTags.OrderBy(i => i.Name).ToList(),
                 AvailabilityTemplates = e.AvailabilityTemplates
-                    .Select(at => new TherapistAvailabilityTemplateDto
+                    .Select(at => new AvailableTemplateItem
                     {
                         Id = at.Id,
                         DateOfWeek = at.DateOfWeek,

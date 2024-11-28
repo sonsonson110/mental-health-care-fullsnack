@@ -1,0 +1,36 @@
+<div class="header">
+  <button mat-icon-button (click)="onPreviousWeekClick()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+  <span>{{ timeRangeDisplay }}</span>
+  <button mat-icon-button (click)="onNextWeekClick()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+  <div>
+    <mat-form-field style="width: 0; height: 0">
+      <input matInput [matDatepicker]="picker" [formControl]="selectedDateFormControl" hidden>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+    <button mat-icon-button (click)="picker.open()">
+      <mat-icon>calendar_month</mat-icon>
+    </button>
+  </div>
+  @if (loading$ | async) {
+    <mat-spinner diameter="30"></mat-spinner>
+  }
+  <span class="spacer"></span>
+  <button mat-icon-button (click)="onRefreshClick()" style="margin-left: auto">
+    <mat-icon>refresh</mat-icon>
+  </button>
+</div>
+
+<mwl-calendar-week-view
+  [viewDate]="viewDate"
+  [events]="events"
+  [daysInWeek]="daysInWeek"
+  [weekStartsOn]="1"
+  [dayStartHour]="5"
+  [dayEndHour]="22"
+  (hourSegmentClicked)="onHourSegmentClick($event.date)"
+  (eventClicked)="onEventClick($event.event)"
+></mwl-calendar-week-view>

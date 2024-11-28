@@ -1,19 +1,23 @@
 <span mat-dialog-title>Public session followers</span>
 <mat-dialog-content>
-  @if (followers.length === 0) {
-    No followers yet
-  }
-  <mat-list>
-    @for (follower of followers; track follower.id) {
-      <mat-list-item>
-        <img matListItemAvatar [src]="follower.avatarName | parseAvatarUrl:follower.gender" alt="avatar">
-        <span matListItemTitle>{{ follower.fullName }}</span>
-        <p matListItemLine>
-          <span>{{ follower.type | publicSessionFollowType}}</span>
-        </p>
-      </mat-list-item>
+  @if (isLoading) {
+    <span>Loading...</span>
+  } @else {
+    @if (followers.length === 0) {
+      No followers yet
     }
-  </mat-list>
+    <mat-list>
+      @for (follower of followers; track follower.id) {
+        <mat-list-item>
+          <img matListItemAvatar [src]="follower.avatarName | parseAvatarUrl:follower.gender" alt="avatar">
+          <span matListItemTitle>{{ follower.fullName }}</span>
+          <p matListItemLine>
+            <span>{{ follower.type | publicSessionFollowType }}</span>
+          </p>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

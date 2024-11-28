@@ -41,7 +41,7 @@ public class GeminiService : IGeminiService
             GenerationConfig = new GenerationConfig
             {
                 Temperature = 0.9f,
-                TopP = 1,
+                TopP = 0.65f,
                 MaxOutputTokens = 2048,
                 ResponseMimeType = "text/plain"
             }

@@ -6,7 +6,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { P2pConversationSidenavItem } from '../../../core/models/p2p-conversation-sidenav-item.model';
+import { P2pConversationSidenavItem } from '../../../core/models/common/p2p-conversation-sidenav-item.model';
 import { Observable } from 'rxjs';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DomSanitizer } from '@angular/platform-browser';

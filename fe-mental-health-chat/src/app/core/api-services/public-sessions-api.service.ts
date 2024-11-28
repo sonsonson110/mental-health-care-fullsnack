@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.dev';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CreateUpdatePublicSessionRequest } from '../models/modules/my-public-session/create-update-public-session-request.model';
-import { PublicSessionSummariesRequest } from '../models/public-session-summaries-request';
-import { PublicSessionSummaryResponse } from '../models/public-session-summary-response.model';
+import { PublicSessionSummariesRequest } from '../models/common/public-session-summaries-request';
+import { PublicSessionSummaryResponse } from '../models/common/public-session-summary-response.model';
 import { FollowPublicSessionRequest } from '../models/modules/public-sessions/follow-public-session-request.model';
-import { PublicSessionFollowerResponse } from '../models/public-session-follower-response.model';
+import { PublicSessionFollowerResponse } from '../models/common/public-session-follower-response.model';
 
 @Injectable({
   providedIn: 'root',

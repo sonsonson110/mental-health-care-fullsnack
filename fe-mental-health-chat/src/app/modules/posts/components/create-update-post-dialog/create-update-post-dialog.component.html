@@ -33,5 +33,6 @@
   }
   <span class="spacer"></span>
   <button mat-button mat-dialog-close>Cancel</button>
+  <button *ngIf="data?.id" mat-button class="warn-button" (click)="onDelete()">Delete</button>
   <button mat-button (click)="onSubmit()" [disabled]="postFormGroup.invalid">{{ capitalizedMode }}</button>
 </mat-dialog-actions>

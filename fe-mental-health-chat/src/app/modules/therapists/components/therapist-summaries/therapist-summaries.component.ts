@@ -23,7 +23,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { genders } from '../../../../core/constants/gender.constant';
 import { experienceLevelOptions } from '../../constants/experience-level-filter-option.constant';
-import { availabilityDateOptions } from '../../constants/availability-filter-option.constant';
+import { datesOfWeek } from '../../../../core/constants/dates-of-week.constant';
 import { Gender } from '../../../../core/models/enums/gender.enum';
 import { DateOfWeek } from '../../../../core/models/enums/date-of-week.enum';
 
@@ -72,7 +72,7 @@ export class TherapistSummariesComponent implements OnInit {
 
   readonly genders = genders;
   readonly experienceLevelOptions = experienceLevelOptions;
-  readonly availabilityDateOptions = availabilityDateOptions;
+  readonly availabilityDateOptions = datesOfWeek;
 
   constructor(
     breakpointObserver: BreakpointObserver,

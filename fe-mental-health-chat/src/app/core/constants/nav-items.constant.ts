@@ -45,6 +45,11 @@ export const therapistNavItems: NavItem[] = [
     route: 'client-chats',
   },
   {
+    displayName: 'My public sessions',
+    iconName: 'campaign',
+    route: 'my-public-sessions',
+  },
+  {
     displayName: 'Manage registrations',
     iconName: 'app_registration',
     route: 'manage-registrations',
@@ -55,8 +60,8 @@ export const therapistNavItems: NavItem[] = [
     route: 'manage-schedules',
   },
   {
-    displayName: 'My public sessions',
-    iconName: 'campaign',
-    route: 'my-public-sessions',
+    displayName: 'Manage working time',
+    iconName: 'work_history',
+    route: 'manage-working-time',
   }
 ];

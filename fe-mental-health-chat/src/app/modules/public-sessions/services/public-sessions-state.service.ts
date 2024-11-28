@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PublicSessionsApiService } from '../../../core/api-services/public-sessions-api.service';
-import { PublicSessionSummaryResponse } from '../../../core/models/public-session-summary-response.model';
+import { PublicSessionSummaryResponse } from '../../../core/models/common/public-session-summary-response.model';
 import { BehaviorSubject, finalize, tap } from 'rxjs';
 import { PublicSessionFollowType } from '../../../core/models/enums/public-session-follow-type.enum';
 

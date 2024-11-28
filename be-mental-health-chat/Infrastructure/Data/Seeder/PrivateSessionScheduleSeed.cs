@@ -38,8 +38,8 @@ internal static class PrivateSessionScheduleSeed
                         ? "Session cancelled due to unavoidable circumstances" 
                         : "Session completed successfully",
                     IsCancelled = isCancelled,
-                    CreatedAt = DateTime.UtcNow.AddDays(-7 * (i + 1)),
-                    UpdatedAt = DateTime.UtcNow.AddDays(-7 * (i + 1))
+                    CreatedAt = DateTime.Now.AddDays(-7 * (i + 1)),
+                    UpdatedAt = DateTime.Now.AddDays(-7 * (i + 1))
                 });
             }
         }

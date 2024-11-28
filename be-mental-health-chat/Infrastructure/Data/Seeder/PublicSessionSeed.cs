@@ -33,7 +33,7 @@ internal static class PublicSessionSeed
                     Id = Guid.NewGuid(),
                     Title = sessionTitles[random.Next(sessionTitles.Length)],
                     Description = descriptions[random.Next(descriptions.Length)],
-                    Date = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(random.Next(3, 30))),
+                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(random.Next(3, 30))),
                     StartTime = new TimeOnly(random.Next(8, 12), 0),
                     EndTime = new TimeOnly(random.Next(13, 18), 0),
                     Location = locations[random.Next(locations.Length)],

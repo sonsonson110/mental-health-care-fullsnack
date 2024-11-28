@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PublicSessionsStateService } from './services/public-sessions-state.service';
 import { Observable } from 'rxjs';
-import { PublicSessionSummaryResponse } from '../../core/models/public-session-summary-response.model';
+import { PublicSessionSummaryResponse } from '../../core/models/common/public-session-summary-response.model';
 import { PublicSessionSummaryComponent } from '../../shared/components/public-session-summary/public-session-summary.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';

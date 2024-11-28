@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PublicSessionsApiService } from '../../../core/api-services/public-sessions-api.service';
 import { CreateUpdatePublicSessionRequest } from '../../../core/models/modules/my-public-session/create-update-public-session-request.model';
-import { PublicSessionSummaryResponse } from '../../../core/models/public-session-summary-response.model';
+import { PublicSessionSummaryResponse } from '../../../core/models/common/public-session-summary-response.model';
 import { BehaviorSubject, of, switchMap, tap } from 'rxjs';
 import { AuthApiService } from '../../../core/api-services/auth-api.service';
 import { FilesApiService } from '../../../core/api-services/files-api.service';

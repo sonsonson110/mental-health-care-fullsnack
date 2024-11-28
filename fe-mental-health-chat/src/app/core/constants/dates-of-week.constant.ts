@@ -1,6 +1,6 @@
-import { DateOfWeek } from '../../../core/models/enums/date-of-week.enum';
+import { DateOfWeek } from '../models/enums/date-of-week.enum';
 
-export const availabilityDateOptions = [
+export const datesOfWeek = [
     { key: DateOfWeek.MONDAY, value: 'Monday' },
     { key: DateOfWeek.TUESDAY, value: 'Tuesday' },
     { key: DateOfWeek.WEDNESDAY, value: 'Wednesday' },

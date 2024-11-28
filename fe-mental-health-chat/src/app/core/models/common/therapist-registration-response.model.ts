@@ -1,5 +1,5 @@
-import { PrivateSessionRegistrationStatus } from './enums/private-session-registration-status.enum';
-import { Gender } from './enums/gender.enum';
+import { PrivateSessionRegistrationStatus } from '../enums/private-session-registration-status.enum';
+import { Gender } from '../enums/gender.enum';
 
 export interface TherapistRegistrationResponse {
   id: string;

@@ -3,8 +3,8 @@ import { environment } from '../../../environments/environment.dev';
 import * as signalR from '@microsoft/signalr';
 import { AuthApiService } from './auth-api.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { P2pMessageRequest } from '../models/p2p-message-request.model';
-import { P2pConversationMessageDisplay } from '../models/p2p-conversation-mesage-display.model';
+import { P2pMessageRequest } from '../models/common/p2p-message-request.model';
+import { P2pConversationMessageDisplay } from '../models/common/p2p-conversation-mesage-display.model';
 import { ToastrService } from 'ngx-toastr';
 import { ProblemDetail } from '../models/common/problem-detail.model';
 

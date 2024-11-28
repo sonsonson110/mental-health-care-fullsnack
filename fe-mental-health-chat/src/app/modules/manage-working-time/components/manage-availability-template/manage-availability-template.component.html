@@ -1,0 +1,98 @@
+<mwl-calendar-week-view
+  precision="minutes"
+  [viewDate]="viewDate"
+  [events]="events"
+  [hourSegments]="1"
+  [weekStartsOn]="1"
+  [dayStartHour]="5"
+  [dayEndHour]="22"
+  (eventClicked)="onEventClick($event.event)"
+  [headerTemplate]="mwlCalendarWeekViewHeaderTemplate"
+>
+  <ng-template
+    #mwlCalendarWeekViewHeaderTemplate
+    let-days="days">
+    <div class="cal-day-headers">
+      <div
+        class="cal-header"
+        *ngFor="let day of days">
+        <b>{{ day.date | date:'E' }}</b>
+      </div>
+    </div>
+  </ng-template>
+</mwl-calendar-week-view>
+
+<div class="edit-panel">
+  <p class="mat-title-large">Edit panel</p>
+  <p class="mat-title-medium">Add working time</p>
+  <form [formGroup]="addWorkingTimeFormGroup" (ngSubmit)="onAddWorkingTime()">
+    <mat-form-field appearance="outline" style="width: 140px">
+      <mat-select formControlName="dateOfWeek">
+        @for (option of datesOfWeek; track option.key) {
+          <mat-option [value]="option.key">{{
+              option.value
+            }}
+          </mat-option>
+        }
+      </mat-select>
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('dateOfWeek')?.hasError('required')">
+        required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 130px">
+      <input matInput type="number" min="5" max="21" formControlName="startTime" placeholder="Start hour" />
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('startTime')?.hasError('required')">
+        required
+      </mat-error>
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('startTime')?.hasError('min')">
+        Must be ≥ 5
+      </mat-error>
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('startTime')?.hasError('max')">
+        Must be ≤ 21
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" style="width: 130px">
+      <input matInput type="number" min="6" max="22" formControlName="endTime" placeholder="End hour" />
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('endTime')?.hasError('required')">
+        required
+      </mat-error>
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('endTime')?.hasError('min')">
+        Must be ≥ 6
+      </mat-error>
+      <mat-error *ngIf="addWorkingTimeFormGroup.get('endTime')?.hasError('max')">
+        Must be ≤ 22
+      </mat-error>
+    </mat-form-field>
+    <button mat-button type="submit" [disabled]="addWorkingTimeFormGroup.invalid">Add</button>
+  </form>
+  @if (pendingToAddWorkingTimeItems$ | async; as items) {
+    <span>Pending to be added:</span>
+    <mat-list>
+      @for (item of items; track $index) {
+        <mat-list-item>
+          <span matListItemTitle>{{ item.dateOfWeek | dateOfWeek }}: {{ item.startTime }} - {{ item.endTime }}</span>
+          <button mat-icon-button matListItemMeta (click)="onDeletePendingAddWorkingTimeItem($index)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+  @if (pendingToDeleteEvents | async; as items) {
+    <span>Pending to be deleted:</span>
+    <mat-list>
+      @for (item of items; track item.id) {
+        <mat-list-item>
+          <span matListItemTitle>{{ item.start | date:'EEEE' }}: {{ item.start | date: 'H' }}
+            - {{ item.end | date: 'H' }}</span>
+          <button mat-icon-button matListItemMeta (click)="onDeletePendingToDeleteWorkingTimeItem(item)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      }
+    </mat-list>
+  }
+  <button mat-stroked-button style="margin-top: 1rem;" (click)="onSubmit()">Save changes</button>
+</div>
