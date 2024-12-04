@@ -1,7 +1,9 @@
 using API.Hubs;
 using Application;
+using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +100,11 @@ app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chat");
 app.MapControllers();
+
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 // Initialize the database
 // await DatabaseInitializer.Initialize(app.Services);
