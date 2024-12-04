@@ -1,8 +1,10 @@
 ﻿using System.Text;
+using Application.Caching;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.BackgroundTasks;
 using Infrastructure.BackgroundTasks.Interfaces;
+using Infrastructure.Caching;
 using Infrastructure.Data;
 using Infrastructure.Data.Services;
 using Infrastructure.FileStorage;
@@ -74,7 +76,6 @@ public static class DependencyInjection
         services.AddHttpClient<IGeminiService, GeminiService>();
         
         // Jwt authentication
-        services.AddMemoryCache();
         services.Configure<JwtSettings>(
             configuration.GetSection("Jwt"));
         services.AddScoped<CustomJwtBearerEvents>();
@@ -93,7 +94,7 @@ public static class DependencyInjection
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = jwtSettings.Issuer,
+                ValidIssuer = jwtSettings?.Issuer ?? throw new Exception("No jwt settings provived"),
                 ValidAudience = jwtSettings.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
                 ClockSkew = TimeSpan.Zero // remove default 5 minutes delay expiration check
@@ -102,6 +103,14 @@ public static class DependencyInjection
             options.EventsType = typeof(CustomJwtBearerEvents);
         });
         services.AddAuthorization();
+        
+        // Caching 
+        services.AddStackExchangeRedisCache(option =>
+        {
+            option.Configuration = configuration.GetConnectionString("Redis");
+            option.InstanceName = configuration["Redis:InstanceName"];
+        });
+        services.AddSingleton<ICacheService, CacheService>();
         
         return services;
     }

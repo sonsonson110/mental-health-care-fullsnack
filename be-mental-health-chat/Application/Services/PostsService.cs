@@ -1,4 +1,5 @@
-﻿using Application.DTOs.PostsService;
+﻿using Application.Caching;
+using Application.DTOs.PostsService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;
@@ -12,36 +13,45 @@ public class PostsService : IPostsService
 {
     private readonly IMentalHealthContext _context;
     private readonly IMapper _mapper;
+    private readonly ICacheService _cacheService;
 
-    public PostsService(IMentalHealthContext context, IMapper mapper)
+    public PostsService(IMentalHealthContext context, IMapper mapper, ICacheService cacheService)
     {
         _context = context;
         _mapper = mapper;
+        _cacheService = cacheService;
     }
 
     public async Task<List<GetPostResponseDto>> GetPublicPostsAsync(Guid userId, GetPublicPostsRequestDto request)
     {
-        var publicPosts = await _context.Posts
-            .Where(e => e.IsPrivate == false)
-            .OrderByDescending(e => e.UpdatedAt)
-            .Select(e => new GetPostResponseDto
-            {
-                Id = e.Id,
-                Title = e.Title,
-                Content = e.Content,
-                IsPrivate = e.IsPrivate,
-                LikeCount = e.Likes.Count,
-                UpdatedAt = e.UpdatedAt,
-                IsLiked = e.Likes.Any(u => u.UserId == userId),
-                User = new UserDto
+        var cacheKey = "public-posts";
+
+        var result = await _cacheService.GetAsync(cacheKey, async () =>
+        {
+            var publicPosts = await _context.Posts
+                .Where(e => e.IsPrivate == false)
+                .OrderByDescending(e => e.UpdatedAt)
+                .Select(e => new GetPostResponseDto
                 {
-                    Id = e.UserId,
-                    AvatarName = e.User.AvatarName,
-                    FullName = e.User.FirstName + " " + e.User.LastName,
-                    Gender = e.User.Gender,
-                }
-            }).ToListAsync();
-        return publicPosts;
+                    Id = e.Id,
+                    Title = e.Title,
+                    Content = e.Content,
+                    IsPrivate = e.IsPrivate,
+                    LikeCount = e.Likes.Count,
+                    UpdatedAt = e.UpdatedAt,
+                    IsLiked = e.Likes.Any(u => u.UserId == userId),
+                    User = new UserDto
+                    {
+                        Id = e.UserId,
+                        AvatarName = e.User.AvatarName,
+                        FullName = e.User.FirstName + " " + e.User.LastName,
+                        Gender = e.User.Gender,
+                    }
+                }).ToListAsync();
+            return publicPosts;
+        });
+
+        return result;
     }
 
     public async Task<List<GetPostResponseDto>> GetPersonalPostsAsync(Guid userId, GetPersonalPostRequestDto request)

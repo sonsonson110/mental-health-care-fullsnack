@@ -1,4 +1,5 @@
-﻿using Application.DTOs.UserService;
+﻿using Application.Caching;
+using Application.DTOs.UserService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;
@@ -7,6 +8,7 @@ using Domain.Enums;
 using LanguageExt.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Application.Services;
 
@@ -15,13 +17,16 @@ public class UserService : IUserService
     private readonly IMentalHealthContext _context;
     private readonly IMapper _mapper;
     private readonly UserManager<User> _userManager;
+    private readonly ICacheService _cacheService;
 
 
-    public UserService(IMentalHealthContext context, IMapper mapper, UserManager<User> userManager)
+    public UserService(IMentalHealthContext context, IMapper mapper, UserManager<User> userManager,
+        ICacheService cacheService)
     {
         _context = context;
         _mapper = mapper;
         _userManager = userManager;
+        _cacheService = cacheService;
     }
 
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequestDto request)
@@ -107,8 +112,9 @@ public class UserService : IUserService
 
         // find existing user first
         var existingUser = await _userManager.FindByIdAsync(userId.ToString());
-        
-        if (existingUser!.IsTherapist) {
+
+        if (existingUser!.IsTherapist)
+        {
             // validate if user has no active client
             var hasActiveClient = await _context.PrivateSessionRegistrations
                 .Where(r => r.TherapistId == userId)
@@ -309,12 +315,12 @@ public class UserService : IUserService
     {
         // validate
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        
+
         if (user == null)
         {
             return new Result<bool>(new NotFoundException("User not found"));
         }
-        
+
         var verifyOldPassword = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!verifyOldPassword)
         {
@@ -355,7 +361,8 @@ public class UserService : IUserService
             return new Result<bool>(new BadRequestException("Current password is incorrect"));
         }
 
-        if (user.IsTherapist) {
+        if (user.IsTherapist)
+        {
             // validate if user has no active client
             var hasActiveClient = await _context.PrivateSessionRegistrations
                 .Where(r => r.TherapistId == userId)
@@ -367,6 +374,7 @@ public class UserService : IUserService
                 return new Result<bool>(new BadRequestException("User has active client"));
             }
         }
+
         // validate if user has no active therapist services
         var hasActiveTherapyService = await _context.PrivateSessionRegistrations
             .Where(r => r.ClientId == userId)
@@ -377,11 +385,25 @@ public class UserService : IUserService
         {
             return new Result<bool>(new BadRequestException("User has active therapy service"));
         }
-        
-        // attempt to soft delete user
+
+        // validate if user has future active public session
+        var hasActivePublicSession = await _context.PublicSessions
+            .Where(e => e.TherapistId == userId && !e.IsCancelled)
+            .Where(e => e.Date.ToDateTime(e.StartTime) >= DateTime.UtcNow.AddHours(7))
+            .AnyAsync();
+        if (hasActivePublicSession)
+        {
+            return new Result<bool>(new BadRequestException("User has active public session"));
+        }
+
+        // attempt to soft-delete user and cached jwt validation fields
         user.IsDeleted = true;
         await _userManager.UpdateAsync(user);
-        
+
+        var cacheKey = $"user-validation-{userId}";
+        await _cacheService.RemoveAsync(cacheKey);
+
+
         return new Result<bool>(true);
     }
 

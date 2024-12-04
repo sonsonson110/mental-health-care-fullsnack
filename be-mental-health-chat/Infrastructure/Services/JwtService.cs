@@ -1,12 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Caching;
 using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Data;
 using Infrastructure.Settings;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,17 +15,13 @@ public class JwtService : IJwtService
 {
     private readonly JwtSettings _jwtSettings;
     private readonly IMentalHealthContext _context;
-    private readonly IMemoryCache _cache;
-    private readonly MemoryCacheEntryOptions _cacheOptions;
+    private readonly ICacheService _cacheService;
 
-    public JwtService(IOptions<JwtSettings> jwtSettings, IMentalHealthContext context, IMemoryCache cache)
+    public JwtService(IOptions<JwtSettings> jwtSettings, IMentalHealthContext context, ICacheService cacheService)
     {
         _jwtSettings = jwtSettings.Value;
         _context = context;
-        _cache = cache;
-        _cacheOptions = new MemoryCacheEntryOptions()
-            .SetAbsoluteExpiration(TimeSpan.FromMinutes(5))
-            .SetSlidingExpiration(TimeSpan.FromMinutes(2));
+        _cacheService = cacheService;
     }
 
     public string GenerateJwtToken(User user, IList<string> roles)
@@ -68,17 +63,15 @@ public class JwtService : IJwtService
 
     public async Task<bool> ValidateTokenTimestampAsync(Guid userId, long tokenIssuedAt)
     {
-        var cacheKey = $"user_validation_{userId}";
+        var cacheKey = $"user-validation-{userId}";
 
-        var validationFields = await _cache.GetOrCreateAsync(cacheKey, async entry =>
+        var validationFields = await _cacheService.GetAsync(cacheKey, async () =>
         {
-            entry.SetOptions(_cacheOptions);
-
             var info = await _context.Users
                 .Where(u => u.Id == userId)
                 .Select(u => new { u.IsDeleted, u.LastInvalidatedAt })
                 .FirstOrDefaultAsync();
-
+            
             return info;
         });
 
