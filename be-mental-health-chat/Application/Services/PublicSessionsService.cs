@@ -28,45 +28,38 @@ public class PublicSessionsService : IPublicSessionsService
     public async Task<List<GetPublicSessionSummaryResponseDto>> GetPublicSessionSummariesAsync(Guid userId,
         GetPublicSessionSummariesRequestDto request)
     {
-        var cacheKey = "public-sessions";
-
-        var publicSessions = await _cacheService.GetAsync(cacheKey, async () =>
-        {
-            var publicSessions = await _context.PublicSessions
-                .Where(p => request.TherapistId == null || p.TherapistId == request.TherapistId)
-                .Where(p => request.IsCancelled == null || p.IsCancelled == request.IsCancelled)
-                .Where(p => p.Date >= DateOnly.FromDateTime(DateTime.Today))
-                .OrderByDescending(p => p.Date).ThenByDescending(p => p.StartTime)
-                .Select(p => new GetPublicSessionSummaryResponseDto
+        var publicSessions = await _context.PublicSessions
+            .Where(p => request.TherapistId == null || p.TherapistId == request.TherapistId)
+            .Where(p => request.IsCancelled == null || p.IsCancelled == request.IsCancelled)
+            .Where(p => p.Date >= DateOnly.FromDateTime(DateTime.Today))
+            .OrderByDescending(p => p.Date).ThenByDescending(p => p.StartTime)
+            .Select(p => new GetPublicSessionSummaryResponseDto
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Description = p.Description,
+                Date = p.Date,
+                StartTime = p.StartTime,
+                EndTime = p.EndTime,
+                Type = p.Type,
+                Location = p.Location,
+                IsCancelled = p.IsCancelled,
+                ThumbnailName = p.ThumbnailName,
+                FollowerCount = p.Followers.Count,
+                FollowingType = p.Followers
+                    .Where(f => f.UserId == userId)
+                    .Select(f => f.Type)
+                    .FirstOrDefault(),
+                UpdatedAt = p.UpdatedAt,
+                Therapist = new TherapistDto
                 {
-                    Id = p.Id,
-                    Title = p.Title,
-                    Description = p.Description,
-                    Date = p.Date,
-                    StartTime = p.StartTime,
-                    EndTime = p.EndTime,
-                    Type = p.Type,
-                    Location = p.Location,
-                    IsCancelled = p.IsCancelled,
-                    ThumbnailName = p.ThumbnailName,
-                    FollowerCount = p.Followers.Count,
-                    FollowingType = p.Followers
-                        .Where(f => f.UserId == userId)
-                        .Select(f => f.Type)
-                        .FirstOrDefault(),
-                    UpdatedAt = p.UpdatedAt,
-                    Therapist = new TherapistDto
-                    {
-                        Id = p.TherapistId,
-                        AvatarName = p.Therapist.AvatarName,
-                        FullName = p.Therapist.FirstName + " " + p.Therapist.LastName,
-                        Gender = p.Therapist.Gender,
-                    }
-                })
-                .ToListAsync();
-            return publicSessions;
-        });
-        
+                    Id = p.TherapistId,
+                    AvatarName = p.Therapist.AvatarName,
+                    FullName = p.Therapist.FirstName + " " + p.Therapist.LastName,
+                    Gender = p.Therapist.Gender,
+                }
+            })
+            .ToListAsync();
         return publicSessions;
     }
 
@@ -125,7 +118,7 @@ public class PublicSessionsService : IPublicSessionsService
             return new Result<List<GetPublicSessionFollowerResponseDto>>(
                 new NotFoundException("Public session not found"));
         }
-        
+
         var cacheKey = "public-session-followers";
 
         var followers = await _cacheService.GetAsync(cacheKey, async () =>
