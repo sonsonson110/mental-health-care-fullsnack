@@ -24,33 +24,26 @@ public class PostsService : IPostsService
 
     public async Task<List<GetPostResponseDto>> GetPublicPostsAsync(Guid userId, GetPublicPostsRequestDto request)
     {
-        var cacheKey = "public-posts";
-
-        var result = await _cacheService.GetAsync(cacheKey, async () =>
-        {
-            var publicPosts = await _context.Posts
-                .Where(e => e.IsPrivate == false)
-                .OrderByDescending(e => e.UpdatedAt)
-                .Select(e => new GetPostResponseDto
+        var result = await _context.Posts
+            .Where(e => e.IsPrivate == false)
+            .OrderByDescending(e => e.UpdatedAt)
+            .Select(e => new GetPostResponseDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Content = e.Content,
+                IsPrivate = e.IsPrivate,
+                LikeCount = e.Likes.Count,
+                UpdatedAt = e.UpdatedAt,
+                IsLiked = e.Likes.Any(u => u.UserId == userId),
+                User = new UserDto
                 {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Content = e.Content,
-                    IsPrivate = e.IsPrivate,
-                    LikeCount = e.Likes.Count,
-                    UpdatedAt = e.UpdatedAt,
-                    IsLiked = e.Likes.Any(u => u.UserId == userId),
-                    User = new UserDto
-                    {
-                        Id = e.UserId,
-                        AvatarName = e.User.AvatarName,
-                        FullName = e.User.FirstName + " " + e.User.LastName,
-                        Gender = e.User.Gender,
-                    }
-                }).ToListAsync();
-            return publicPosts;
-        });
-
+                    Id = e.UserId,
+                    AvatarName = e.User.AvatarName,
+                    FullName = e.User.FirstName + " " + e.User.LastName,
+                    Gender = e.User.Gender,
+                }
+            }).ToListAsync();
         return result;
     }
 
@@ -122,19 +115,20 @@ public class PostsService : IPostsService
         {
             return new Result<bool>(new NotFoundException("Post not found"));
         }
-        
+
         var userLikedPost = await _context.Likes
             .Where(e => e.PostId == postId && e.UserId == userId)
             .FirstOrDefaultAsync();
-        
+
         if (userLikedPost == null)
         {
-            _context.Likes.Add(new Like {Id = new Guid(), PostId = postId, UserId = userId});
+            _context.Likes.Add(new Like { Id = new Guid(), PostId = postId, UserId = userId });
         }
         else
         {
             _context.Likes.Remove(userLikedPost);
         }
+
         return await _context.SaveChangesAsync() > 0;
     }
 }

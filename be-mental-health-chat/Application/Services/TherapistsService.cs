@@ -24,7 +24,14 @@ public class TherapistsService : ITherapistsService
     public async Task<List<GetTherapistSummaryResponseDto>> GetTherapistSummariesAsync(
         GetTherapistSummariesRequestDto request)
     {
-        var cacheKey = "therapist-summaries";
+        var cacheKey =
+            string.Format("therapist-summaries?st={0}&itids={1}&sr={2}&er={3}&g={4}&miey={5}&maey={6}&dow={7}",
+                request.SearchText,
+                string.Join(",", request.IssueTagIds),
+                request.StartRating, request.EndRating,
+                string.Join(",", request.Genders.Select(g => ((int) g).ToString())),
+                request.MinExperienceYear, request.MaxExperienceYear,
+                string.Join(",", request.DateOfWeekOptions.Select(o => ((int) o).ToString())));
 
         var result = await _cacheService.GetAsync(cacheKey, async () =>
         {
