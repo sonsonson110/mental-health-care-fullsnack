@@ -91,10 +91,26 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         entityToCreate.Id = newId;
 
         _context.PrivateSessionSchedules.Add(entityToCreate);
-        await _context.SaveChangesAsync();
 
-        // TODO: Create a notification for the client
+        var therapistInfo = await _context.Users
+            .Where(x => x.Id == therapistId)
+            .Select(e => new { e.FirstName, e.LastName })
+            .FirstOrDefaultAsync();
+
+        _context.Notifications.Add(new Notification
+        {
+            Id = Guid.NewGuid(),
+            IsRead = false,
+            Title = $"{therapistInfo!.FirstName} {therapistInfo.LastName} has created a new private schedule.",
+            Metadata = new Dictionary<string, string>
+            {
+                { "privateSessionScheduleId", newId.ToString() },
+                { "therapistId", therapistId.ToString() }
+            }
+        });
         // TODO: Schedule a reminder email for the client
+        
+        await _context.SaveChangesAsync();
 
         return new Result<EntityBase>(new EntityBase { Id = newId });
     }
@@ -136,11 +152,26 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         _mapper.Map(request, oldSchedule);
 
         _context.PrivateSessionSchedules.Update(oldSchedule);
+        
+        var therapistInfo = await _context.Users
+            .Where(x => x.Id == therapistId)
+            .Select(e => new { e.FirstName, e.LastName })
+            .FirstOrDefaultAsync();
+        
+        _context.Notifications.Add(new Notification
+        {
+            Id = Guid.NewGuid(),
+            IsRead = false,
+            Title = $"{therapistInfo!.FirstName} {therapistInfo.LastName} has updated a private schedule at {request.Date.ToShortDateString()}.",
+            Metadata = new Dictionary<string, string>
+            {
+                { "privateSessionScheduleId", request.Id.ToString() },
+                { "therapistId", therapistId.ToString() }
+            }
+        });
+        
         await _context.SaveChangesAsync();
-
-        // TODO: Create a changes notification for the client
-        // TODO: Schedule a changes notification for the client
-
+        
         return true;
     }
 
@@ -217,7 +248,7 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
         if (hasPublicSessionOccupied)
             return (true,
                 $"A public session already exists on {request.Date} between {request.StartTime} and {request.EndTime}");
-        
+
         // Check conflict with unavailable override 
         var hasOverrideConflict = await _context.AvailabilityOverrides
             .Where(e => e.TherapistId == therapistId && !e.IsAvailable)

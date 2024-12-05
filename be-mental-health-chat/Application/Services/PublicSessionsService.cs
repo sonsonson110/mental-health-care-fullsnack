@@ -88,7 +88,10 @@ public class PublicSessionsService : IPublicSessionsService
             return new Result<bool>(new BadRequestException("Id cannot be empty"));
         }
 
-        var oldPublicSession = _context.PublicSessions.FirstOrDefault(p => p.Id == request.Id);
+        var oldPublicSession = _context.PublicSessions
+            .Include(e => e.Therapist)
+            .Include(e => e.Followers)
+            .FirstOrDefault(p => p.Id == request.Id);
         if (oldPublicSession == null)
         {
             return new Result<bool>(new NotFoundException("Public session not found"));
@@ -103,9 +106,35 @@ public class PublicSessionsService : IPublicSessionsService
         _mapper.Map(request, oldPublicSession);
         _context.PublicSessions.Update(oldPublicSession);
 
-        // TODO: Create a changes notification for the client
-        // TODO: Schedule a changes notification for the client
 
+        var followersToNotify = oldPublicSession.Followers
+            .Where(f => f.UserId != therapistId).ToList();
+
+        List<Notification> notifications = [];
+        var notificationBase = new
+        {
+            Type = NotificationType.PUBLIC_SESSION,
+            Title = $"{oldPublicSession.Therapist.GetFullName()} public session has been updated",
+            Metadata = new Dictionary<string, string>
+            {
+                { "therapistId", oldPublicSession.Therapist.Id.ToString() },
+                { "publicSessionId", oldPublicSession.Id.ToString() },
+            },
+        };
+        foreach (var follower in followersToNotify)
+        {
+            notifications.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = follower.UserId,
+                Type = notificationBase.Type,
+                Title = notificationBase.Title,
+                Metadata = notificationBase.Metadata,
+                IsRead = false,
+            });
+        }
+        _context.Notifications.AddRange(notifications);
+        
         return await _context.SaveChangesAsync() > 0;
     }
 

@@ -123,6 +123,6 @@ app.MapHealthChecks("health", new HealthCheckOptions
 });
 
 // Initialize the database
-// await DatabaseInitializer.Initialize(app.Services);
+await DatabaseInitializer.Initialize(app.Services);
 
 app.Run();

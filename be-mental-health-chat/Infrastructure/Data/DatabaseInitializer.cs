@@ -29,7 +29,7 @@ public static class DatabaseInitializer
             var privateSessionSchedules = PrivateSessionScheduleSeed.Seed(dbContext, privateSessionRegistrations);
             var availabilityTemplates = AvailabilityTemplateSeed.Seed(dbContext, therapists);
             var publicSessions = PublicSessionSeed.Seed(dbContext, therapists, users);
-            // var notifications = NotificationSeed.Seed(dbContext, users[0]);
+            var notifications = NotificationSeed.Seed(dbContext, users[0]);
             await Console.Out.WriteLineAsync("Database created, migration applied and seeded");
         }
     }

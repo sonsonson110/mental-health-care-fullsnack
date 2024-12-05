@@ -3,11 +3,15 @@
 graph TD
     A[Client Browser] -->|HTTP/HTTPS| B[Angular Frontend]
     B -->|API Calls| C[ASP.NET Core Web API]
+    C --> K["API (Host)"]
     C --> D[Application Layer]
-    C --> E[Domain Layer]
     C --> F[Infrastructure Layer]
+
+    C --> E[Domain Layer]
     F -->|Data Access| G[(PostgreSQL Database)]
     F -->|AI Integration| H[Gemini API]
+    F --> |Email Integration| I[Gmail]
+    F --> |Caching Integration| J[Redis]
     
     
     subgraph "Frontend"
@@ -15,6 +19,7 @@ graph TD
     end
     
     subgraph "Backend"
+    K
     C
     D
     E
@@ -24,6 +29,8 @@ graph TD
     subgraph "External Services"
     G
     H
+    I
+    J
     end
 ```
 

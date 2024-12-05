@@ -88,8 +88,6 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
             NoteFromClient = request.NoteFromClient,
         });
 
-        //TODO: Add notification
-
         await _context.SaveChangesAsync();
 
         // set background task to send email
