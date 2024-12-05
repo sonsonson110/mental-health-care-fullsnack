@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.ConversationsService;
 using Application.DTOs.Shared;
 using Application.Interfaces;
+using Application.Meters;
 using Application.Services.Interfaces;
 using Domain.Entities;
 using Domain.Model;
@@ -13,11 +14,13 @@ public class ConversationsService : IConversationsService
 {
     private readonly IMentalHealthContext _context;
     private readonly IGeminiService _geminiService;
+    private readonly ChatbotMeter _chatbotMeter;
 
-    public ConversationsService(IMentalHealthContext context, IGeminiService geminiService)
+    public ConversationsService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter)
     {
         _context = context;
         _geminiService = geminiService;
+        _chatbotMeter = chatbotMeter;
     }
 
     public async Task<List<GetAllChatBotConversationResponse>> GetChatbotConversationsByUserIdAsync(Guid userId)
@@ -130,6 +133,10 @@ public class ConversationsService : IConversationsService
         };
         _context.Messages.AddRange(userMessage, geminiMessage);
         await _context.SaveChangesAsync();
+        
+        // Add to monitoring dashboard
+        _chatbotMeter.InitCounter.Add(1);
+        _chatbotMeter.CallCounter.Add(1);
 
         return new Result<CreateChatbotConversationResponseDto>(new CreateChatbotConversationResponseDto
         {

@@ -24,7 +24,7 @@ public static class PromptTemplate
 
     public const string TitleGenerationPrompt =
         """
-        When a user starts a conversation, generate a welcoming and empathetic title based on the context of mental health. For example, if the user mentions stress, generate a title like 'Let’s Work Through Stress Together.' Keep it concise, positive, and supportive.
+        Generate a welcoming and empathetic title for a conversation based on the context of the below mental health prompt. Keep it concise, positive, neutral.
         
         User prompt: {0}
         """;

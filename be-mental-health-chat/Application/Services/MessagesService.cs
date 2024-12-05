@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.MessagesService;
 using Application.Interfaces;
+using Application.Meters;
 using Application.Services.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
@@ -13,11 +14,13 @@ public class MessagesService : IMessagesService
 {
     private readonly IMentalHealthContext _context;
     private readonly IGeminiService _geminiService;
+    private readonly ChatbotMeter _chatbotMeter;
 
-    public MessagesService(IMentalHealthContext context, IGeminiService geminiService)
+    public MessagesService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter)
     {
         _context = context;
         _geminiService = geminiService;
+        _chatbotMeter = chatbotMeter;
     }
 
     // we assume that the conversation has already created before this method is called
@@ -83,6 +86,9 @@ public class MessagesService : IMessagesService
         _context.Messages.AddRange(userMessage, geminiMessage);
 
         await _context.SaveChangesAsync();
+        
+        // Add to monitoring dashboard
+        _chatbotMeter.CallCounter.Add(1);
 
         return new Result<CreateChatbotMessageResponseDto>(new CreateChatbotMessageResponseDto
         {

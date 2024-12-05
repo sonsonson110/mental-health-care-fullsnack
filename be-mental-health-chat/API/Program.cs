@@ -1,10 +1,13 @@
 using API.Hubs;
 using Application;
+using Application.Meters;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +69,19 @@ builder.Services.AddCors(option =>
             .WithExposedHeaders("WWW-Authenticate") // For client to handle 401 responses gracefully
     );
 });
+
+// Add Open Telemetry
+builder.Services.AddOpenTelemetry()
+    .UseAzureMonitor(cfg =>
+    {
+        cfg.ConnectionString = builder.Configuration.GetConnectionString("AzureAppInsight");
+    })
+    .WithMetrics(cfg => 
+        cfg
+            .AddMeter(ChatbotMeter.MeterName)
+            .AddAspNetCoreInstrumentation()
+            // .AddConsoleExporter()
+        );
 
 // Custom services
 builder.Services

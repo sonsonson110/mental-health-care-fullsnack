@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using Application.Meters;
+using Application.Services;
 using Application.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,9 @@ public static class DependencyInjection
         services.AddScoped<IPostsService, PostsService>();
         services.AddScoped<IAvailabilityTemplateService, AvailabilityTemplateService>();
         services.AddScoped<IAvailabilityOverridesService, AvailabilityOverridesService>();
+        
+        // Meters
+        services.AddScoped<ChatbotMeter>();
         
         // Scan all assemblies for profiles
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

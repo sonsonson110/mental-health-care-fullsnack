@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public class Conversation : TimestampMarkedEntityBase
 {
-    [MaxLength(100)]
+    [MaxLength(500)]
     public string? Title { get; set; }
     
     public Guid ClientId { get; set; }
