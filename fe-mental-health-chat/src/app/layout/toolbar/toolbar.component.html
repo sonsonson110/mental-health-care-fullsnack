@@ -4,9 +4,21 @@
   </button>
   <span class="app-title">Mental health app</span>
   <span class="spacer"></span>
-  <button mat-icon-button>
-    <mat-icon>inbox</mat-icon>
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon [matBadge]="unreadNotificationsCount" [matBadgeHidden]="unreadNotificationsCount === 0">inbox</mat-icon>
   </button>
+  <mat-menu #menu="matMenu">
+    @if (!notificationLoading && (notifications$ | async)?.length === 0) {
+        <span style="padding-left: 4px">No notifications</span>
+    }
+
+    @for (notification of notifications$ | async; track notification.id) {
+      <div mat-menu-item class="notifications" (click)="markNotificationAsRead(notification)">
+        <span>{{ notification.title }}</span><br />
+        <span class="mat-label-small">{{ notification.createdAt | date: "short" }}</span>
+      </div>
+    }
+  </mat-menu>
   <button mat-icon-button (click)="onLogoutClick()">
     <mat-icon>logout</mat-icon>
   </button>

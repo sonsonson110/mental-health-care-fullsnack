@@ -21,4 +21,13 @@ public class NotificationsController : MentalHeathControllerBase
         var result = await _notificationService.GetNotificationsByUserIdAsync(GetUserId());
         return Ok(result);
     }
+
+    [HttpPatch("{id:guid}/read")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> MarkAsRead([FromRoute] Guid id)
+    {
+        await _notificationService.MarkNotificationAsReadAsync(id, GetUserId());
+        return Ok();
+    }
 }

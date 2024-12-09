@@ -14,5 +14,10 @@
 }
 
 .app-title {
-    margin-left: 10px;
+  margin-left: 10px;
+}
+
+.notifications {
+  display: flex;
+  flex-direction: column;
 }

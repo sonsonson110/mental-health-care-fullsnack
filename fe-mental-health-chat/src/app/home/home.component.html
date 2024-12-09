@@ -1,11 +1,15 @@
-<div class="root-container">
+@if (isLoading) {
+  <span>Loading...</span>
+} @else {
+  <div class="root-container">
     <app-toolbar (toggleMenu)="toggleMenu()"></app-toolbar>
     <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav class="left-nav-container"  [mode]="sideNavMode" [opened]="isLgOrLargerScreen">
+      <mat-sidenav class="left-nav-container" [mode]="sideNavMode" [opened]="isLgOrLargerScreen">
         <app-left-side-nav></app-left-side-nav>
       </mat-sidenav>
       <mat-sidenav-content class="content-container">
         <router-outlet></router-outlet>
       </mat-sidenav-content>
     </mat-sidenav-container>
-</div>
+  </div>
+}

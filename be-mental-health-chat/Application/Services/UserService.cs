@@ -407,6 +407,13 @@ public class UserService : IUserService
         return new Result<bool>(true);
     }
 
+    public async Task UpdateUserOnlineStatus(Guid userId, bool isOnline)
+    {
+        await _context.Users.Where(e => e.Id == userId)
+            .ExecuteUpdateAsync(setter => 
+                setter.SetProperty(e => e.IsOnline, isOnline));
+    }
+
     private async Task<Dictionary<string, string[]>> ValidateUpdateUserRequest(Guid userId,
         UpdateUserRequestDto request)
     {

@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IAvailabilityTemplateService, AvailabilityTemplateService>();
         services.AddScoped<IAvailabilityOverridesService, AvailabilityOverridesService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IConnectionLogService, ConnectionLogService>();
         
         // Meters
         services.AddScoped<ChatbotMeter>();

@@ -5,9 +5,9 @@ namespace Domain.Entities;
 
 public class ConnectionLog: TimestampMarkedEntityBase
 {
-    [MaxLength(100)]
+    [MaxLength(300)]
     public string? UserAgent { get; set; }
-    [MaxLength(20)]
+    [MaxLength(50)]
     public required string ConnectionId { get; set; }
     public bool IsConnected { get; set; }
     [MaxLength(19)]

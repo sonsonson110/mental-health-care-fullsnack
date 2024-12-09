@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, Observable, tap } from 'rxjs';
+import { BehaviorSubject, finalize, tap } from 'rxjs';
 import { P2pConversationSidenavItem } from '../../../../core/models/common/p2p-conversation-sidenav-item.model';
 import { ConversationsApiService } from '../../../../core/api-services/conversations-api.service';
 import { SignalRChatService } from '../../../../core/api-services/signal-r-chat.service';
@@ -52,16 +52,16 @@ export class P2pConversationStateService {
     if (conversationType === 'therapist-chats') {
       this.conversationsApiService
         .getTherapistConversations()
+        .pipe(finalize(() => this.sidenavLoadingState.next(false)))
         .subscribe((data: P2pConversationSidenavItem[]) => {
           this.p2pConversationSidenavItems.next(data);
-          this.sidenavLoadingState.next(false);
         });
     } else if (conversationType === 'client-chats') {
       this.conversationsApiService
         .getClientConversations()
+        .pipe(finalize(() => this.sidenavLoadingState.next(false)))
         .subscribe((data: P2pConversationSidenavItem[]) => {
           this.p2pConversationSidenavItems.next(data);
-          this.sidenavLoadingState.next(false);
         });
     }
   }

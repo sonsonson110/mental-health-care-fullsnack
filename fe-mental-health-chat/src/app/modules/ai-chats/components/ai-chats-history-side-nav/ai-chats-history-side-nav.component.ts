@@ -5,7 +5,7 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { SidenavStateService } from '../../services/sidenav-state.service';
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { ChatbotHistorySideNavItem } from '../../../../core/models/modules/ai-chats/chatbot-history-side-nav-item.model';
 import { ConversationsApiService } from '../../../../core/api-services/conversations-api.service';
 import { CommonModule, Location } from '@angular/common';
@@ -58,9 +58,9 @@ export class AiChatsHistorySideNavComponent implements OnInit {
   private loadAiChatHistories() {
     this.conversationsService
       .getChatbotConversations()
+      .pipe(finalize(() => (this.isLoading = false)))
       .subscribe((data: ChatbotHistorySideNavItem[]) => {
         this.sidenavStateService.initialAiChatHistories(data);
-        this.isLoading = false;
       });
   }
 

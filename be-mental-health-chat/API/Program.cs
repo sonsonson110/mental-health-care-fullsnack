@@ -115,6 +115,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHub<ChatHub>("/chat");
+app.MapHub<RealtimeHub>("/realtime");
 app.MapControllers();
 
 app.MapHealthChecks("health", new HealthCheckOptions
@@ -123,6 +124,6 @@ app.MapHealthChecks("health", new HealthCheckOptions
 });
 
 // Initialize the database
-await DatabaseInitializer.Initialize(app.Services);
+// await DatabaseInitializer.Initialize(app.Services);
 
 app.Run();

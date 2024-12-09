@@ -18,7 +18,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           status: 0,
           detail: error.error.message,
         };
-        toastr.error(problemDetail.detail, problemDetail.title);
+        toastr.error(problemDetail.detail, problemDetail.title, { disableTimeOut: true });
         return throwError(() => problemDetail);
       }
 

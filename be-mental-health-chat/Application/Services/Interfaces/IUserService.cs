@@ -10,4 +10,5 @@ public interface IUserService
     Task<Result<bool>> UpdateUserAsync(Guid userId, UpdateUserRequestDto request);
     Task<Result<bool>> ChangePasswordAsync(Guid userId, ChangePasswordRequestDto request);
     Task<Result<bool>> DeleteUserAsync(Guid userId, DeleteUserRequestDto request);
+    Task UpdateUserOnlineStatus(Guid userId, bool isOnline);
 }

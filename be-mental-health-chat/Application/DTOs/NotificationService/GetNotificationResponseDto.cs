@@ -9,4 +9,5 @@ public class GetNotificationResponseDto
     public NotificationType Type { get; set; }
     public Dictionary<string, string> Metadata { get; set; } = new();
     public DateTime CreatedAt { get; set; }
+    public bool IsRead { get; set; }
 }
