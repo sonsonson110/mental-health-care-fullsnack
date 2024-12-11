@@ -1,4 +1,5 @@
 ﻿using Application.Caching;
+using Application.DTOs.NotificationService;
 using Application.DTOs.PublicSessionsService;
 using Application.DTOs.Shared;
 using Application.Interfaces;
@@ -17,12 +18,14 @@ public class PublicSessionsService : IPublicSessionsService
     private readonly IMentalHealthContext _context;
     private readonly IMapper _mapper;
     private readonly ICacheService _cacheService;
+    private readonly IRealtimeService _realtimeService;
 
-    public PublicSessionsService(IMentalHealthContext context, IMapper mapper, ICacheService cacheService)
+    public PublicSessionsService(IMentalHealthContext context, IMapper mapper, ICacheService cacheService, IRealtimeService realtimeService)
     {
         _context = context;
         _mapper = mapper;
         _cacheService = cacheService;
+        _realtimeService = realtimeService;
     }
 
     public async Task<List<GetPublicSessionSummaryResponseDto>> GetPublicSessionSummariesAsync(Guid userId,
@@ -121,9 +124,13 @@ public class PublicSessionsService : IPublicSessionsService
                 { "publicSessionId", oldPublicSession.Id.ToString() },
             },
         };
+        
+        // for notification sending
+        var userNotificationDict = new Dictionary<Guid, GetNotificationResponseDto>();
+        
         foreach (var follower in followersToNotify)
         {
-            notifications.Add(new Notification
+            var notification = new Notification
             {
                 Id = Guid.NewGuid(),
                 UserId = follower.UserId,
@@ -131,11 +138,23 @@ public class PublicSessionsService : IPublicSessionsService
                 Title = notificationBase.Title,
                 Metadata = notificationBase.Metadata,
                 IsRead = false,
-            });
+            };
+            notifications.Add(notification);
+            userNotificationDict[follower.UserId] = _mapper.Map<GetNotificationResponseDto>(notification);
         }
         _context.Notifications.AddRange(notifications);
         
-        return await _context.SaveChangesAsync() > 0;
+        await _context.SaveChangesAsync();
+        
+        // send notification to followers
+        var tasks = new List<Task>();
+        foreach (var (userId, _) in userNotificationDict)
+        {
+            tasks.Add(_realtimeService.SendNotification(userId, userNotificationDict[userId]));
+        }
+        await Task.WhenAll(tasks);
+
+        return true;
     }
 
     public async Task<Result<List<GetPublicSessionFollowerResponseDto>>> GetPublicSessionFollowersAsync(

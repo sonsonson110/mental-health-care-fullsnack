@@ -1,6 +1,5 @@
 ﻿using API.Extensions;
 using API.Hubs.Common;
-using Application.Services;
 using Application.Services.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.SignalR;
@@ -38,6 +37,8 @@ public class RealtimeHub: HubBase
             UserId = userId,
         });
         
+        await Clients.AllExcept(Context.ConnectionId).SendAsync("UserOnlineStatusChanged", new UserOnlineStatusChanged(GetSessionUserIdentifier(),true));
+        
         await base.OnConnectedAsync();
     }
 
@@ -47,11 +48,13 @@ public class RealtimeHub: HubBase
         
         // set online status for user
         var isUserConnectionStillExisted = await _connectionLogService.OnlineConnectionLogExists(GetSessionUserIdentifier());
-        if (isUserConnectionStillExisted)
+        if (!isUserConnectionStillExisted)
         {
             await _userService.UpdateUserOnlineStatus(GetSessionUserIdentifier(), false);
+            await Clients.AllExcept(Context.ConnectionId).SendAsync("UserOnlineStatusChanged", new UserOnlineStatusChanged(GetSessionUserIdentifier(),false));
         }
         
         await base.OnDisconnectedAsync(exception);
     }
 }
+record UserOnlineStatusChanged(Guid UserId, bool IsOnline);

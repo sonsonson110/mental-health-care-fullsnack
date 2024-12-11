@@ -1,4 +1,5 @@
-﻿using Application.DTOs.PrivateSessionSchedulesService;
+﻿using Application.DTOs.NotificationService;
+using Application.DTOs.PrivateSessionSchedulesService;
 using Application.Interfaces;
 using Application.Services.Interfaces;
 using AutoMapper;
@@ -12,13 +13,15 @@ namespace Application.Services;
 
 public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
 {
+    private readonly IRealtimeService _realtimeService;
     private readonly IMentalHealthContext _context;
     private readonly IMapper _mapper;
 
-    public PrivateSessionSchedulesService(IMentalHealthContext context, IMapper mapper)
+    public PrivateSessionSchedulesService(IMentalHealthContext context, IMapper mapper, IRealtimeService realtimeService)
     {
         _context = context;
         _mapper = mapper;
+        _realtimeService = realtimeService;
     }
 
     public async Task<Result<List<GetTherapistScheduleResponseDto>>> GetTherapistSchedulesAsync(Guid therapistId,
@@ -96,8 +99,14 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             .Where(x => x.Id == therapistId)
             .Select(e => new { e.FirstName, e.LastName })
             .FirstOrDefaultAsync();
+        
+        // get clientId
+        var clientId = await _context.PrivateSessionRegistrations
+            .Where(e => e.Id == request.PrivateSessionRegistrationId && e.TherapistId == therapistId)
+            .Select(e => e.ClientId)
+            .FirstOrDefaultAsync();
 
-        _context.Notifications.Add(new Notification
+        var notification = new Notification
         {
             Id = Guid.NewGuid(),
             IsRead = false,
@@ -106,12 +115,25 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             {
                 { "privateSessionScheduleId", newId.ToString() },
                 { "therapistId", therapistId.ToString() }
-            }
-        });
-        // TODO: Schedule a reminder email for the client
+            },
+            UserId = clientId,
+            Type = NotificationType.PRIVATE_SESSION,
+        };
+
+        _context.Notifications.Add(notification);
         
         await _context.SaveChangesAsync();
 
+        await _realtimeService.SendNotification(clientId, new GetNotificationResponseDto
+        {
+            Id = notification.Id,
+            Title = notification.Title,
+            CreatedAt = notification.CreatedAt,
+            Type = notification.Type,
+            IsRead = notification.IsRead,
+            Metadata = notification.Metadata
+        });
+        
         return new Result<EntityBase>(new EntityBase { Id = newId });
     }
 
@@ -158,19 +180,40 @@ public class PrivateSessionSchedulesService : IPrivateSessionSchedulesService
             .Select(e => new { e.FirstName, e.LastName })
             .FirstOrDefaultAsync();
         
-        _context.Notifications.Add(new Notification
+        // get clientId
+        var clientId = await _context.PrivateSessionRegistrations
+            .Where(e => e.Id == request.PrivateSessionRegistrationId && e.TherapistId == therapistId)
+            .Select(e => e.ClientId)
+            .FirstOrDefaultAsync();
+
+        var notification = new Notification
         {
             Id = Guid.NewGuid(),
             IsRead = false,
-            Title = $"{therapistInfo!.FirstName} {therapistInfo.LastName} has updated a private schedule at {request.Date.ToShortDateString()}.",
+            Title =
+                $"{therapistInfo!.FirstName} {therapistInfo.LastName} has updated a private schedule at {request.Date.ToShortDateString()}.",
             Metadata = new Dictionary<string, string>
             {
                 { "privateSessionScheduleId", request.Id.ToString() },
                 { "therapistId", therapistId.ToString() }
-            }
-        });
+            },
+            UserId = clientId,
+            Type = NotificationType.PRIVATE_SESSION,
+        };
+        
+        _context.Notifications.Add(notification);
         
         await _context.SaveChangesAsync();
+        
+        await _realtimeService.SendNotification(clientId, new GetNotificationResponseDto
+        {
+            Id = notification.Id,
+            Title = notification.Title,
+            CreatedAt = notification.CreatedAt,
+            Type = notification.Type,
+            IsRead = notification.IsRead,
+            Metadata = notification.Metadata
+        });
         
         return true;
     }

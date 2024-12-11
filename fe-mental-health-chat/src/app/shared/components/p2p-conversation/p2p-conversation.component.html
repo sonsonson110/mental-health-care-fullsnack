@@ -17,13 +17,12 @@
               [activated]="isMatchCurrentBrowserUrl(item.id)"
               class="nav-item"
             >
-              <span matListItemTitle>{{ item.receiverFullName }}</span>
+              <span matListItemTitle>{{ item.receiverFullName }}
+                <span *ngIf="item.isReceiverOnline" class="status-dot">●</span>
+              </span>
               <span
                 *ngIf="item.lastMessage"
                 matListItemLine
-                [ngClass]="{
-                    bold: item.lastMessage.senderId !== sessionUserId && !item.lastMessage.isRead,
-                  }"
               >{{
                   item.lastMessage.senderId === sessionUserId
                     ? 'You'

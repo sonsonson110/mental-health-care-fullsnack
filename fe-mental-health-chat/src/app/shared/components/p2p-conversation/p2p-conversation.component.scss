@@ -31,8 +31,9 @@
         }
 
         .nav-items-container {
-          .bold {
-            font-weight: bold;
+          .status-dot {
+            color: green;
+            border-radius: 50%;
           }
         }
       }

@@ -36,7 +36,7 @@ export class ToolbarComponent implements OnInit {
   constructor(
     private authService: AuthApiService,
     private notificationApiService: NotificationApiService,
-    private signalRRealtimeService: SignalRRealtimeService
+    private signalRRealtimeService: SignalRRealtimeService,
   ) {}
 
   ngOnInit(): void {
@@ -47,6 +47,9 @@ export class ToolbarComponent implements OnInit {
       .subscribe(notifications => {
         this.notifications.next(notifications);
       });
+    this.signalRRealtimeService.receiveNotification().subscribe(notification => {
+      this.notifications.next([notification, ...this.notifications.value]);
+    });
   }
 
   get unreadNotificationsCount() {
@@ -61,7 +64,7 @@ export class ToolbarComponent implements OnInit {
       const oldNotification = notifications.find(n => n.id === notification.id);
       if (oldNotification) {
         oldNotification.isRead = true;
-        this.notifications.next([...notifications, oldNotification]);
+        this.notifications.next([...notifications]);
       }
     });
   }

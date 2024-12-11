@@ -16,7 +16,16 @@ public class CacheService : ICacheService
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
     {
-        string? cachedValue = await _distributedCache.GetStringAsync(key, cancellationToken);
+        string? cachedValue = null;
+
+        try
+        {
+            cachedValue = await _distributedCache.GetStringAsync(key, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
 
         if (cachedValue == null)
         {
@@ -31,7 +40,16 @@ public class CacheService : ICacheService
     public async Task<T> GetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiration = null,
         CancellationToken cancellationToken = default) where T : class
     {
-        T? cachedValue = await GetAsync<T>(key, cancellationToken);
+        T? cachedValue = null;
+
+        try
+        {
+            cachedValue = await GetAsync<T>(key, cancellationToken);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
 
         if (cachedValue is not null)
         {
@@ -55,11 +73,19 @@ public class CacheService : ICacheService
             AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromMinutes(2),
         };
 
-        await _distributedCache.SetStringAsync(key, cacheValue, options, cancellationToken);
+        try {
+            await _distributedCache.SetStringAsync(key, cacheValue, options, cancellationToken);
+        } catch (Exception) {
+            // ignored
+        }
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        await _distributedCache.RemoveAsync(key, cancellationToken);
+        try {
+            await _distributedCache.RemoveAsync(key, cancellationToken);
+        } catch (Exception) {
+            // ignored
+        }
     }
 }

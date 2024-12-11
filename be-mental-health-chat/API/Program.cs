@@ -1,19 +1,27 @@
 using API.Hubs;
+using API.Hubs.Impl;
 using Application;
+using Application.Interfaces;
 using Application.Meters;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 using HealthChecks.UI.Client;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSignalR(options => { options.DisableImplicitFromServicesParameters = true; });
+builder.Services
+    .AddSignalR(options => { options.DisableImplicitFromServicesParameters = true; })
+    .AddStackExchangeRedis(builder.Configuration.GetConnectionString("Redis") ??
+                           throw new ArgumentException("Redis connection string not found"),
+        options => { options.Configuration.ChannelPrefix = RedisChannel.Literal("SignalR_"); });
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -72,22 +80,26 @@ builder.Services.AddCors(option =>
 
 // Add Open Telemetry
 builder.Services.AddOpenTelemetry()
-    .UseAzureMonitor(cfg =>
-    {
-        cfg.ConnectionString = builder.Configuration.GetConnectionString("AzureAppInsight");
-    })
-    .WithMetrics(cfg => 
-        cfg
-            .AddMeter(ChatbotMeter.MeterName)
-            .AddAspNetCoreInstrumentation()
-            // .AddConsoleExporter()
-        );
+    .UseAzureMonitor(cfg => { cfg.ConnectionString = builder.Configuration.GetConnectionString("AzureAppInsight"); })
+    .WithMetrics(cfg =>
+            cfg
+                .AddMeter(ChatbotMeter.MeterName)
+                .AddAspNetCoreInstrumentation()
+        // .AddConsoleExporter()
+    );
 
 // Custom services
 builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication(builder.Configuration);
 
+// Realtime hub implementation
+builder.Services.AddScoped<IRealtimeService, RealtimeService>();
+builder.Services.AddSingleton(provider =>
+{
+    var context = provider.GetRequiredService<IHubContext<RealtimeHub>>();
+    return new RealtimeService(context);
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

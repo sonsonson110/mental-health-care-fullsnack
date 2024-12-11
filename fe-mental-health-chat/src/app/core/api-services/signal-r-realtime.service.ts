@@ -4,7 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { AuthApiService } from './auth-api.service';
 import * as signalR from '@microsoft/signalr';
-import { ProblemDetail } from '../models/common/problem-detail.model';
+import { NotificationResponse } from '../models/common/notification-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -72,12 +72,25 @@ export class SignalRRealtimeService {
     }
   }
 
-  onException(): Observable<ProblemDetail> {
-    return new Observable<ProblemDetail>(observer => {
-      this.hubConnection.on(this.hubExceptionMethodName, (data: ProblemDetail) => {
-        this.toastr.error(data.detail, data.title);
-        observer.next(data);
-      });
+  receiveNotification(): Observable<NotificationResponse> {
+    return new Observable<NotificationResponse>(observer => {
+      this.hubConnection.on(
+        'ReceiveNotification',
+        (notification: NotificationResponse) => {
+          observer.next(notification);
+        }
+      );
+    });
+  }
+
+  onUserOnlineStatusChanged(): Observable<{ userId: string; isOnline: boolean }> {
+    return new Observable<{ userId: string; isOnline: boolean }>(observer => {
+      this.hubConnection.on(
+        'UserOnlineStatusChanged',
+        (status: { userId: string; isOnline: boolean }) => {
+          observer.next(status);
+        }
+      );
     });
   }
 }

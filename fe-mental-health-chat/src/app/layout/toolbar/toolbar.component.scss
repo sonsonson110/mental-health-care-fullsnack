@@ -17,7 +17,22 @@
   margin-left: 10px;
 }
 
-.notifications {
-  display: flex;
-  flex-direction: column;
+.menu-container {
+  height: 400px;
+
+  .notification {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+
+    .read {
+      font-weight: normal;
+    }
+
+    .unread {
+      font-weight: bolder;
+    }
+  }
+
 }
