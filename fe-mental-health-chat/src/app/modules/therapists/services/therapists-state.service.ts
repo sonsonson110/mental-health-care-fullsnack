@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TherapistSummaryResponse } from '../../../core/models/modules/therapists/therapist-summary-response.model';
-import { BehaviorSubject, finalize, forkJoin } from 'rxjs';
+import { BehaviorSubject, finalize } from 'rxjs';
 import { TherapistsApiService } from '../../../core/api-services/therapists-api.service';
 import { IssueTag } from '../../../core/models/common/issue-tag.model';
 import { TagsApiService } from '../../../core/api-services/tags-api.service';
@@ -124,19 +124,15 @@ export class TherapistsStateService {
       );
   }
 
-  loadTagsAndTherapists() {
-    this.therapistsLoadingStateSubject.next(true);
-
-    forkJoin({
-      therapistSummaries: this.therapistsService.getTherapistSummaries(),
-      issueTags: this.tagsService.getAll(),
-    })
-      .pipe(finalize(() => this.therapistsLoadingStateSubject.next(false)))
-      .subscribe(({ therapistSummaries, issueTags }) => {
-        this.therapistSummariesSubject.next(therapistSummaries);
+  loadTags() {
+    if (this.issueTagsSubject.value.length > 0) return;
+    this.tagsService
+      .getAll()
+      .subscribe(issueTags => {
         this.issueTagsSubject.next(issueTags);
       });
   }
+
   //endregion
 }
 

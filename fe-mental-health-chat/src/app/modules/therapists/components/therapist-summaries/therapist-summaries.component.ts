@@ -15,12 +15,12 @@ import { MatListModule } from '@angular/material/list';
 import { IssueTagInputComponent } from '../../../../shared/components/issue-tag-input/issue-tag-input.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TherapistsStateService } from '../../services/therapists-state.service';
-import { combineLatest, debounceTime, Observable, take } from 'rxjs';
+import { debounceTime, Observable, combineLatest, filter } from 'rxjs';
 import { TherapistSummaryResponse } from '../../../../core/models/modules/therapists/therapist-summary-response.model';
 import { IssueTag } from '../../../../core/models/common/issue-tag.model';
 import { ExperienceLevelOption } from '../../../../core/models/enums/filters/experience-level-option.enum';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { genders } from '../../../../core/constants/gender.constant';
 import { experienceLevelOptions } from '../../constants/experience-level-filter-option.constant';
 import { datesOfWeek } from '../../../../core/constants/dates-of-week.constant';
@@ -77,7 +77,8 @@ export class TherapistSummariesComponent implements OnInit {
   constructor(
     breakpointObserver: BreakpointObserver,
     private router: Router,
-    private readonly therapistsStateService: TherapistsStateService
+    private readonly therapistsStateService: TherapistsStateService,
+    private route: ActivatedRoute
   ) {
     breakpointObserver.observe(['(min-width: 992px)']).subscribe(result => {
       if (result.matches) {
@@ -94,16 +95,7 @@ export class TherapistSummariesComponent implements OnInit {
   }
 
   ngOnInit() {
-    combineLatest([
-      this.therapistsStateService.therapistSummaries$,
-      this.therapistsStateService.issueTags$
-    ]).pipe(
-      take(1)
-    ).subscribe(([therapists, tags]) => {
-      if (therapists.length === 0 || tags.length === 0) {
-        this.therapistsStateService.loadTagsAndTherapists();
-      }
-    });
+    this.therapistsStateService.loadTags();
 
     // Sync form with service state
     this.therapistsStateService.filterState$.subscribe(filterState => {
@@ -123,8 +115,6 @@ export class TherapistSummariesComponent implements OnInit {
     });
 
     this.filterForm.valueChanges.pipe(debounceTime(200)).subscribe(filterState => {
-      console.log(filterState);
-
       this.therapistsStateService.updateFilterState({
         isFilterEnabled: filterState.isFilterEnabled!,
         searchText: filterState.searchText,
@@ -135,6 +125,23 @@ export class TherapistSummariesComponent implements OnInit {
         selectedDates: filterState.selectedDates ?? [],
         issueTags: filterState.issueTags ?? [],
       });
+    });
+
+    combineLatest([
+      this.therapistsStateService.issueTags$.pipe(filter(tags => tags.length > 0)),
+      this.route.queryParams,
+    ]).subscribe(([issueTags, params]) => {
+      const issueTagIds = params['issueTagIds'] ? params['issueTagIds'] : [];
+      if (issueTagIds.length > 0) {
+        const selectedTags = issueTags.filter(tag =>
+          issueTagIds.includes(tag.id.toString())
+        ); // Match available IDs
+        this.therapistsStateService.updateFilterState({
+          issueTags: selectedTags,
+          isFilterEnabled: true,
+        });
+      }
+      this.therapistsStateService.search();
     });
   }
 

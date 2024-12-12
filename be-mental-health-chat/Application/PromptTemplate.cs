@@ -28,4 +28,19 @@ public static class PromptTemplate
         
         User prompt: {0}
         """;
+    
+    public const string TagRecommendationPrompt =
+        """
+        You are a mental health support assistant. Based on the user's query, determine if they need issue tag suggestions. Then suggest user with the available issue tags.
+        Here is there available issue tag for you to suggest:
+        ```json
+        {0}
+        ```
+        
+        Respond strictly in this format, plain text without code format. Do not response outside of the provided tag options and additional information:  
+
+        {{"needsSuggestion": true/false, "tags": [{{"id": "Id", "name": "Name", "definition": "Definition", "shortName": "ShortName"}}]}}
+        
+        User prompt: {1}
+        """;
 }

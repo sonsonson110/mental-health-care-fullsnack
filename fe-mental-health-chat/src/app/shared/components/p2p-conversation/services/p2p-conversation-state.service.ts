@@ -7,6 +7,7 @@ import { P2pConversationMessageDisplay } from '../../../../core/models/common/p2
 import { P2pMessageDto } from '../../../../core/models/common/p2p-conversation-detail-response.model';
 import { ToastrService } from 'ngx-toastr';
 import { P2pMessageRequest } from '../../../../core/models/common/p2p-message-request.model';
+import { SignalRRealtimeService } from '../../../../core/api-services/signal-r-realtime.service';
 
 @Injectable()
 export class P2pConversationStateService {
@@ -32,8 +33,19 @@ export class P2pConversationStateService {
   constructor(
     private conversationsApiService: ConversationsApiService,
     private signalRChatService: SignalRChatService,
+    private signalRRealtimeService: SignalRRealtimeService,
     private toastr: ToastrService
-  ) {}
+  ) {
+    this.signalRRealtimeService.onUserOnlineStatusChanged().subscribe(data => {
+      const currentSidenavItem = this.p2pConversationSidenavItems.value
+      for (const item of currentSidenavItem) {
+        if (item.receiverId === data.userId) {
+          item.isReceiverOnline = data.isOnline;
+          break;
+        }
+      }
+    });
+  }
 
   //region side nav methods
   toggleSidenavOpenState() {

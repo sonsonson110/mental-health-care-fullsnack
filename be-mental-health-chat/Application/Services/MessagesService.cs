@@ -15,12 +15,15 @@ public class MessagesService : IMessagesService
     private readonly IMentalHealthContext _context;
     private readonly IGeminiService _geminiService;
     private readonly ChatbotMeter _chatbotMeter;
+    private readonly ILanguageModelService _languageModelService;
 
-    public MessagesService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter)
+    public MessagesService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter,
+        ILanguageModelService languageModelService)
     {
         _context = context;
         _geminiService = geminiService;
         _chatbotMeter = chatbotMeter;
+        _languageModelService = languageModelService;
     }
 
     // we assume that the conversation has already created before this method is called
@@ -62,7 +65,15 @@ public class MessagesService : IMessagesService
 
         // call the gemini service to generate content with the existed messages for context
         // title property should be null
-        var geminiResponse = await _geminiService.GenerateContentAsync(geminiContents);
+        var geminiResponseTask = _geminiService.GenerateContentAsync(geminiContents);
+
+        // call for tag recommendation
+        var tagRecommendationTask = _languageModelService.GetTagRecommendationAsync(request.Content);
+
+        await Task.WhenAll(geminiResponseTask, tagRecommendationTask);
+
+        var geminiResponse = await geminiResponseTask;
+        var recommendationIssueTags = await tagRecommendationTask;
 
         // add user message and response from gemini to the database
         var userMessage = new Message
@@ -85,8 +96,19 @@ public class MessagesService : IMessagesService
         };
         _context.Messages.AddRange(userMessage, geminiMessage);
 
+        // add recommendation issue tags with model response id to the database
+        if (recommendationIssueTags.NeedsSuggestion)
+        {
+            var tagIds = recommendationIssueTags.Tags.Select(e => e.Id).ToList();
+            foreach (var id in tagIds)
+            {
+                _context.RecommendedTags.Add(new RecommendedTag
+                    { MessageId = geminiMessage.Id, IssueTagId = Guid.Parse(id) });
+            }
+        }
+
         await _context.SaveChangesAsync();
-        
+
         // Add to monitoring dashboard
         _chatbotMeter.CallCounter.Add(1);
 
@@ -97,6 +119,8 @@ public class MessagesService : IMessagesService
             ConversationId = request.ConversationId,
             CreatedAt = geminiMessage.CreatedAt,
             IsRead = false,
+            IssueTags = recommendationIssueTags.NeedsSuggestion ? recommendationIssueTags.Tags.Select(e => new IssueTag
+                { Id = Guid.Parse(e.Id), Definition = e.Definition, Name = e.Name, ShortName = e.ShortName }).ToList() : [],
             LastUserMessageId = userMessage.Id,
             LastUserMessageCreatedAt = userMessageReceivedTime,
         });
@@ -131,11 +155,13 @@ public class MessagesService : IMessagesService
             .Where(r => r.ClientId == userId || r.TherapistId == userId)
             .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
             .AnyAsync();
-        
+
         if (!userHasAccess)
         {
-            return new Result<CreateP2pMessageResponse>(new BadRequestException("User has no access to the conversation"));
+            return new Result<CreateP2pMessageResponse>(
+                new BadRequestException("User has no access to the conversation"));
         }
+
         #endregion
 
         var message = new Message

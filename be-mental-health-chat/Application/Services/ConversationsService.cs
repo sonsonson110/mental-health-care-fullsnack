@@ -15,12 +15,15 @@ public class ConversationsService : IConversationsService
     private readonly IMentalHealthContext _context;
     private readonly IGeminiService _geminiService;
     private readonly ChatbotMeter _chatbotMeter;
+    private readonly ILanguageModelService _languageModelService;
 
-    public ConversationsService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter)
+    public ConversationsService(IMentalHealthContext context, IGeminiService geminiService, ChatbotMeter chatbotMeter,
+        ILanguageModelService languageModelService)
     {
         _context = context;
         _geminiService = geminiService;
         _chatbotMeter = chatbotMeter;
+        _languageModelService = languageModelService;
     }
 
     public async Task<List<GetAllChatBotConversationResponse>> GetChatbotConversationsByUserIdAsync(Guid userId)
@@ -60,7 +63,8 @@ public class ConversationsService : IConversationsService
                 Content = m.Content,
                 CreatedAt = m.CreatedAt,
                 UpdatedAt = m.UpdatedAt,
-                IsRead = m.IsRead
+                IsRead = m.IsRead,
+                IssueTags = m.IssueTags
             })
             .ToListAsync();
 
@@ -96,11 +100,14 @@ public class ConversationsService : IConversationsService
                 Parts = [new Part { Text = generateTitlePrompt }]
             }
         ]);
+        // call for recommendation issue tags
+        var recommendationIssueTagsTask = _languageModelService.GetTagRecommendationAsync(request.Content);
 
-        // wait for both result
-        await Task.WhenAll(userPromptResponseTask, generateTitleResponseTask);
+        // wait for all results
+        await Task.WhenAll(userPromptResponseTask, generateTitleResponseTask, recommendationIssueTagsTask);
         var userPromptResponse = await userPromptResponseTask;
         var titleResponse = await generateTitleResponseTask;
+        var recommendationIssueTags = await recommendationIssueTagsTask;
 
         var completionTime = DateTime.UtcNow;
         // create new conversation
@@ -132,8 +139,20 @@ public class ConversationsService : IConversationsService
             IsRead = false,
         };
         _context.Messages.AddRange(userMessage, geminiMessage);
+
+        // add recommendation issue tags with model response id to the database
+        if (recommendationIssueTags.NeedsSuggestion)
+        {
+            var tagIds = recommendationIssueTags.Tags.Select(e => e.Id).ToList();
+            foreach (var id in tagIds)
+            {
+                _context.RecommendedTags.Add(new RecommendedTag
+                    { MessageId = geminiMessage.Id, IssueTagId = Guid.Parse(id) });
+            }
+        }
+
         await _context.SaveChangesAsync();
-        
+
         // Add to monitoring dashboard
         _chatbotMeter.InitCounter.Add(1);
         _chatbotMeter.CallCounter.Add(1);

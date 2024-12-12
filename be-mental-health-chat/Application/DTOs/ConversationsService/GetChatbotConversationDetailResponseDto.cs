@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.ConversationsService;
+﻿using Domain.Entities;
+
+namespace Application.DTOs.ConversationsService;
 
 public class GetChatbotConversationDetailResponseDto
 {
@@ -15,4 +17,5 @@ public class ChatbotMessageDto
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public bool IsRead { get; set; }
+    public List<IssueTag> IssueTags { get; set; } = [];
 }

@@ -38,12 +38,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .Property(e => e.DateOfBirth)
             .HasColumnType("date");
 
-        // Many to many relationship between Therapist (User) and IssueTag
+        // Many-to-many relationship between Therapist (User) and IssueTag
         builder.HasMany(e => e.IssueTags)
             .WithMany()
             .UsingEntity<TherapistIssueTag>(
-                r => r.HasOne<IssueTag>().WithMany(),
-                l => l.HasOne<User>().WithMany(e => e.TherapistIssueTags).HasForeignKey(e => e.TherapistId)
+                l => l.HasOne<IssueTag>().WithMany(),
+                r => r.HasOne<User>().WithMany(e => e.TherapistIssueTags).HasForeignKey(e => e.TherapistId)
             );
     }
 }

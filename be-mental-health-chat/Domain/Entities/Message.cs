@@ -6,7 +6,6 @@ namespace Domain.Entities;
 
 public class Message : TimestampMarkedEntityBase
 {
-    [MaxLength(8192)]
     public required string Content { get; set; }
     public bool IsRead { get; set; }
     public Guid? SenderId { get; set; }
@@ -15,6 +14,7 @@ public class Message : TimestampMarkedEntityBase
 
     public User? Sender { get; set; }
     public Conversation Conversation { get; set; } = null!;
+    public List<IssueTag> IssueTags { get; set; } = [];
 
     #endregion
 

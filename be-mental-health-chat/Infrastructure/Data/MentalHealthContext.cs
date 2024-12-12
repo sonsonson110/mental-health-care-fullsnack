@@ -69,4 +69,5 @@ public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityU
     public DbSet<PublicSessionFollower> PublicSessionFollowers { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<TherapistIssueTag> TherapistIssueTags { get; set; }
+    public DbSet<RecommendedTag> RecommendedTags { get; set; }
 }

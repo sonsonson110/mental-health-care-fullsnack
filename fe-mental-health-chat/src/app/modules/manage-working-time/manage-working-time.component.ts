@@ -5,7 +5,6 @@ import { ManageAvailabilityOverridesComponent } from './components/manage-availa
 import { ManageAvailabilityTemplateStateService } from './services/manage-availability-template-state.service';
 import { ManageAvailabilityOverridesStateService } from './services/manage-availability-overrides-state.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-manage-working-time',
