@@ -65,6 +65,13 @@
         gap: 0.25rem;
         padding: 0.75rem;
 
+        .highlighted-navigation-text {
+          color: mat.get-theme-color($fe-mental-health-chat-theme, primary, 50);
+          text-decoration: underline;
+          cursor: pointer;
+          font-weight: bold;
+        }
+
         &.other {
           align-self: flex-start;
           margin-right: 4rem;

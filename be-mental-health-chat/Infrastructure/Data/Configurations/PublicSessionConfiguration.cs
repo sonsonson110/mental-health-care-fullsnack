@@ -15,5 +15,9 @@ public class PublicSessionConfiguration: IEntityTypeConfiguration<PublicSession>
         builder.Property(p => p.StartTime).HasColumnType("time");
         builder.Property(p => p.EndTime).HasColumnType("time");
         builder.Property(p => p.Location).HasMaxLength(200);
+
+        builder.HasMany(e => e.IssueTags)
+            .WithMany()
+            .UsingEntity<PublicSessionTag>();
     }
 }

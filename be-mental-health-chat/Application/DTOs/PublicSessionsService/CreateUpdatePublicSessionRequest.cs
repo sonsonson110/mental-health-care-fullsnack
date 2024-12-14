@@ -26,4 +26,5 @@ public class CreateUpdatePublicSessionRequest
     public bool IsCancelled { get; set; } = false;
     [Required]
     public PublicSessionType Type { get; set; }
+    public List<Guid> IssueTagIds { get; set; } = [];
 }

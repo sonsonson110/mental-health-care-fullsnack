@@ -28,7 +28,7 @@ public static class DatabaseInitializer
             var privateSessionRegistrations = PrivateSessionRegistrationSeed.Seed(dbContext, users, therapists);
             var privateSessionSchedules = PrivateSessionScheduleSeed.Seed(dbContext, privateSessionRegistrations);
             var availabilityTemplates = AvailabilityTemplateSeed.Seed(dbContext, therapists);
-            var publicSessions = PublicSessionSeed.Seed(dbContext, therapists, users);
+            var publicSessions = PublicSessionSeed.Seed(dbContext, therapists, issueTags);
             var notifications = NotificationSeed.Seed(dbContext, users[0]);
             await Console.Out.WriteLineAsync("Database created, migration applied and seeded");
         }

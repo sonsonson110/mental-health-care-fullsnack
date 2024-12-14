@@ -1,3 +1,5 @@
+import { IssueTag } from '../../common/issue-tag.model';
+
 export interface ChatbotConversationDetailResponse {
     id: string;
     title: string;
@@ -11,4 +13,5 @@ export interface ChatbotConversationMessageResponse {
     createdAt: Date;
     updatedAt: Date | null;
     isRead: boolean;
+    issueTags: IssueTag[];
 }

@@ -26,7 +26,7 @@ public interface IMentalHealthContext
     DbSet<TherapistIssueTag> TherapistIssueTags { get; set; }
     DbSet<User> Users { get; set; }
     DbSet<RecommendedTag> RecommendedTags { get; set; }
-    
+    DbSet<PublicSessionTag> PublicSessionTags { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     DatabaseFacade Database { get; }
 }

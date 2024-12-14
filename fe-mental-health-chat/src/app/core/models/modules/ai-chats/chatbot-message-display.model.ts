@@ -1,3 +1,5 @@
+import { IssueTag } from '../../common/issue-tag.model';
+
 export interface ChatbotMessageDisplay {
     id: string;
     senderId?: string;
@@ -6,4 +8,5 @@ export interface ChatbotMessageDisplay {
     isRead: boolean;
     isSending?: boolean;
     isError?: boolean;
+    issueTags: IssueTag[];
 }

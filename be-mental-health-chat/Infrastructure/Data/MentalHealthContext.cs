@@ -23,7 +23,7 @@ public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityU
         base.OnModelCreating(modelBuilder);
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
         var now = DateTime.UtcNow;
 
@@ -70,4 +70,5 @@ public class MentalHealthContext : IdentityDbContext<User, Role, Guid, IdentityU
     public DbSet<Review> Reviews { get; set; }
     public DbSet<TherapistIssueTag> TherapistIssueTags { get; set; }
     public DbSet<RecommendedTag> RecommendedTags { get; set; }
+    public DbSet<PublicSessionTag> PublicSessionTags { get; set; }
 }

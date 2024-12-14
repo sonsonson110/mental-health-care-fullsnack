@@ -7,7 +7,7 @@ public class ConnectionLog: TimestampMarkedEntityBase
 {
     [MaxLength(300)]
     public string? UserAgent { get; set; }
-    [MaxLength(50)]
+    [MaxLength(64)]
     public required string ConnectionId { get; set; }
     public bool IsConnected { get; set; }
     [MaxLength(19)]

@@ -14,8 +14,8 @@ public class PublicSession: TimestampMarkedEntityBase
     public required string Location { get; set; }
     public bool IsCancelled { get; set; }
     public PublicSessionType Type { get; set; }
-    
     public Guid TherapistId { get; set; }
+    public List<IssueTag> IssueTags { get; set; } = [];
 
     #region navigation properties
 

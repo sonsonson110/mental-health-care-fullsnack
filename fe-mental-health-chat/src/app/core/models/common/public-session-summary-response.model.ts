@@ -1,6 +1,7 @@
 import { PublicSessionType } from '../enums/public-session-type.enum';
 import { Gender } from '../enums/gender.enum';
 import { PublicSessionFollowType } from '../enums/public-session-follow-type.enum';
+import { IssueTag } from './issue-tag.model';
 
 export interface PublicSessionSummaryResponse {
   id?: string;  // optional Guid
@@ -17,6 +18,7 @@ export interface PublicSessionSummaryResponse {
   followerCount: number;
   followingType: PublicSessionFollowType;
   updatedAt: Date;
+  issueTags: IssueTag[];
 }
 
 interface TherapistDto {

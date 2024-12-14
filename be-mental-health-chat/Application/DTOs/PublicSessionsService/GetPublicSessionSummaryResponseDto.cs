@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Shared;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.DTOs.PublicSessionsService;
@@ -19,4 +20,5 @@ public class GetPublicSessionSummaryResponseDto
     public int FollowerCount { get; set; }
     public PublicSessionFollowType? FollowingType { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public List<IssueTag> IssueTags { get; set; } = [];
 }

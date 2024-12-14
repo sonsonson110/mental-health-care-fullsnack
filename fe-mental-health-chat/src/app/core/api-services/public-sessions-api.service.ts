@@ -24,6 +24,11 @@ export class PublicSessionsApiService {
       if (request.isCancelled != undefined) {
         params = params.set('isCancelled', request.isCancelled);
       }
+      if (request.issueTagIds != undefined) {
+        for (const id of request.issueTagIds) {
+          params = params.append('issueTagIds', id);
+        }
+      }
     }
     return this.http.get<PublicSessionSummaryResponse[]>(this.baseEndpoint, {
       params: params,
@@ -43,6 +48,8 @@ export class PublicSessionsApiService {
   }
 
   getPublicSessionFollowers(publicSessionId: string) {
-    return this.http.get<PublicSessionFollowerResponse[]>(`${this.baseEndpoint}/${publicSessionId}/followers`);
+    return this.http.get<PublicSessionFollowerResponse[]>(
+      `${this.baseEndpoint}/${publicSessionId}/followers`
+    );
   }
 }
