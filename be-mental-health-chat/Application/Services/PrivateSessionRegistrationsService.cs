@@ -212,7 +212,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
         return true;
     }
 
-    public async Task<Result<GetTherapistRegistrationResponseDto>> GetCurrentTherapistRegistrationAsync(Guid userId)
+    public async Task<Result<GetTherapistRegistrationResponseDto?>> GetCurrentTherapistRegistrationAsync(Guid userId)
     {
         var currentTherapistRegistration = await _context.PrivateSessionRegistrations
             .Where(e => e.ClientId == userId)
@@ -236,14 +236,8 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 }
             })
             .FirstOrDefaultAsync();
-
-        if (currentTherapistRegistration == null)
-        {
-            return new Result<GetTherapistRegistrationResponseDto>(
-                new NotFoundException("There is no current therapist registration"));
-        }
         
-        return new Result<GetTherapistRegistrationResponseDto>(currentTherapistRegistration);
+        return new Result<GetTherapistRegistrationResponseDto?>(currentTherapistRegistration);
     }
 
     public async Task<List<GetTherapistRegistrationResponseDto>> GetTherapistRegistrationsAsync(Guid userId)

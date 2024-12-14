@@ -12,4 +12,5 @@ public interface IPublicSessionsService
     Task<Result<bool>> UpdatePublicSessionAsync(Guid therapistId, CreateUpdatePublicSessionRequest request);
     Task<Result<List<GetPublicSessionFollowerResponseDto>>> GetPublicSessionFollowersAsync(Guid publicSessionId);
     Task<Result<bool>> FollowPublicSessionAsync(Guid userId, Guid publicSessionId, FollowPublicSessionRequestDto request);
+    Task<List<GetCalendarFollowedPublicSessionResponseDto>> GetCalendarFollowedPublicSessionsAsync(Guid userId, GetCalendarFollowedPublicSessionRequestDto request);
 }

@@ -21,8 +21,6 @@ export class HomeComponent implements OnInit {
   isLgOrLargerScreen = false;
   sideNavMode: 'over' | 'side' = 'over';
 
-  isLoading = true;
-
   constructor(
     private breakpointObserver: BreakpointObserver,
     private authService: AuthApiService,
@@ -36,7 +34,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    // subscribe to the isAuthenticated$ observable and redirect to login if not authenticated or logged out
+    // subscribe to the isAuthenticated$ observable and redirect to log in if not authenticated or logged out
     this.authService.isAuthenticated$
       .pipe(filter(isAuthenticated => !isAuthenticated))
       .subscribe(() => {
@@ -45,9 +43,6 @@ export class HomeComponent implements OnInit {
 
     // start the signalR realtime connection
     this.realtimeService.startConnection();
-    this.realtimeService.connectionState$.subscribe(
-      connected => (this.isLoading = !connected)
-    );
   }
 
   toggleMenu() {

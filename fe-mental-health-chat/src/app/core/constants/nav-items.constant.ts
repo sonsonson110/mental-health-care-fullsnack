@@ -32,9 +32,9 @@ export const baseNavItems: NavItem[] = [
     route: 'public-sessions',
   },
   {
-    displayName: 'Scheduled sessions',
+    displayName: 'My sessions',
     iconName: 'event_note',
-    route: 'private-session-schedules',
+    route: 'my-schedules',
   },
 ];
 

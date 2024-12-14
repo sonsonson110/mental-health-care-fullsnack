@@ -3,7 +3,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { CalendarEvent, CalendarModule } from 'angular-calendar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { PrivateSessionSchedulesStateService } from './services/private-session-schedules-state.service';
+import { MySchedulesStateService } from './services/my-schedules-state.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { addDays, format, isSameMonth, isSameYear } from 'date-fns';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -15,7 +15,7 @@ import { PrivateSessionRegistrationStatus } from '../../core/models/enums/privat
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 
 @Component({
-  selector: 'app-private-session-schedules',
+  selector: 'app-my-schedules',
   standalone: true,
   imports: [
     MatDialogModule,
@@ -28,11 +28,11 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
     NgOptimizedImage,
     ParseAvatarUrlPipe,
   ],
-  providers: [PrivateSessionSchedulesStateService],
-  templateUrl: './private-session-schedules.component.html',
-  styleUrl: './private-session-schedules.component.scss',
+  providers: [MySchedulesStateService],
+  templateUrl: './my-schedules.component.html',
+  styleUrl: './my-schedules.component.scss',
 })
-export class PrivateSessionSchedulesComponent implements OnInit {
+export class MySchedulesComponent implements OnInit {
   viewDate: Date = new Date();
   daysInWeek = 7;
 
@@ -41,7 +41,7 @@ export class PrivateSessionSchedulesComponent implements OnInit {
   currentRegistration$: Observable<TherapistRegistrationResponse | null>;
 
   constructor(
-    private stateService: PrivateSessionSchedulesStateService,
+    private stateService: MySchedulesStateService,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
   ) {

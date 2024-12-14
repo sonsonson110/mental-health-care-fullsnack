@@ -1,6 +1,6 @@
 <mat-progress-bar mode="indeterminate" *ngIf="loading$ | async"></mat-progress-bar>
 <div class="root-container">
-  <div class="tags">
+  <div *ngIf="issueTags$ | async" class="tags">
     <span>Including:</span>
     <mat-chip-set>
       @for(tag of issueTags$ | async; track tag.id) {

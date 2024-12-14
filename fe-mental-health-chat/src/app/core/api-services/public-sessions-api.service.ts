@@ -6,6 +6,12 @@ import { PublicSessionSummariesRequest } from '../models/common/public-session-s
 import { PublicSessionSummaryResponse } from '../models/common/public-session-summary-response.model';
 import { FollowPublicSessionRequest } from '../models/modules/public-sessions/follow-public-session-request.model';
 import { PublicSessionFollowerResponse } from '../models/common/public-session-follower-response.model';
+import {
+  CalendarFollowedPublicSessionResponse
+} from '../models/modules/manage-schedules/calendar-followed-public-session-response.model';
+import {
+  CalendarFollowedPublicSessionsRequest
+} from '../models/modules/manage-schedules/calendar-followed-public-sessions-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,5 +57,12 @@ export class PublicSessionsApiService {
     return this.http.get<PublicSessionFollowerResponse[]>(
       `${this.baseEndpoint}/${publicSessionId}/followers`
     );
+  }
+
+  getCalendarFollowedPublicSessions(request: CalendarFollowedPublicSessionsRequest) {
+    let params = new HttpParams();
+    params = params.set('startDate', request.startDate);
+    params = params.set('endDate', request.endDate ?? '');
+    return this.http.get<CalendarFollowedPublicSessionResponse[]>(`${this.baseEndpoint}/calendar-followed`, {params});
   }
 }

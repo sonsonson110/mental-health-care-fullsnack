@@ -1,21 +1,15 @@
-import {
-  PrivateSessionScheduleResponse,
-} from './models/modules/manage-schedules/therapist-schedule-response.model';
+import { PrivateSessionScheduleResponse } from './models/modules/manage-schedules/therapist-schedule-response.model';
 import { CalendarEvent } from 'angular-calendar';
 import { PublicSessionSummaryResponse } from './models/common/public-session-summary-response.model';
-import {
-  CreateUpdatePublicSessionRequest,
-} from './models/modules/my-public-session/create-update-public-session-request.model';
-import {
-  TherapistAvailabilityTemplateResponse
-} from './models/common/therapist-availability-template-response.model';
+import { CreateUpdatePublicSessionRequest } from './models/modules/my-public-session/create-update-public-session-request.model';
+import { TherapistAvailabilityTemplateResponse } from './models/common/therapist-availability-template-response.model';
 import { addDays, setHours } from 'date-fns';
-import {
-  AvailabilityOverrideResponse
-} from './models/modules/manage-working-time/availability-override-response.model';
+import { AvailabilityOverrideResponse } from './models/modules/manage-working-time/availability-override-response.model';
+import { CalendarFollowedPublicSessionResponse } from './models/modules/manage-schedules/calendar-followed-public-session-response.model';
+import { PublicSessionFollowType } from './models/enums/public-session-follow-type.enum';
 
 export function mapPrivateSessionScheduleToCalendarEvent(
-  schedule: PrivateSessionScheduleResponse,
+  schedule: PrivateSessionScheduleResponse
 ): CalendarEvent {
   const startDateTime = new Date(`${schedule.date}T${schedule.startTime}`);
   const endDateTime = new Date(`${schedule.date}T${schedule.endTime}`);
@@ -62,7 +56,7 @@ export function mapAvailableTemplateItemsToCalendarEvents(
   weekStart: Date
 ): CalendarEvent {
   const startHour = Number(template.startTime.split(':')[0]);
-  const endHour= Number(template.endTime.split(':')[0]);
+  const endHour = Number(template.endTime.split(':')[0]);
 
   const dayDate = addDays(weekStart, template.dateOfWeek);
 
@@ -96,12 +90,12 @@ export function mapPublicSessionSummaryResponseToCreateUpdatePublicSessionReques
     type: summary.type,
     isCancelled: summary.isCancelled ?? false,
     thumbnailName: summary.thumbnailName ?? null,
-    issueTagIds: summary.issueTags.map((tag) => tag.id),
+    issueTagIds: summary.issueTags.map(tag => tag.id),
   };
 }
 
 export function mapAvailabilityOverrideToCalendarEvent(
-  override: AvailabilityOverrideResponse,
+  override: AvailabilityOverrideResponse
 ): CalendarEvent {
   const startDateTime = new Date(`${override.date}T${override.startTime}`);
   const endDateTime = new Date(`${override.date}T${override.endTime}`);
@@ -110,13 +104,13 @@ export function mapAvailabilityOverrideToCalendarEvent(
   const getEventStyle = (override: AvailabilityOverrideResponse) => {
     return override.isAvailable
       ? {
-        primary: '#28a745',
-        secondary: '#d4edda',
-      }
+          primary: '#28a745',
+          secondary: '#d4edda',
+        }
       : {
-        primary: '#dc3545',
-        secondary: '#f8d7da',
-      };
+          primary: '#dc3545',
+          secondary: '#f8d7da',
+        };
   };
 
   return {
@@ -126,6 +120,49 @@ export function mapAvailabilityOverrideToCalendarEvent(
     title: override.description || (override.isAvailable ? 'Available' : 'Unavailable'),
     color: getEventStyle(override),
     meta: override,
+    draggable: false,
+    resizable: {
+      beforeStart: false,
+      afterEnd: false,
+    },
+  };
+}
+
+export function mapCalendarFollowedPublicSessionResponseToCalendarEvent(
+  data: CalendarFollowedPublicSessionResponse
+): CalendarEvent {
+  const startDateTime = new Date(`${data.date}T${data.startTime}`);
+  const endDateTime = new Date(`${data.date}T${data.endTime}`);
+
+  // Define different styles based on session status
+  const getEventStyle = (data: CalendarFollowedPublicSessionResponse) => {
+    if (data.isCancelled) {
+      return {
+        primary: '#ff4444',
+        secondary: '#ffeeee',
+      };
+    }
+    // Check if session is in the past
+    if (endDateTime < new Date()) {
+      return {
+        primary: '#808080',
+        secondary: '#e6e6e6',
+      };
+    }
+    // Active upcoming session
+    return {
+      primary: '#1e90ff',
+      secondary: '#d1e8ff',
+    };
+  };
+
+  return {
+    id: data.publicSessionId,
+    start: startDateTime,
+    end: endDateTime,
+    title: `${data.followingType === PublicSessionFollowType.ATTENDING ? 'Attending' : 'Interested'} with ${data.title} - ${data.therapistFullName}`,
+    color: getEventStyle(data),
+    meta: data,
     draggable: false,
     resizable: {
       beforeStart: false,

@@ -21,7 +21,7 @@ import { TherapistSummariesComponent } from './modules/therapists/components/the
 import { ManageSchedulesComponent } from './modules/manage-schedules/manage-schedules.component';
 import { MyPublicSessionsComponent } from './modules/my-public-sessions/my-public-sessions.component';
 import { PublicSessionsComponent } from './modules/public-sessions/public-sessions.component';
-import { PrivateSessionSchedulesComponent } from './modules/private-session-schedules/private-session-schedules.component';
+import { MySchedulesComponent } from './modules/my-schedules/my-schedules.component';
 import { PostsComponent } from './modules/posts/posts.component';
 import { ManageWorkingTimeComponent } from './modules/manage-working-time/manage-working-time.component';
 
@@ -82,8 +82,8 @@ export const routes: Routes = [
         component: PublicSessionsComponent,
       },
       {
-        path: 'private-session-schedules',
-        component: PrivateSessionSchedulesComponent,
+        path: 'my-schedules',
+        component: MySchedulesComponent,
       },
       {
         path: 'client-chats',

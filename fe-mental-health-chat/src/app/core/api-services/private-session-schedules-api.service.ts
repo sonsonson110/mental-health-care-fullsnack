@@ -8,8 +8,7 @@ import {
   PrivateSessionScheduleRequest,
 } from '../models/modules/manage-schedules/therapist-schedule-request.model';
 import { CreateUpdateScheduleRequest } from '../models/modules/manage-schedules/create-update-schedule-request.model';
-import { ClientSchedulesRequest } from '../models/modules/private-session-schedules/client-schedules-request.model';
-import { ClientScheduleResponse } from '../models/modules/private-session-schedules/client-schedule-response.model';
+import { ClientSchedulesRequest } from '../models/modules/my-schedules/client-schedules-request.model';
 
 @Injectable({
   providedIn: 'root',

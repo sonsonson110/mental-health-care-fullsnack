@@ -70,4 +70,13 @@ public class PublicSessionsController : MentalHeathControllerBase
         var result = await _publicSessionsService.FollowPublicSessionAsync(GetUserId(), sessionId, request);
         return result.ReturnFromPut();
     }
+
+    [HttpGet("calendar-followed")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetCalendarFollowedPublicSessions([FromQuery]  GetCalendarFollowedPublicSessionRequestDto request)
+    {
+        var result = await _publicSessionsService.GetCalendarFollowedPublicSessionsAsync(GetUserId(), request);
+        return Ok(result);
+    }
 }

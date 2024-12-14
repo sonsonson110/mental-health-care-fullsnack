@@ -269,6 +269,30 @@ public class PublicSessionsService : IPublicSessionsService
         return new Result<bool>(true);
     }
 
+    public async Task<List<GetCalendarFollowedPublicSessionResponseDto>> GetCalendarFollowedPublicSessionsAsync(Guid userId, GetCalendarFollowedPublicSessionRequestDto request)
+    {
+        var followedPublicSessions = await _context.PublicSessionFollowers
+            .Where(f => f.UserId == userId)
+            .Where(f => !request.StartDate.HasValue || f.PublicSession.Date >= request.StartDate)
+            .Where(f => !request.EndDate.HasValue || f.PublicSession.Date <= request.EndDate)
+            .Select(f => new GetCalendarFollowedPublicSessionResponseDto
+            {
+                PublicSessionId = f.PublicSessionId,
+                TherapistFullName = f.PublicSession.Therapist.FirstName + " " + f.PublicSession.Therapist.LastName,
+                Title = f.PublicSession.Title,
+                FollowingType = f.Type,
+                Date = f.PublicSession.Date,
+                StartTime = f.PublicSession.StartTime,
+                EndTime = f.PublicSession.EndTime,
+                CreatedAt = f.PublicSession.CreatedAt,
+                UpdatedAt = f.PublicSession.UpdatedAt,
+                IsCancelled = f.PublicSession.IsCancelled,
+            })
+            .ToListAsync();
+        
+        return followedPublicSessions;
+    }
+
     private async Task<(bool HasError, string? ErrorMessage)> ValidateCreateUpdatePublicSession(Guid therapistId,
         CreateUpdatePublicSessionRequest request)
     {

@@ -24,7 +24,7 @@ public static class PromptTemplate
 
     public const string TitleGenerationPrompt =
         """
-        Generate a welcoming and empathetic title for a conversation based on the context of the below mental health prompt. Keep it concise, positive, neutral.
+        Generate a title for a conversation based on the context of the below mental health prompt. Keep it concise, positive, neutral.
         
         User prompt: {0}
         """;
