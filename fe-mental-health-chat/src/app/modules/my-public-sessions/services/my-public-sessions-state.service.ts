@@ -5,6 +5,7 @@ import { PublicSessionSummaryResponse } from '../../../core/models/common/public
 import { BehaviorSubject, of, switchMap, tap } from 'rxjs';
 import { AuthApiService } from '../../../core/api-services/auth-api.service';
 import { FilesApiService } from '../../../core/api-services/files-api.service';
+import { TagsApiService } from '../../../core/api-services/tags-api.service';
 
 @Injectable()
 export class MyPublicSessionsStateService {
@@ -19,8 +20,13 @@ export class MyPublicSessionsStateService {
   constructor(
     private publicSessionsApiService: PublicSessionsApiService,
     private authApiService: AuthApiService,
-    private filesApiService: FilesApiService
+    private filesApiService: FilesApiService,
+    private tagsApiService: TagsApiService
   ) {}
+
+  loadTags() {
+    return this.tagsApiService.getAll();
+  }
 
   loadPublicSessionSummaries() {
     this.loadingStateSubject.next(true);

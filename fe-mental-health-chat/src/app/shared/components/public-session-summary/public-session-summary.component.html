@@ -38,6 +38,11 @@
   }
 
   <mat-card-content>
+    <mat-chip-set>
+      @for (tag of publicSessionSummary.issueTags; track tag.id) {
+        <mat-chip [disableRipple]="true">{{ tag.shortName ?? tag.name }}</mat-chip>
+      }
+    </mat-chip-set>
     <p class="mat-title-large">{{ publicSessionSummary.title }}</p>
     <p class="mat-body-large">{{ publicSessionSummary.description }}</p>
 

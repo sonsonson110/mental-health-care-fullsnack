@@ -96,6 +96,7 @@ export function mapPublicSessionSummaryResponseToCreateUpdatePublicSessionReques
     type: summary.type,
     isCancelled: summary.isCancelled ?? false,
     thumbnailName: summary.thumbnailName ?? null,
+    issueTagIds: summary.issueTags.map((tag) => tag.id),
   };
 }
 

@@ -15,7 +15,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { UserDetailResponse } from '../../../../core/models/modules/profile/user-detail-response.model';
 import { IssueTag } from '../../../../core/models/common/issue-tag.model';
-import { IssueTagInputComponent } from '../../../../shared/components/issue-tag-input/issue-tag-input.component';
 import { TagsApiService } from '../../../../core/api-services/tags-api.service';
 import { TherapistEducation } from '../../../../core/models/common/therapist-education.model';
 import { TherapistCertification } from '../../../../core/models/common/therapist-certification.model';

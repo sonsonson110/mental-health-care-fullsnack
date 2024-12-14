@@ -7,8 +7,8 @@
         </button>
       }
       <span class="toolbar-title">{{
-        conversationTitle || 'Create a new conversation'
-      }}</span>
+          conversationTitle || 'Create a new conversation'
+        }}</span>
       <span class="spacer"></span>
     </mat-toolbar>
   </div>
@@ -30,15 +30,36 @@
                 }"
               >
                 <span class="mat-label-small fullName">{{
-                  message.senderId ? '' : 'AI assistant'
-                }}</span>
-                <markdown
-                  class="content"
-                  [ngClass]="{ sending: message.isSending || message.isError }"
-                  [data]="message.content"
-                ></markdown>
+                    message.senderId ? '' : 'AI assistant'
+                  }}</span>
+                <div class="content">
+                  <markdown
+                    [ngClass]="{ sending: message.isSending || message.isError }"
+                    [data]="message.content"
+                  ></markdown>
+                  @if (message.issueTags.length > 0) {
+                    <mat-divider style="margin-bottom: 0.25rem"></mat-divider>
+                    <div style="display: flex; align-items: center">
+                      <mat-icon svgIcon="gemini_icon" style="padding: 4px"></mat-icon>
+                      <span style="font-weight: bold">AI recommendation</span>
+                    </div>
+                    <span>You are dealing with: </span>
+                    @for (tag of message.issueTags; track tag.id) {
+                      <span>{{ tag.name }}</span>
+                      @if ($last) {
+                        <span>.</span>
+                      } @else {
+                        <span>, </span>
+                      }
+                    }
+                    <p>Try to reach out related <span class="highlighted-navigation-text"
+                                                      (click)="navigateToTherapist(message.issueTags)">therapists</span>
+                      or upcoming <span class="highlighted-navigation-text"
+                                        (click)="navigateToPublicSession(message.issueTags)">public sessions</span></p>
+                  }
+                </div>
                 <span class="mat-label-small timestamp" *ngIf="!message.isSending"
-                  >At {{ message.createdAt | date: 'medium' }}</span
+                >At {{ message.createdAt | date: 'medium' }}</span
                 >
                 <span class="mat-label-small error" *ngIf="message.isError">Error</span>
               </div>
@@ -49,7 +70,7 @@
     } @else {
       <div class="no-conversation-container">
         <span class="mat-headline-small no-conversation-text"
-          >Tell me about your day, I'm here to help</span
+        >Tell me about your day, I'm here to help</span
         >
         <span class="mat-headline-large no-conversation-text">(●'◡'●)</span>
       </div>

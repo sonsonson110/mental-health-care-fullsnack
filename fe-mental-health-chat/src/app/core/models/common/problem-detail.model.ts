@@ -6,4 +6,4 @@ export interface ProblemDetail {
     exception?: string | null;
 }
 
-type ErrorsMap = { [key: string]: string[] };
+type ErrorsMap = Record<string, string[]>;

@@ -33,6 +33,12 @@
       </div>
     </div>
 
+    <app-issue-tag-input
+      [allIssueTags]="issueTags"
+      [(selectedIssueTags)]="selectedIssueTags"
+      [appearance]="formFieldAppearance"
+    ></app-issue-tag-input>
+
     <mat-form-field [appearance]="formFieldAppearance">
       <mat-label>Title</mat-label>
       <input matInput formControlName="title">

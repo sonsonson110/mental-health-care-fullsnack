@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,6 +20,8 @@ import { convert12to24 } from '../../../../shared/utils/date-parse';
 import { finalize } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { ParseImageUrlPipe } from '../../../../shared/pipes/parse-image-url.pipe';
+import { IssueTag } from '../../../../core/models/common/issue-tag.model';
+import { IssueTagInputComponent } from '../../../../shared/components/issue-tag-input/issue-tag-input.component';
 
 @Component({
   selector: 'app-create-update-public-session-dialog',
@@ -36,18 +38,22 @@ import { ParseImageUrlPipe } from '../../../../shared/pipes/parse-image-url.pipe
     CommonModule,
     MatDatepickerModule,
     MatProgressSpinnerModule,
+    IssueTagInputComponent,
   ],
   providers: [ParseImageUrlPipe],
   templateUrl: './create-update-public-session-dialog.component.html',
   styleUrl: './create-update-public-session-dialog.component.scss',
 })
-export class CreateUpdatePublicSessionDialogComponent {
+export class CreateUpdatePublicSessionDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<CreateUpdatePublicSessionDialogComponent>);
   readonly data: CreateUpdatePublicSessionRequest | null = inject(MAT_DIALOG_DATA);
 
   readonly mode = this.data?.id ? 'update' : 'create';
   readonly capitalizedMode = this.mode.charAt(0).toUpperCase() + this.mode.slice(1);
   readonly formFieldAppearance = this.mode === 'create' ? 'fill' : 'outline';
+
+  issueTags: IssueTag[] = [];
+  selectedIssueTags: IssueTag[] = [];
 
   readonly timeOptions: string[] = generateTimeOptions();
   publicSessionTypes = publicSessionTypes;
@@ -87,7 +93,22 @@ export class CreateUpdatePublicSessionDialogComponent {
     private toastr: ToastrService,
     parseImageUrlPipe: ParseImageUrlPipe
   ) {
-    this.previewUrl = this.data?.thumbnailName && parseImageUrlPipe.transform(this.data?.thumbnailName);
+    this.previewUrl =
+      this.data?.thumbnailName && parseImageUrlPipe.transform(this.data?.thumbnailName);
+    this.stateService.loadTags().subscribe(tags => {
+      this.issueTags = tags;
+
+      this.data?.issueTagIds?.forEach(tag => {
+        const foundTag = this.issueTags.find(t => t.id === tag);
+        if (foundTag) {
+          this.selectedIssueTags.push(foundTag);
+        }
+      });
+    });
+  }
+
+  ngOnInit(): void {
+    this.stateService.loadTags();
   }
 
   onFileSelected(event: Event): void {
@@ -144,6 +165,7 @@ export class CreateUpdatePublicSessionDialogComponent {
         location: this.sessionFormGroup.value.location!,
         type: this.sessionFormGroup.value.type!,
         isCancelled: this.sessionFormGroup.value.isCancelled ?? false,
+        issueTagIds: this.selectedIssueTags.map(tag => tag.id),
       };
 
       this.stateService

@@ -20,7 +20,8 @@ public class PublicSessionsService : IPublicSessionsService
     private readonly ICacheService _cacheService;
     private readonly IRealtimeService _realtimeService;
 
-    public PublicSessionsService(IMentalHealthContext context, IMapper mapper, ICacheService cacheService, IRealtimeService realtimeService)
+    public PublicSessionsService(IMentalHealthContext context, IMapper mapper, ICacheService cacheService,
+        IRealtimeService realtimeService)
     {
         _context = context;
         _mapper = mapper;
@@ -35,6 +36,7 @@ public class PublicSessionsService : IPublicSessionsService
             .Where(p => request.TherapistId == null || p.TherapistId == request.TherapistId)
             .Where(p => request.IsCancelled == null || p.IsCancelled == request.IsCancelled)
             .Where(p => p.Date >= DateOnly.FromDateTime(DateTime.Today))
+            .Where(p => request.IssueTagIds.Count == 0 || p.IssueTags.Any(t => request.IssueTagIds.Contains(t.Id)))
             .OrderByDescending(p => p.Date).ThenByDescending(p => p.StartTime)
             .Select(p => new GetPublicSessionSummaryResponseDto
             {
@@ -60,7 +62,8 @@ public class PublicSessionsService : IPublicSessionsService
                     AvatarName = p.Therapist.AvatarName,
                     FullName = p.Therapist.FirstName + " " + p.Therapist.LastName,
                     Gender = p.Therapist.Gender,
-                }
+                },
+                IssueTags = p.IssueTags
             })
             .ToListAsync();
         return publicSessions;
@@ -80,6 +83,13 @@ public class PublicSessionsService : IPublicSessionsService
         newPublicSession.TherapistId = therapistId;
 
         _context.PublicSessions.Add(newPublicSession);
+
+        // add public session tag
+        foreach (var id in request.IssueTagIds)
+        {
+            _context.PublicSessionTags.Add(new PublicSessionTag(newPublicSession.Id, id));
+        }
+
         await _context.SaveChangesAsync();
         return new Result<EntityBase>(new EntityBase { Id = newPublicSession.Id });
     }
@@ -109,6 +119,29 @@ public class PublicSessionsService : IPublicSessionsService
         _mapper.Map(request, oldPublicSession);
         _context.PublicSessions.Update(oldPublicSession);
 
+        #region update public session tags
+
+        var existingTagsIds = await _context.PublicSessionTags
+            .Where(e => e.PublicSessionId == oldPublicSession.Id)
+            .Select(e => e.IssueTagId)
+            .ToListAsync();
+
+        var tagIdsToDelete = existingTagsIds.Except(request.IssueTagIds).ToList();
+        if (tagIdsToDelete.Any())
+        {
+            var tagsToDelete = tagIdsToDelete.Select(tagId => new PublicSessionTag(request.Id.Value, tagId));
+            _context.PublicSessionTags.RemoveRange(tagsToDelete);
+        }
+
+        var tagIdsToCreate = request.IssueTagIds.Except(existingTagsIds).ToList();
+        if (tagIdsToCreate.Count > 0)
+        {
+            var tagsToCreate = tagIdsToCreate.Select(tagId => new PublicSessionTag(request.Id.Value, tagId));
+            _context.PublicSessionTags.AddRange(tagsToCreate);
+        }
+
+        #endregion
+
 
         var followersToNotify = oldPublicSession.Followers
             .Where(f => f.UserId != therapistId).ToList();
@@ -124,10 +157,10 @@ public class PublicSessionsService : IPublicSessionsService
                 { "publicSessionId", oldPublicSession.Id.ToString() },
             },
         };
-        
+
         // for notification sending
         var userNotificationDict = new Dictionary<Guid, GetNotificationResponseDto>();
-        
+
         foreach (var follower in followersToNotify)
         {
             var notification = new Notification
@@ -142,16 +175,18 @@ public class PublicSessionsService : IPublicSessionsService
             notifications.Add(notification);
             userNotificationDict[follower.UserId] = _mapper.Map<GetNotificationResponseDto>(notification);
         }
+
         _context.Notifications.AddRange(notifications);
-        
+
         await _context.SaveChangesAsync();
-        
+
         // send notification to followers
         var tasks = new List<Task>();
         foreach (var (userId, _) in userNotificationDict)
         {
             tasks.Add(_realtimeService.SendNotification(userId, userNotificationDict[userId]));
         }
+
         await Task.WhenAll(tasks);
 
         return true;

@@ -31,16 +31,28 @@ public static class PromptTemplate
     
     public const string TagRecommendationPrompt =
         """
-        You are a mental health support assistant. Based on the user's query, determine if they need issue tag suggestions. Then suggest user with the available issue tags.
-        Here is there available issue tag for you to suggest:
+        You are an intelligent assistant helping users categorize their queries effectively. Your task is to carefully analyze the user's input and determine if it warrants issue tag suggestions.
+
+        Available Issue Tags:
         ```json
         {0}
         ```
-        
-        Respond strictly in this format, plain text without code format. Do not response outside of the provided tag options and additional information:  
 
+        Evaluation Criteria:
+        1. Identify if the query relates to a specific issue or concern that can be meaningfully tagged
+        2. Consider the depth and specificity of the query
+        3. Look for emotional, personal, or problem-oriented language
+        4. Avoid suggesting tags for very generic or vague queries
+
+        Response Guidelines:
+        - If the query is clear, specific, and relates to a recognizable issue, suggest relevant tags
+        - If the query is too broad, unclear, or not substantive enough, set needsSuggestion to false
+        - Select a maximum of 3 most relevant tags
+        - Ensure tags directly address the core context of the query
+
+        Respond ONLY in this exact JSON format:
         {{"needsSuggestion": true/false, "tags": [{{"id": "Id", "name": "Name", "definition": "Definition", "shortName": "ShortName"}}]}}
-        
+
         User prompt: {1}
         """;
 }

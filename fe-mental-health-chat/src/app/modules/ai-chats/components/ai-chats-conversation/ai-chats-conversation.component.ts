@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -12,9 +11,9 @@ import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { SidenavStateService } from '../../services/sidenav-state.service';
-import { BehaviorSubject, finalize, Subscription } from 'rxjs';
+import { BehaviorSubject, finalize } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -32,6 +31,7 @@ import { CreateChatbotConversationResponse } from '../../../../core/models/modul
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MarkdownModule } from 'ngx-markdown';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { IssueTag } from '../../../../core/models/common/issue-tag.model';
 
 @Component({
   selector: 'app-ai-chat-conversation',
@@ -40,7 +40,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
-    DatePipe,
     CommonModule,
     MatDividerModule,
     MatFormFieldModule,
@@ -57,7 +56,6 @@ export class AiChatsConversationComponent implements OnInit {
   @ViewChild('messagesContainer')
   private messagesContainer!: ElementRef;
 
-  isSmOrLargerScreen = false;
   isSideNavOpen = true;
 
   // component metadata
@@ -91,6 +89,10 @@ export class AiChatsConversationComponent implements OnInit {
     this.matIconRegistry.addSvgIcon(
       'side_navigation',
       domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/side-navigation.svg')
+    );
+    this.matIconRegistry.addSvgIcon(
+      'gemini_icon',
+      domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/google-gemini-icon.svg')
     );
     this.breakpointObserver.observe('(min-width: 490px)').subscribe(result => {
       // should open sidenav when screen is 490px or larger and vice versa
@@ -126,6 +128,7 @@ export class AiChatsConversationComponent implements OnInit {
       content: response.content,
       createdAt: response.createdAt,
       isRead: response.isRead,
+      issueTags: response.issueTags ?? [],
     };
   }
 
@@ -178,6 +181,7 @@ export class AiChatsConversationComponent implements OnInit {
         createdAt: new Date(),
         isRead: true,
         isSending: true,
+        issueTags: [],
       };
       this.messagesSubject.next([...this.messagesSubject.value, userMessage]);
       this.isSending = true;
@@ -199,6 +203,7 @@ export class AiChatsConversationComponent implements OnInit {
               content: response.content,
               createdAt: response.createdAt,
               isRead: response.isRead,
+              issueTags: response.issueTags ?? [],
             };
             const currentMessages = this.messagesSubject.value;
             const lastUserSendingMessage = currentMessages.pop();
@@ -245,5 +250,15 @@ export class AiChatsConversationComponent implements OnInit {
           }
         });
     }
+  }
+
+  navigateToTherapist(issueTag: IssueTag[]) {
+    const ids = issueTag.map(tag => tag.id);
+    this.router.navigate(['/therapists'], { queryParams: { issueTagIds: ids }, queryParamsHandling: 'merge' });
+  }
+
+  navigateToPublicSession(issueTag: IssueTag[]) {
+    const ids = issueTag.map(tag => tag.id);
+    this.router.navigate(['/public-sessions'], { queryParams: { issueTagIds: ids }, queryParamsHandling: 'merge' });
   }
 }

@@ -11,4 +11,5 @@ export interface CreateUpdatePublicSessionRequest {
   location: string;
   isCancelled: boolean;
   type: PublicSessionType;
+  issueTagIds?: string[];
 }
