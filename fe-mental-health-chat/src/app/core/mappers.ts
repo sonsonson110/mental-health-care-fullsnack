@@ -42,7 +42,7 @@ export function mapPrivateSessionScheduleToCalendarEvent(
     end: endDateTime,
     title: `Session with ${schedule.client?.fullName}`,
     color: getEventStyle(schedule),
-    meta: schedule,
+    meta: { ...schedule, type: 'private' },
     draggable: false,
     resizable: {
       beforeStart: false,
@@ -160,9 +160,9 @@ export function mapCalendarFollowedPublicSessionResponseToCalendarEvent(
     id: data.publicSessionId,
     start: startDateTime,
     end: endDateTime,
-    title: `${data.followingType === PublicSessionFollowType.ATTENDING ? 'Attending' : 'Interested'} with ${data.title} - ${data.therapistFullName}`,
+    title: `${data.followingType === PublicSessionFollowType.ATTENDING ? 'Attending' : 'Interested in'} ${data.therapistFullName} public session`,
     color: getEventStyle(data),
-    meta: data,
+    meta: { ...data, type: 'public' },
     draggable: false,
     resizable: {
       beforeStart: false,

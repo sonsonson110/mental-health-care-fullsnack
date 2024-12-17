@@ -1,0 +1,32 @@
+<table>
+  <thead>
+  <tr>
+    <th>#</th>
+    <th>Client Name</th>
+    <th>Registered At</th>
+    <th>Last Updated At</th>
+    <th>Status</th>
+    <th>End Date</th>
+    <th>Review</th>
+  </tr>
+  </thead>
+  <tbody>
+    @for (registration of registrations; track registration.id) {
+      <tr>
+        <td>{{ $index + 1 }}</td>
+        <td>{{ registration.therapist.fullName }}</td>
+        <td>{{ registration.createdAt | date: 'mediumDate' }}</td>
+        <td>{{ registration.endDate | date: 'mediumDate' }}</td>
+        <td><span
+          class="status-chip status-{{ registration.status }}">{{ registration.status | privateSessionRegistrationStatus }}</span>
+        </td>
+        <td>{{ registration.endDate | date: 'mediumDate' }}</td>
+        <td>
+          <button mat-button (click)="onReviewClick(registration)"
+                  [disabled]="registration.status !== PrivateSessionRegistrationStatus.FINISHED">Action
+          </button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

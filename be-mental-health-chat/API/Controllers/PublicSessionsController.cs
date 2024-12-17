@@ -25,6 +25,16 @@ public class PublicSessionsController : MentalHeathControllerBase
         var therapistPublicSessions = await _publicSessionsService.GetPublicSessionSummariesAsync(GetUserId(), request);
         return Ok(therapistPublicSessions);
     }
+    
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetPublicSession([FromRoute] Guid id)
+    {
+        var publicSession = await _publicSessionsService.GetPublicSessionSummaryByIdAsync(GetUserId(), id);
+        return publicSession.ReturnFromGet();
+    }
 
     [HttpPost]
     [Authorize(Roles = "Therapist")]

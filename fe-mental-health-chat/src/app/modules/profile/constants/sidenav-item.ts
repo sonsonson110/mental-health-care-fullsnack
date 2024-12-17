@@ -6,11 +6,15 @@ export const leftInnerSideNavItems: NavItem[] = [
     route: "update",
   },
   {
+    displayName: "Registrations",
+    route: "registrations",
+  },
+  {
     displayName: "Change password",
     route: "change-password",
   },
   {
     displayName: "Delete account",
     route: "delete-account",
-  }
+  },
 ]

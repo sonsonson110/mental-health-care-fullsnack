@@ -26,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IConnectionLogService, ConnectionLogService>();
         services.AddScoped<ILanguageModelService, LanguageModelService>();
+        services.AddScoped<IReviewsService, ReviewsService>();
         
         // Meters
         services.AddScoped<ChatbotMeter>();

@@ -13,6 +13,7 @@ public class GetTherapistDetailResponseDto
     public string? AvatarName { get; set; }
     public required string Email { get; set; }
     public int ClientCount { get; set; }
+    public int ReviewCount { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? Description { get; set; }
     public List<TherapistEducationDto> Educations { get; set; } = [];
@@ -21,4 +22,5 @@ public class GetTherapistDetailResponseDto
     public List<ReviewDto> TherapistReviews { get; set; } = [];
     public List<AvailableTemplateItem> AvailabilityTemplates { get; set; } = [];
     public List<IssueTag> IssueTags { get; init; } = [];
+    public string? AiReviewSummary { get; set; }
 }

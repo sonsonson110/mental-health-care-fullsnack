@@ -11,5 +11,5 @@ public class GetTherapistRegistrationResponseDto
     public string NoteFromClient { get; set; } = String.Empty;
     public DateTime? EndDate { get; set; }
     public DateTime CreatedAt { get; set; }
-    public TherapistDto Therapist { get; set; }
+    public required TherapistDto Therapist { get; set; }
 }

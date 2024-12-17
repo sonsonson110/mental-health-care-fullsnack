@@ -69,6 +69,44 @@ public class PublicSessionsService : IPublicSessionsService
         return publicSessions;
     }
 
+    public async Task<Result<GetPublicSessionSummaryResponseDto>> GetPublicSessionSummaryByIdAsync(Guid userId,
+        Guid publicSessionId)
+    {
+        var publicSession = await _context.PublicSessions
+            .Where(p => p.Id == publicSessionId)
+            .Select(p => new GetPublicSessionSummaryResponseDto
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Description = p.Description,
+                Date = p.Date,
+                StartTime = p.StartTime,
+                EndTime = p.EndTime,
+                Type = p.Type,
+                Location = p.Location,
+                IsCancelled = p.IsCancelled,
+                ThumbnailName = p.ThumbnailName,
+                FollowerCount = p.Followers.Count,
+                FollowingType = p.Followers
+                    .Where(f => f.UserId == userId)
+                    .Select(f => f.Type)
+                    .FirstOrDefault(),
+                UpdatedAt = p.UpdatedAt,
+                Therapist = new TherapistDto
+                {
+                    Id = p.TherapistId,
+                    AvatarName = p.Therapist.AvatarName,
+                    FullName = p.Therapist.FirstName + " " + p.Therapist.LastName,
+                    Gender = p.Therapist.Gender,
+                },
+                IssueTags = p.IssueTags
+            }).FirstOrDefaultAsync();
+
+        return publicSession == null
+            ? new Result<GetPublicSessionSummaryResponseDto>(new NotFoundException("Public session not found"))
+            : new Result<GetPublicSessionSummaryResponseDto>(publicSession);
+    }
+
     public async Task<Result<EntityBase>> CreatePublicSessionAsync(Guid therapistId,
         CreateUpdatePublicSessionRequest request)
     {
@@ -269,7 +307,8 @@ public class PublicSessionsService : IPublicSessionsService
         return new Result<bool>(true);
     }
 
-    public async Task<List<GetCalendarFollowedPublicSessionResponseDto>> GetCalendarFollowedPublicSessionsAsync(Guid userId, GetCalendarFollowedPublicSessionRequestDto request)
+    public async Task<List<GetCalendarFollowedPublicSessionResponseDto>> GetCalendarFollowedPublicSessionsAsync(
+        Guid userId, GetCalendarFollowedPublicSessionRequestDto request)
     {
         var followedPublicSessions = await _context.PublicSessionFollowers
             .Where(f => f.UserId == userId)
@@ -289,7 +328,7 @@ public class PublicSessionsService : IPublicSessionsService
                 IsCancelled = f.PublicSession.IsCancelled,
             })
             .ToListAsync();
-        
+
         return followedPublicSessions;
     }
 

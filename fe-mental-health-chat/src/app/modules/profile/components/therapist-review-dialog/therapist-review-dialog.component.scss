@@ -1,0 +1,21 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .therapist-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.spacer {
+  flex-grow: 1;
+}

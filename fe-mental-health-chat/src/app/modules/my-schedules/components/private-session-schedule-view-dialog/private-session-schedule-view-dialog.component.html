@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>Private session schedule {{data.isCancelled ? '(Cancelled)' : ''}}</h2>
+<mat-dialog-content>
+  <table>
+    <tr>
+      <th>Field</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>Date</td>
+      <td>{{ data.date }}</td>
+    </tr>
+    <tr>
+      <td>Start time</td>
+      <td>{{ data.startTime }}</td>
+    </tr>
+    <tr>
+      <td>End time</td>
+      <td>{{ data.endTime }}</td>
+    </tr>
+    @if (data.noteFromTherapist) {
+      <tr>
+        <td>Note from therapist</td>
+        <td>{{ data.noteFromTherapist }}</td>
+      </tr>
+    }
+    <tr>
+      <td>Updated at</td>
+      <td>{{data.updatedAt | date: 'short'}}</td>
+    </tr>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

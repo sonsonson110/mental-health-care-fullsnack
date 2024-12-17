@@ -31,4 +31,8 @@ export class PrivateSessionRegistrationsApiService {
   getClientCurrentTherapist() {
     return this.http.get<TherapistRegistrationResponse>(`${this.baseUrl}/therapist-registrations/current`);
   }
+
+  getTherapistRegistrations() {
+    return this.http.get<TherapistRegistrationResponse[]>(`${this.baseUrl}/therapist-registrations`);
+  }
 }

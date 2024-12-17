@@ -9,19 +9,19 @@ namespace Infrastructure.BackgroundTasks;
 public class EmailBackgroundService: IEmailBackgroundService
 {
     private readonly IBackgroundTaskQueue _taskQueue;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory  _serviceScopeFactory;
     
-    public EmailBackgroundService(IBackgroundTaskQueue taskQueue, IServiceProvider serviceProvider)
+    public EmailBackgroundService(IBackgroundTaskQueue taskQueue, IServiceScopeFactory  serviceScopeFactory)
     {
         _taskQueue = taskQueue;
-        _serviceProvider = serviceProvider;
+        _serviceScopeFactory = serviceScopeFactory;
     }
     
     public async Task QueueEmailNotificationAsync(Guid registrationId)
     {
         await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
         {
-            using var scope = _serviceProvider.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<IMentalHealthContext>();
             var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
@@ -41,7 +41,7 @@ public class EmailBackgroundService: IEmailBackgroundService
     {
         await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
         {
-            using var scope = _serviceProvider.CreateScope();
+            using var scope = _serviceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<IMentalHealthContext>();
             var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 

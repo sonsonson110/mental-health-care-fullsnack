@@ -1,0 +1,9 @@
+@if (summary) {
+  <app-public-session-summary [publicSessionSummary]="summary"
+                              (followSelectEvent)="onFollowPublicSession($event, summary)"
+                              (followersClickEvent)="openFollowersDialog(summary.id!)"
+                              [showEditOption]="false">
+  </app-public-session-summary>
+} @else {
+  <div>Loading...</div>
+}

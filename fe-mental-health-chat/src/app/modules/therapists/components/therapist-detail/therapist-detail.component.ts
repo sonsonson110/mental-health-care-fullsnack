@@ -17,6 +17,9 @@ import { startOfWeek } from 'date-fns';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TherapistRegistrationDialogComponent } from '../therapist-registration-dialog/therapist-registration-dialog.component';
 import { mapAvailableTemplateItemsToCalendarEvents } from '../../../../core/mappers';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MarkdownModule } from 'ngx-markdown';
 
 @Component({
   selector: 'app-therapist-detail',
@@ -34,6 +37,8 @@ import { mapAvailableTemplateItemsToCalendarEvents } from '../../../../core/mapp
     CalendarModule,
     MatDialogModule,
     MatTooltipModule,
+    MatIconModule,
+    MarkdownModule,
   ],
   templateUrl: './therapist-detail.component.html',
   styleUrl: './therapist-detail.component.scss',
@@ -50,7 +55,14 @@ export class TherapistDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private dialog: MatDialog,
-  ) {}
+    matIconRegistry: MatIconRegistry,
+    domSanitizer: DomSanitizer,
+  ) {
+    matIconRegistry.addSvgIcon(
+      'gemini_icon',
+      domSanitizer.bypassSecurityTrustResourceUrl('assets/icons/google-gemini-icon.svg')
+    );
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -94,9 +106,10 @@ export class TherapistDetailComponent implements OnInit {
 
   loadAvailabilityTemplate() {
     const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }); // 1 = Monday
-    this.events = this.therapistDetail?.availabilityTemplates.map(template =>
-      mapAvailableTemplateItemsToCalendarEvents(template, weekStart)
-    ) ?? [];
+    this.events =
+      this.therapistDetail?.availabilityTemplates.map(template =>
+        mapAvailableTemplateItemsToCalendarEvents(template, weekStart)
+      ) ?? [];
   }
 
   openRegistrationDialog(): void {

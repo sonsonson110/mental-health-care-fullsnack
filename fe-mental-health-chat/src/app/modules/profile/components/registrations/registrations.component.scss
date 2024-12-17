@@ -1,0 +1,72 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background: white;
+  }
+
+  th {
+    background: #fff;
+    color: #5f6368;
+    font-weight: 500;
+    padding: 16px;
+    text-align: left;
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 16px;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 0.875rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .status-chip {
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-block;
+
+    /* PENDING */
+    &.status-1 {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+
+    /* APPROVED */
+    &.status-2 {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* REJECTED */
+    &.status-3 {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+
+    /* FINISHED */
+    &.status-4 {
+      background-color: #e3f2fd;
+      color: #1565c0;
+    }
+
+    /* CANCELED */
+    &.status-5 {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+    }
+  }
+}

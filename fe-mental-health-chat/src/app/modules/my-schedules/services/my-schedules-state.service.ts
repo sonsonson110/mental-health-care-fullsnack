@@ -53,7 +53,7 @@ export class MySchedulesStateService {
   ) {
     const privateSessionsEvents = privateSessions.map(e => {
       const event = mapPrivateSessionScheduleToCalendarEvent(e);
-      event.title = `${event.meta.startTime} - ${event.meta.endTime}: ${event.meta.noteFromTherapist}`;
+      event.title = `Private session`;
       return event;
     });
     const publicSessionEvents = publicSessions.map(

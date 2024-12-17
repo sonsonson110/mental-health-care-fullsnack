@@ -14,6 +14,7 @@ export interface TherapistDetailResponse {
   email: string;
   createdAt: string;
   clientCount: number;
+  reviewCount: number;
   description: string | null;
   educations: TherapistEducation[];
   experiences: TherapistExperience[];
@@ -21,4 +22,5 @@ export interface TherapistDetailResponse {
   therapistReviews: Review[];
   availabilityTemplates: TherapistAvailabilityTemplateResponse[];
   issueTags: IssueTag[];
+  aiReviewSummary: string | null;
 }

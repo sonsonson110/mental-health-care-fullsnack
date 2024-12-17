@@ -24,7 +24,7 @@
       Therapist:
       @if (currentRegistration$ | async; as currentRegistration) {
         <img [ngSrc]="currentRegistration.therapist.avatarName! | parseAvatarUrl: currentRegistration.therapist.gender"
-             width="30" height="30" alt="avatar">
+             width="30" height="30" class="avatar" alt="avatar">
         <span>{{ currentRegistration.therapist.fullName }}</span>
         <span *ngIf="currentRegistration.status === PrivateSessionRegistrationStatus.PENDING">(Pending)</span>
       } @else {
@@ -39,6 +39,7 @@
       [dayStartHour]="5"
       [dayEndHour]="22"
       [daysInWeek]="daysInWeek"
+      (eventClicked)="onEventClicked($event.event)"
     ></mwl-calendar-week-view>
   </div>
 </div>

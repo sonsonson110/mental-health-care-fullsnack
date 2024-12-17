@@ -41,6 +41,12 @@ export class PublicSessionsApiService {
     });
   }
 
+  getPublicSessionSummary(publicSessionId: string) {
+    return this.http.get<PublicSessionSummaryResponse>(
+      `${this.baseEndpoint}/${publicSessionId}`
+    );
+  }
+
   createPublicSession(request: CreateUpdatePublicSessionRequest) {
     return this.http.post<{ id: string }>(this.baseEndpoint, request);
   }

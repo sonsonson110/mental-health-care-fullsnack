@@ -14,11 +14,14 @@ public class TherapistsService : ITherapistsService
 {
     private readonly IMentalHealthContext _context;
     private readonly ICacheService _cacheService;
+    private readonly ILanguageModelService _languageModelService;
 
-    public TherapistsService(IMentalHealthContext context, ICacheService cacheService)
+    public TherapistsService(IMentalHealthContext context, ICacheService cacheService,
+        ILanguageModelService languageModelService)
     {
         _context = context;
         _cacheService = cacheService;
+        _languageModelService = languageModelService;
     }
 
     public async Task<List<GetTherapistSummaryResponseDto>> GetTherapistSummariesAsync(
@@ -29,9 +32,9 @@ public class TherapistsService : ITherapistsService
                 request.SearchText,
                 string.Join(",", request.IssueTagIds),
                 request.StartRating, request.EndRating,
-                string.Join(",", request.Genders.Select(g => ((int) g).ToString())),
+                string.Join(",", request.Genders.Select(g => ((int)g).ToString())),
                 request.MinExperienceYear, request.MaxExperienceYear,
-                string.Join(",", request.DateOfWeekOptions.Select(o => ((int) o).ToString())));
+                string.Join(",", request.DateOfWeekOptions.Select(o => ((int)o).ToString())));
 
         var result = await _cacheService.GetAsync(cacheKey, async () =>
         {
@@ -164,6 +167,7 @@ public class TherapistsService : ITherapistsService
                         .Where(r => r.TherapistId == therapistId)
                         .Count(r => r.Status == PrivateSessionRegistrationStatus.FINISHED
                                     || r.Status == PrivateSessionRegistrationStatus.APPROVED),
+                    ReviewCount = e.TherapistReviews.Count,
                     CreatedAt = e.CreatedAt,
                     Description = e.Description,
                     Educations = e.Educations
@@ -199,6 +203,8 @@ public class TherapistsService : ITherapistsService
                         .OrderByDescending(cert => cert.DateIssued)
                         .ToList(),
                     TherapistReviews = e.TherapistReviews
+                        .OrderByDescending(r => r.UpdatedAt)
+                        .Take(5)
                         .Select(r => new ReviewDto
                         {
                             Id = r.Id,
@@ -210,7 +216,6 @@ public class TherapistsService : ITherapistsService
                             Comment = r.Comment,
                             UpdatedAt = r.UpdatedAt
                         })
-                        .OrderByDescending(r => r.UpdatedAt)
                         .ToList(),
                     IssueTags = e.IssueTags.OrderBy(i => i.Name).ToList(),
                     AvailabilityTemplates = e.AvailabilityTemplates
@@ -230,9 +235,27 @@ public class TherapistsService : ITherapistsService
             return therapist;
         });
 
-        return therapist == null
-            ? new Result<GetTherapistDetailResponseDto>(new NotFoundException("Therapist not found"))
-            : new Result<GetTherapistDetailResponseDto>(therapist);
+        if (therapist == null)
+        {
+            return new Result<GetTherapistDetailResponseDto>(new NotFoundException("Therapist not found"));
+        }
+        
+        // Maybe add limitation logic to call gemini summary response when low number of reviews
+        if (therapist.ReviewCount <= 0) return new Result<GetTherapistDetailResponseDto>(therapist);
+        
+        var summaryResponseCacheKey = "gemini_therapist-review-summary-response-" + therapistId;
+        var summaryResponse = await _cacheService.GetAsync(summaryResponseCacheKey,
+            async () =>
+            {
+                var therapistReviews = await _context.Reviews
+                    .Where(e => e.TherapistId == therapistId).ToListAsync();
+                return await _languageModelService.GetTherapistReviewSummaryAsync(therapistReviews);
+            },
+            TimeSpan.FromDays(3));
+
+        therapist.AiReviewSummary = summaryResponse;
+
+        return new Result<GetTherapistDetailResponseDto>(therapist);
     }
 
     public async Task<Result<List<GetCurrentClientResponseDto>>> GetCurrentClientsAsync(Guid therapistId)

@@ -24,6 +24,8 @@ import { PublicSessionsComponent } from './modules/public-sessions/public-sessio
 import { MySchedulesComponent } from './modules/my-schedules/my-schedules.component';
 import { PostsComponent } from './modules/posts/posts.component';
 import { ManageWorkingTimeComponent } from './modules/manage-working-time/manage-working-time.component';
+import { PublicSessionDetailComponent } from './modules/public-sessions/components/public-session-detail/public-session-detail.component';
+import { RegistrationsComponent } from './modules/profile/components/registrations/registrations.component';
 
 export const routes: Routes = [
   {
@@ -75,12 +77,14 @@ export const routes: Routes = [
           { path: 'update', component: UpdateProfileComponent },
           { path: 'change-password', component: ChangePasswordComponent },
           { path: 'delete-account', component: DeleteAccountComponent },
+          { path: 'registrations', component: RegistrationsComponent },
         ],
       },
       {
         path: 'public-sessions',
         component: PublicSessionsComponent,
       },
+      { path: 'public-sessions/:id', component: PublicSessionDetailComponent },
       {
         path: 'my-schedules',
         component: MySchedulesComponent,

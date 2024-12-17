@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CalendarEvent, CalendarModule } from 'angular-calendar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,10 @@ import { TherapistRegistrationResponse } from '../../core/models/common/therapis
 import { ParseAvatarUrlPipe } from '../../shared/pipes/parse-avatar-url.pipe';
 import { PrivateSessionRegistrationStatus } from '../../core/models/enums/private-session-registration-status.enum';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
+import { Router } from '@angular/router';
+import {
+  PrivateSessionScheduleViewDialogComponent
+} from './components/private-session-schedule-view-dialog/private-session-schedule-view-dialog.component';
 
 @Component({
   selector: 'app-my-schedules',
@@ -44,6 +48,8 @@ export class MySchedulesComponent implements OnInit {
     private stateService: MySchedulesStateService,
     private breakpointObserver: BreakpointObserver,
     private cd: ChangeDetectorRef,
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.stateService.events$.subscribe(events => (this.events = events));
     this.loading$ = stateService.loadingState$;
@@ -57,11 +63,17 @@ export class MySchedulesComponent implements OnInit {
   }
 
   onPreviousWeekClick() {
-    this.stateService.setInlineCalendarDate(addDays(this.viewDate, -this.daysInWeek), this.daysInWeek);
+    this.stateService.setInlineCalendarDate(
+      addDays(this.viewDate, -this.daysInWeek),
+      this.daysInWeek
+    );
   }
 
   onNextWeekClick() {
-    this.stateService.setInlineCalendarDate(addDays(this.viewDate, this.daysInWeek), this.daysInWeek);
+    this.stateService.setInlineCalendarDate(
+      addDays(this.viewDate, this.daysInWeek),
+      this.daysInWeek
+    );
   }
 
   onRefreshClick() {
@@ -123,4 +135,16 @@ export class MySchedulesComponent implements OnInit {
   };
 
   protected readonly PrivateSessionRegistrationStatus = PrivateSessionRegistrationStatus;
+
+  onEventClicked(event: CalendarEvent) {
+    if (event.meta?.type === 'public') {
+      this.router.navigate(['/public-sessions', event.meta.publicSessionId]);
+    } else {
+      this.dialog.open(PrivateSessionScheduleViewDialogComponent, {
+        minWidth: '490px',
+        maxWidth: '992px',
+        data: event.meta,
+      });
+    }
+  }
 }

@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+@import '../../../../../styles.scss';
 @import '../../../../shared/style/variables.scss';
 
 .root-container {
@@ -89,6 +91,15 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+
+            .review-summary {
+              margin-top: 0.5rem;
+              display: flex;
+              flex-direction: column;
+              padding: 0.25rem;
+              border-radius: 8px;
+              background-color: mat.get-theme-color($fe-mental-health-chat-theme, primary, 95);
+            }
 
             .review-container {
               display: flex;
