@@ -25,6 +25,7 @@ public static class DatabaseInitializer
             var issueTags = IssueTagsSeed.Seed(dbContext);
             var users = await UsersSeed.Seed(dbContext, userManager);
             var therapists = await TherapistsSeed.Seed(dbContext, userManager, issueTags, users);
+            await ReviewsSeed.Seed(dbContext, userManager, therapists[0]);
             var privateSessionRegistrations = PrivateSessionRegistrationSeed.Seed(dbContext, users, therapists);
             var privateSessionSchedules = PrivateSessionScheduleSeed.Seed(dbContext, privateSessionRegistrations);
             var availabilityTemplates = AvailabilityTemplateSeed.Seed(dbContext, therapists);
