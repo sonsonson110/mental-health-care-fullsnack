@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
@@ -32,6 +32,8 @@ import { passwordRequirementsValidator } from '../../shared/validators/password-
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  hide = signal(true);
+
   loginForm = new FormGroup({
     userName: new FormControl('', [Validators.required, Validators.minLength(8)]),
     password: new FormControl('', [Validators.required, passwordRequirementsValidator()]),
@@ -43,6 +45,11 @@ export class LoginComponent {
     private authService: AuthApiService,
     private router: Router
   ) {}
+
+  clickEvent(event: MouseEvent) {
+    this.hide.set(!this.hide());
+    event.stopPropagation();
+  }
 
   onSubmit() {
     this.isLoggingIn = true;

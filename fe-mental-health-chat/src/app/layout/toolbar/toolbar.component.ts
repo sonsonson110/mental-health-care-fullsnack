@@ -74,7 +74,8 @@ export class ToolbarComponent implements OnInit {
   }
 
   onLogoutClick() {
-    this.signalRRealtimeService.stopConnection()
+    this.signalRRealtimeService
+      .stopConnection()
       .then(() => this.authService.handleLogout());
   }
 }
