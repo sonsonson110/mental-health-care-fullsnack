@@ -10,7 +10,7 @@ import { ProblemDetail } from '../models/common/problem-detail.model';
 
 @Injectable()
 export class SignalRChatService {
-  private readonly hubExceptionMethodName = 'ChatHubException';
+  private readonly hubExceptionMethodName = 'ChatException';
   private readonly hubUrl = environment.apiBaseUrl + '/chat';
   private hubConnection!: signalR.HubConnection;
 

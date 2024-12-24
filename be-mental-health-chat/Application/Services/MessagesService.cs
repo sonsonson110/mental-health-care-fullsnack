@@ -44,6 +44,7 @@ public class MessagesService : IMessagesService
         var messages = await _context.Messages
             .Where(m => m.ConversationId == request.ConversationId)
             .OrderBy(m => m.CreatedAt)
+            .AsNoTracking()
             .ToListAsync();
 
         // user first question should use template prompt
@@ -154,12 +155,13 @@ public class MessagesService : IMessagesService
         var userHasAccess = await _context.PrivateSessionRegistrations
             .Where(r => r.ClientId == userId || r.TherapistId == userId)
             .Where(r => r.Status == PrivateSessionRegistrationStatus.APPROVED)
+            .OrderByDescending(r => r.CreatedAt)
             .AnyAsync();
 
         if (!userHasAccess)
         {
             return new Result<CreateP2pMessageResponse>(
-                new BadRequestException("User has no access to the conversation"));
+                new BadRequestException("No access to the conversation"));
         }
 
         #endregion
