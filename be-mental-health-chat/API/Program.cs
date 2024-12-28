@@ -79,14 +79,17 @@ builder.Services.AddCors(option =>
 });
 
 // Add Open Telemetry
-builder.Services.AddOpenTelemetry()
-    .UseAzureMonitor(cfg => { cfg.ConnectionString = builder.Configuration.GetConnectionString("AzureAppInsight"); })
-    .WithMetrics(cfg =>
-            cfg
-                .AddMeter(ChatbotMeter.MeterName)
-                .AddAspNetCoreInstrumentation()
-        // .AddConsoleExporter()
-    );
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddOpenTelemetry()
+        .UseAzureMonitor(cfg => { cfg.ConnectionString = builder.Configuration.GetConnectionString("AzureAppInsight"); })
+        .WithMetrics(cfg =>
+                cfg
+                    .AddMeter(ChatbotMeter.MeterName)
+                    .AddAspNetCoreInstrumentation()
+            // .AddConsoleExporter()
+        );
+}
 
 // Custom services
 builder.Services

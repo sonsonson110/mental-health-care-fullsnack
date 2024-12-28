@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>API</RootNamespace>
         <AssemblyName>API</AssemblyName>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,6 +30,12 @@
 
     <ItemGroup>
       <None Remove="Properties\PublishProfiles\mental-health-chat - Zip Deploy.pubxml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

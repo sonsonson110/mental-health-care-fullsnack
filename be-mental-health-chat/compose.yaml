@@ -1,0 +1,35 @@
+﻿services:
+  api:
+    image: api
+    container_name: api
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    ports:
+      - "5285:8080"
+      - "7283:8081"
+
+  database:
+    image: postgres:16
+    container_name: database
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: mental-health
+    volumes:
+      - ./containers/database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  cache:
+    image: redis:7.4.1-alpine
+    restart: always
+    container_name: cache
+    ports:
+      - "6379:6379"
+        
+  frontend:
+    image: sonsonson110/final-project:frontend
+    container_name: frontend
+    ports:
+      - "4200:4200"

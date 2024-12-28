@@ -5,4 +5,4 @@ riderModule.iml
 /_ReSharper.Caches/
 .vs/
 
-appsettings.json
+appsettings.Production.json

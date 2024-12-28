@@ -14,10 +14,10 @@ public static class DatabaseInitializer
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
 
-        if (await dbContext.Database.EnsureDeletedAsync())
-        {
-            await Console.Out.WriteLineAsync("Database deleted");
-        }
+        // if (await dbContext.Database.EnsureDeletedAsync())
+        // {
+        //     await Console.Out.WriteLineAsync("Database deleted");
+        // }
 
         if (await dbContext.Database.EnsureCreatedAsync())
         {
