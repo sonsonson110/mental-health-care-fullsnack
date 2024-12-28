@@ -5,6 +5,9 @@
     build:
       context: .
       dockerfile: API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_ENVIRONMENT=Development
     ports:
       - "5285:8080"
       - "7283:8081"
@@ -28,8 +31,12 @@
     ports:
       - "6379:6379"
         
+  # comment out the following lines if you do frontend development
   frontend:
-    image: sonsonson110/final-project:frontend
+    image: frontend
     container_name: frontend
+    build:
+        context: ../fe-mental-health-chat
+        dockerfile: ../fe-mental-health-chat/Dockerfile
     ports:
       - "4200:4200"
