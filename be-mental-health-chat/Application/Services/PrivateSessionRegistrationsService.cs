@@ -174,6 +174,26 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
             return new Result<bool>(new BadRequestException(errorMessage));
         }
 
+        if (request.Status is PrivateSessionRegistrationStatus.CANCELED or PrivateSessionRegistrationStatus.FINISHED)
+        {
+            // check if there is any future session schedule, if yes, cannot update registration
+            var vietNamZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietNameDateTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, vietNamZone);
+
+            var futureScheduleExists = await _context.PrivateSessionSchedules
+                .Where(s => s.PrivateSessionRegistrationId == request.Id)
+                .Where(s => s.Date > DateOnly.FromDateTime(vietNameDateTime) ||
+                            s.Date == DateOnly.FromDateTime(vietNameDateTime.Date) && s.StartTime >
+                            TimeOnly.FromDateTime(vietNameDateTime))
+                .Where(s => s.IsCancelled == false)
+                .AnyAsync();
+
+            if (futureScheduleExists)
+            {
+                return new Result<bool>(new BadRequestException("Please cancel all future schedules first"));
+            }
+        }
+
         #endregion
 
         registration.Id = request.Id;
@@ -236,7 +256,7 @@ public class PrivateSessionRegistrationsService : IPrivateSessionRegistrationsSe
                 }
             })
             .FirstOrDefaultAsync();
-        
+
         return new Result<GetTherapistRegistrationResponseDto?>(currentTherapistRegistration);
     }
 
