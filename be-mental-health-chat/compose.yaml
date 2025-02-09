@@ -11,6 +11,10 @@
     ports:
       - "5285:8080"
       - "7283:8081"
+    depends_on:
+      - database
+      - cache
+    restart: always
 
   database:
     image: postgres:16
@@ -36,7 +40,7 @@
     image: frontend
     container_name: frontend
     build:
-        context: ../fe-mental-health-chat
-        dockerfile: ../fe-mental-health-chat/Dockerfile
+      context: ../fe-mental-health-chat
+      dockerfile: ../fe-mental-health-chat/Dockerfile
     ports:
       - "4200:4200"
